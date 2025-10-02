@@ -1,0 +1,19 @@
+version: '3.8'
+
+services:
+  # Production build
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: english-center-fe
+    ports:
+      - "3000:80"
+    environment:
+      - NODE_ENV=production
+    restart: unless-stopped
+    networks:
+      - app-network
+networks:
+  app-network:
+    driver: bridge
