@@ -7,7 +7,6 @@ export interface CreatePermissionRequest {
   method: string;
   description: string;
   module: string;
-  version: number;
 }
 
 export interface UpdatePermissionRequest {
@@ -15,7 +14,6 @@ export interface UpdatePermissionRequest {
   method?: string;
   description?: string;
   module?: string;
-  version?: number;
 }
 
 export const getAllRolesAPI = (params?: any) =>

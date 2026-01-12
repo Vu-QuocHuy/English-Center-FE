@@ -21,6 +21,7 @@ export interface ApiEndpoints {
     UPDATE: (id: string) => string;
     DELETE: (id: string) => string;
     UPLOAD_AVATAR: string;
+    ASSIGN_ROLE: string;
   };
   TEACHERS: {
     GET_ALL: string;
@@ -237,14 +238,15 @@ export const API_CONFIG: ApiConfig = {
       CREATE: '/admin',
       LOGIN: '/auth/admin/login',
     },
-    // User endpoints
+    // User endpoints (Staff management)
     USERS: {
-      GET_ALL: '/users',
-      GET_BY_ID: (id: string) => `/users/${id}`,
-      CREATE: '/users',
-      UPDATE: (id: string) => `/users/${id}`,
-      DELETE: (id: string) => `/users/${id}`,
+      GET_ALL: '/user',
+      GET_BY_ID: (id: string) => `/user/${id}`,
+      CREATE: '/user',
+      UPDATE: (id: string) => `/user/${id}`,
+      DELETE: (id: string) => `/user/${id}`,
       UPLOAD_AVATAR: '/user/avatar',
+      ASSIGN_ROLE: '/user/role',
     },
     // Teacher endpoints
     TEACHERS: {

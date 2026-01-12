@@ -8,11 +8,9 @@ import {
   CardContent,
   CardActionArea,
   CardMedia,
-  CircularProgress,
-  Button
+  CircularProgress
 } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
-import { ArrowForward } from '@mui/icons-material';
 import { getAllArticlesAPI, getArticlesByMenuIdAPI } from '../../services/articles';
 import ArticlesSidebar from '../articles/ArticlesSidebar';
 
@@ -99,6 +97,11 @@ const ArticleListTemplate: React.FC<ArticleListTemplateProps> = ({ menuId, title
     );
   }
 
+  // Nếu không có bài viết, không hiển thị gì
+  if (articles.length === 0) {
+    return null;
+  }
+
   return (
     <Container maxWidth="lg" sx={{ py: 4 }}>
       <Grid container spacing={4}>
@@ -110,88 +113,82 @@ const ArticleListTemplate: React.FC<ArticleListTemplateProps> = ({ menuId, title
             </Typography>
           )}
           
-          {articles.length > 0 ? (
-            <Box>
-              {articles.map((article) => (
-                <Card
-                  key={article.id}
+          <Box>
+            {articles.map((article) => (
+              <Card
+                key={article.id}
+                sx={{
+                  mb: 3,
+                  overflow: 'hidden',
+                  transition: 'all 0.3s ease',
+                  '&:hover': {
+                    boxShadow: 4,
+                    transform: 'translateY(-2px)'
+                  }
+                }}
+              >
+                <CardActionArea
+                  onClick={() => navigate(`/bai-viet/${article.id}`)}
                   sx={{
-                    mb: 3,
-                    overflow: 'hidden',
-                    transition: 'all 0.3s ease',
-                    '&:hover': {
-                      boxShadow: 4,
-                      transform: 'translateY(-2px)'
-                    }
+                    display: 'flex',
+                    flexDirection: { xs: 'column', sm: 'row' },
+                    alignItems: 'stretch'
                   }}
                 >
-                  <CardActionArea
-                    onClick={() => navigate(`/bai-viet/${article.id}`)}
-                    sx={{
-                      display: 'flex',
-                      flexDirection: { xs: 'column', sm: 'row' },
-                      alignItems: 'stretch'
-                    }}
-                  >
-                    {/* Article Image */}
-                    {article.file && (
-                      <CardMedia
-                        component="img"
-                        image={article.file}
-                        alt={article.title}
-                        sx={{
-                          width: { xs: '100%', sm: 300 },
-                          height: { xs: 200, sm: 200 },
-                          objectFit: 'cover',
-                          flexShrink: 0
-                        }}
-                      />
-                    )}
-                    
-                    {/* Article Content */}
-                    <CardContent sx={{ flexGrow: 1, p: 3 }}>
-                      <Typography
-                        variant="h6"
-                        sx={{
-                          fontWeight: 'bold',
-                          mb: 1.5,
-                          color: '#000',
-                          fontSize: { xs: '1.1rem', sm: '1.25rem' },
-                          display: '-webkit-box',
-                          WebkitLineClamp: 2,
-                          WebkitBoxOrient: 'vertical',
-                          overflow: 'hidden'
-                        }}
-                      >
-                        {article.title}
-                      </Typography>
-                      <Typography
-                        variant="body2"
-                        color="text.secondary"
-                        sx={{
-                          display: '-webkit-box',
-                          WebkitLineClamp: 3,
-                          WebkitBoxOrient: 'vertical',
-                          overflow: 'hidden',
-                          mb: 1.5,
-                          lineHeight: 1.6
-                        }}
-                      >
-                        {truncateContent(article.content, 200)}
-                      </Typography>
-                      <Typography variant="caption" color="text.secondary">
-                        {new Date(article.createdAt).toLocaleDateString('vi-VN')}
-                      </Typography>
-                    </CardContent>
-                  </CardActionArea>
-                </Card>
-              ))}
-            </Box>
-          ) : (
-            <Typography color="text.secondary" sx={{ textAlign: 'center', py: 4 }}>
-              Chưa có bài viết nào
-            </Typography>
-          )}
+                  {/* Article Image */}
+                  {article.file && (
+                    <CardMedia
+                      component="img"
+                      image={article.file}
+                      alt={article.title}
+                      sx={{
+                        width: { xs: '100%', sm: 300 },
+                        height: { xs: 200, sm: 200 },
+                        objectFit: 'cover',
+                        flexShrink: 0
+                      }}
+                    />
+                  )}
+                  
+                  {/* Article Content */}
+                  <CardContent sx={{ flexGrow: 1, p: 3 }}>
+                    <Typography
+                      variant="h6"
+                      sx={{
+                        fontWeight: 'bold',
+                        mb: 1.5,
+                        color: '#000',
+                        fontSize: { xs: '1.1rem', sm: '1.25rem' },
+                        display: '-webkit-box',
+                        WebkitLineClamp: 2,
+                        WebkitBoxOrient: 'vertical',
+                        overflow: 'hidden'
+                      }}
+                    >
+                      {article.title}
+                    </Typography>
+                    <Typography
+                      variant="body2"
+                      color="text.secondary"
+                      sx={{
+                        display: '-webkit-box',
+                        WebkitLineClamp: 3,
+                        WebkitBoxOrient: 'vertical',
+                        overflow: 'hidden',
+                        mb: 1.5,
+                        lineHeight: 1.6
+                      }}
+                    >
+                      {truncateContent(article.content, 200)}
+                    </Typography>
+                    <Typography variant="caption" color="text.secondary">
+                      {new Date(article.createdAt).toLocaleDateString('vi-VN')}
+                    </Typography>
+                  </CardContent>
+                </CardActionArea>
+              </Card>
+            ))}
+          </Box>
         </Grid>
 
         {/* Sidebar - Right Column (4 columns) */}
@@ -217,28 +214,6 @@ const ArticleListTemplate: React.FC<ArticleListTemplateProps> = ({ menuId, title
                 title=""
                 showContent={false}
               />
-              <Button
-                variant="contained"
-                fullWidth
-                endIcon={<ArrowForward />}
-                sx={{
-                  mt: 2,
-                  py: 1.5,
-                  borderRadius: 2,
-                  textTransform: 'none',
-                  fontWeight: 600,
-                  bgcolor: '#ff6b35',
-                  '&:hover': {
-                    bgcolor: '#e55a2b'
-                  }
-                }}
-                onClick={() => {
-                  // Navigate to all articles page or filter by menuId
-                  navigate(menuId ? `/bai-viet?menuId=${menuId}` : '/bai-viet');
-                }}
-              >
-                XEM TẤT CẢ
-              </Button>
             </Box>
 
             {/* KẾT QUẢ HỌC VIÊN Section */}

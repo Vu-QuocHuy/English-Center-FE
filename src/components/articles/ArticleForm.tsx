@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import {
   Button,
   TextField,
@@ -57,29 +57,49 @@ const ArticleForm: React.FC<ArticleFormProps> = ({
   const [uploadedImageUrl, setUploadedImageUrl] = useState<string | undefined>(undefined);
   const [uploadedPublicId, setUploadedPublicId] = useState<string | undefined>(undefined);
   const [imageUploading, setImageUploading] = useState(false);
+  const editorRef = useRef<any>(null);
 
   useEffect(() => {
-    if (article) {
-      setTitle(article.title);
-      setContent(article.content);
-      setMenuId(article.menuId);
-      setOrder(article.order || 1);
-      setIsActive(article.isActive ?? true);
-      setUploadedImageUrl(article.file);
-      setUploadedPublicId(article.publicId);
-      setThumbnailFile(null);
-    } else {
-      setTitle('');
-      setContent('');
-      setMenuId(defaultMenuId || '');
-      setOrder(1);
-      setIsActive(true);
-      setUploadedImageUrl(undefined);
-      setUploadedPublicId(undefined);
-      setThumbnailFile(null);
+    if (open) {
+      if (article) {
+        setTitle(article.title);
+        setContent(article.content);
+        setMenuId(article.menuId);
+        setOrder(article.order || 1);
+        setIsActive(article.isActive ?? true);
+        setUploadedImageUrl(article.file);
+        setUploadedPublicId(article.publicId);
+        setThumbnailFile(null);
+      } else {
+        setTitle('');
+        setContent('');
+        setMenuId(defaultMenuId || '');
+        setOrder(1);
+        setIsActive(true);
+        setUploadedImageUrl(undefined);
+        setUploadedPublicId(undefined);
+        setThumbnailFile(null);
+      }
+      setError(null);
     }
-    setError(null);
   }, [article, open, defaultMenuId]);
+
+  // Update editor content when content state changes and editor is ready
+  useEffect(() => {
+    if (open && editorRef.current) {
+      // Small delay to ensure editor is fully initialized
+      const timer = setTimeout(() => {
+        if (editorRef.current && content !== undefined) {
+          const currentContent = editorRef.current.getContent();
+          // Only update if content is different to avoid unnecessary updates
+          if (currentContent !== content) {
+            editorRef.current.setContent(content || '');
+          }
+        }
+      }, 200);
+      return () => clearTimeout(timer);
+    }
+  }, [content, open, article?.id]);
 
   const handleSubmit = async () => {
     if (!title.trim()) {
@@ -391,8 +411,16 @@ const ArticleForm: React.FC<ArticleFormProps> = ({
               Nội dung:
             </Typography>
             <Editor
+              key={article?.id || 'new-article'}
               apiKey="z7rs4ijsr5qcpob6tbzosk50cpg1otyearqb6i08r0c4s7og"
-              initialValue=""
+              initialValue={content || ''}
+              onInit={(_evt: any, editor: any) => {
+                editorRef.current = editor;
+                // Set content when editor initializes
+                if (content) {
+                  editor.setContent(content);
+                }
+              }}
               init={{
                 height: 400,
                 menubar: true,

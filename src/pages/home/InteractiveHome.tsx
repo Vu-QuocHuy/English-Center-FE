@@ -2,9 +2,6 @@ import React from 'react';
 import {
   Box, Container,
 } from '@mui/material';
-
-
-
 // Import components
 import BannerCarousel from './components/BannerCarousel';
 import FeedbackHome from '../../components/features/home/FeedbackHome';
@@ -14,14 +11,6 @@ import PublicLayout from '../../components/layouts/PublicLayout';
 import ArticlesHome from '../../components/features/home/ArticlesHome';
 
 const InteractiveHome: React.FC = () => {
-
-
-  // Banner configuration
-
-
-
-
-
   return (
     <PublicLayout>
       {/* Welcome Ad Popup */}
@@ -33,9 +22,16 @@ const InteractiveHome: React.FC = () => {
       </Box>
 
       {/* Featured Teachers Section */}
-      <Box id="teachers-section" sx={{ py: 8, bgcolor: 'grey.50' }}>
+      <Box id="teachers-section" sx={{ py: 8, bgcolor: 'background.paper' }}>
         <Container maxWidth="lg">
           <FeaturedTeachersHome />
+        </Container>
+      </Box>
+
+      {/* Articles Section */}
+      <Box id="articles-section" sx={{ py: 8, bgcolor: 'background.paper' }}>
+        <Container maxWidth={false} sx={{ maxWidth: '1100px' }}>
+          <ArticlesHome />
         </Container>
       </Box>
 
@@ -43,13 +39,6 @@ const InteractiveHome: React.FC = () => {
       <Box id="contact-section" sx={{ py: 8, bgcolor: 'background.paper' }}>
         <Container maxWidth="lg">
           <FeedbackHome />
-        </Container>
-      </Box>
-
-      {/* Articles Section */}
-      <Box id="articles-section" sx={{ py: 8, bgcolor: 'grey.50' }}>
-        <Container maxWidth="lg">
-          <ArticlesHome />
         </Container>
       </Box>
     </PublicLayout>

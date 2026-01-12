@@ -5,6 +5,7 @@ export const APP_VERSION = '1.0.0';
 // User Roles
 export const USER_ROLES = {
   ADMIN: 'admin',
+  STAFF: 'staff',
   TEACHER: 'teacher',
   STUDENT: 'student',
   PARENT: 'parent'
@@ -15,6 +16,7 @@ export type UserRole = typeof USER_ROLES[keyof typeof USER_ROLES];
 // Role Labels
 export const ROLE_LABELS: Record<UserRole, string> = {
   [USER_ROLES.ADMIN]: 'Quản trị viên',
+  [USER_ROLES.STAFF]: 'Nhân viên',
   [USER_ROLES.TEACHER]: 'Giáo viên',
   [USER_ROLES.STUDENT]: 'Học sinh',
   [USER_ROLES.PARENT]: 'Phụ huynh'

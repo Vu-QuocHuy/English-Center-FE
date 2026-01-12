@@ -19,7 +19,7 @@ import { getAllMenusAPI } from '../../services/menus';
 import ConfirmDialog from '../../components/common/ConfirmDialog';
 import DashboardLayout from '../../components/layouts/DashboardLayout';
 import { commonStyles } from '../../utils/styles';
-import { getAllArticlesAPI, updateArticleAPI, deleteArticleAPI } from '../../services/articles';
+import { getAllArticlesAPI, updateArticleAPI, deleteArticleAPI, getArticleByIdAPI } from '../../services/articles';
 import { MenuItem as MenuItemType } from '../../types';
 import ArticleForm from '../../components/articles/ArticleForm';
 import ArticleTable from '../../components/features/article/ArticleTable';
@@ -256,9 +256,19 @@ const ArticleManagement: React.FC = () => {
 
                 <ArticleTable
                   articles={articles}
-                  onEdit={(article) => {
-                    setEditingArticle(article);
-                    setFormOpen(true);
+                  onEdit={async (article) => {
+                    try {
+                      // Fetch full article details including content
+                      const response = await getArticleByIdAPI(article.id);
+                      const fullArticle = response.data?.data || response.data || article;
+                      setEditingArticle(fullArticle as Article);
+                      setFormOpen(true);
+                    } catch (error) {
+                      console.error('Error fetching article details:', error);
+                      // Fallback to article from table if fetch fails
+                      setEditingArticle(article);
+                      setFormOpen(true);
+                    }
                   }}
                   onDelete={handleDeleteClick}
                   onToggleActive={handleToggleActive}

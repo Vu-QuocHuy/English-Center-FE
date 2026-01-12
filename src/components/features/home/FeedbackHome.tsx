@@ -134,7 +134,7 @@ const FeedbackCard = ({ feedback }: { feedback: Feedback }) => (
     <Card
       sx={{
         border: "2px solid #e53935",
-        borderRadius: 4,
+        borderRadius: 3,
         height: 510,
         pt: `${AVATAR_SIZE / 2 + AVATAR_MARGIN}px`, // đủ lớn để không bị che
         px: 2,

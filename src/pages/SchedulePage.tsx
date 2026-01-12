@@ -87,16 +87,14 @@ const SchedulePage: React.FC = () => {
 
   useEffect(() => {
     const fetchData = async () => {
-      if (!fullSlug || menuItems.length === 0) return;
-
       try {
         setLoading(true);
         setError(null);
 
-        // Find menu item
-        const foundMenuItem = findMenuItemBySlug(menuItems, fullSlug);
+        // Find menu item for articles (optional)
+        const foundMenuItem = menuItems.length > 0 ? findMenuItemBySlug(menuItems, fullSlug) : null;
 
-        // Fetch articles for banner/intro content
+        // Fetch articles for banner/intro content (optional)
         if (foundMenuItem?.id) {
           try {
             const articlesResponse = await getArticlesByMenuIdAPI(foundMenuItem.id);
@@ -117,26 +115,19 @@ const SchedulePage: React.FC = () => {
           }
         }
 
-        // Fetch all upcoming classes from API
-        try {
-          const response = await getPublicClassesAPI({
-            page: 1,
-            limit: 100,
-          });
+        // Fetch upcoming classes from public API
+        // API already filters by status: 'upcoming' on backend
+        const response = await getPublicClassesAPI({
+          page: 1,
+          limit: 100,
+        });
 
-          const classesData = response.data?.data?.result || response.data?.data || [];
-          // Filter only upcoming classes
-          const upcomingClasses = classesData.filter((classItem: Class) =>
-            classItem.status?.toLowerCase() === 'upcoming'
-          );
-          setClasses(upcomingClasses);
-        } catch (classError) {
-          console.error('Error fetching classes:', classError);
-          setClasses([]);
-        }
+        const classesData = response.data?.data?.result || response.data?.data || [];
+        setClasses(classesData);
       } catch (err: any) {
         console.error('Error fetching data:', err);
         setError(err?.response?.data?.message || 'Không thể tải dữ liệu');
+        setClasses([]);
       } finally {
         setLoading(false);
       }

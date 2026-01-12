@@ -6,7 +6,6 @@ import CssBaseline from '@mui/material/CssBaseline';
 import { useAuth } from './contexts/AuthContext';
 import ProtectedRoute from './components/common/ProtectedRoute';
 
-
 // Import custom theme
 import theme from './theme';
 
@@ -24,6 +23,7 @@ import ClassManagement from './pages/admin/ClassManagement';
 import StudentManagement from './pages/admin/StudentManagement';
 import TeacherManagement from './pages/admin/TeacherManagement';
 import ParentManagement from './pages/admin/ParentManagement';
+import StaffManagement from './pages/admin/StaffManagement';
 import StudentStatistics from './pages/admin/StudentStatistics';
 import TeacherPayments from './pages/admin/financial/TeacherPayments';
 import StudentPayments from './pages/admin/financial/StudentPayments';
@@ -64,7 +64,6 @@ import { USER_ROLES } from './constants';
 // Dynamic Menu Pages
 import DynamicMenuPage from './pages/DynamicMenuPage';
 import AllTeachersPage from './pages/AllTeachersPage';
-import CoursesPage from './pages/CoursesPage';
 import SchedulePage from './pages/SchedulePage';
 import TestimonialsPage from './pages/TestimonialsPage';
 import ArticleDetailPage from './pages/ArticleDetailPage';
@@ -81,27 +80,14 @@ const AppContent: React.FC = () => {
           <Route path="/" element={<Home />} />
           <Route path="/login" element={<Login />} />
           <Route path="/staff/login" element={<StaffLogin />} />
-          <Route path="/admin/login" element={<Navigate to="/staff/login" replace />} />
           <Route path="/forgot-password" element={<ForgotPassword />} />
           <Route path="/unauthorized" element={<UnauthorizedAccess />} />
 
           {/* All Teachers Page - Must be before dynamic routes */}
           <Route path="/giao-vien" element={<AllTeachersPage />} />
-          <Route path="/gioi-thieu/doi-ngu-giang-vien" element={<AllTeachersPage />} />
 
           {/* Teacher Detail Route - Must be before dynamic menu routes */}
           <Route path="/gioi-thieu/doi-ngu-giang-vien/:slug" element={<TeacherDetail />} />
-
-          {/* Courses Pages - Must be before dynamic menu routes */}
-          <Route path="/khoa-hoc/khoa-hoc-danh-cho-hoc-sinh-cap-1" element={<CoursesPage />} />
-          <Route path="/khoa-hoc/khoa-hoc-danh-cho-hoc-sinh-cap-2" element={<CoursesPage />} />
-          <Route path="/khoa-hoc/khoa-hoc-danh-cho-hoc-sinh-cap-3" element={<CoursesPage />} />
-          {/* Additional course routes with different slug patterns */}
-          <Route path="/khoa-hoc/khoa-hoc-danh-cho-hoc-sinh-tieu-hoc" element={<CoursesPage />} />
-          <Route path="/khoa-hoc/khoa-hoc-danh-cho-hoc-sinh-thcs" element={<CoursesPage />} />
-          <Route path="/khoa-hoc/khoa-hoc-danh-cho-hoc-sinh-thpt" element={<CoursesPage />} />
-          <Route path="/khoa-hoc/khoa-hoc-danh-cho-hoc-sinh-trung-hoc-co-so" element={<CoursesPage />} />
-          <Route path="/khoa-hoc/khoa-hoc-danh-cho-hoc-sinh-trung-hoc-pho-thong" element={<CoursesPage />} />
 
           {/* Schedule Page - Upcoming classes */}
           <Route path="/lich-khai-giang" element={<SchedulePage />} />
@@ -134,7 +120,7 @@ const AppContent: React.FC = () => {
             <Route
               path="/admin/*"
               element={
-                <ProtectedRoute allowedRoles={[USER_ROLES.ADMIN]}>
+                <ProtectedRoute allowedRoles={[USER_ROLES.ADMIN, USER_ROLES.STAFF]}>
                   <Routes>
                     <Route path="dashboard" element={<AdminDashboard />} />
                       <Route path="advertisements" element={<AdvertisementManagement />} />
@@ -145,6 +131,7 @@ const AppContent: React.FC = () => {
                     <Route path="users/students" element={<StudentManagement />} />
                     <Route path="users/teachers" element={<TeacherManagement />} />
                     <Route path="users/parents" element={<ParentManagement />} />
+                    <Route path="users/staff" element={<StaffManagement />} />
 
                     {/* Legacy routes with redirects for backward compatibility */}
                     <Route path="students" element={<Navigate to="/admin/users/students" replace />} />

@@ -43,6 +43,16 @@ const getMenuItemsByRole = (role: string): MenuItem[] => {
         { text: 'Audit Logs', icon: <ListAltIcon />, path: '/admin/audit-log' },
 
       ];
+    case 'staff':
+      return [
+        { text: 'Dashboard', icon: <HomeIcon />, path: '/admin/dashboard' },
+        { text: 'Quản lý người dùng', icon: <PeopleIcon />, path: '/admin/users' },
+        { text: 'Quản lý lớp học', icon: <ClassIcon />, path: '/admin/classes' },
+        { text: 'Quản lý nội dung', icon: <ArticleIcon />, path: '/admin/content' },
+        { text: 'Đăng ký tư vấn', icon: <ListAltIcon />, path: '/admin/registrations' },
+        { text: 'Quản lý tài chính', icon: <PaymentIcon />, path: '/admin/financial' },
+        { text: 'Thống kê học sinh', icon: <SchoolIcon />, path: '/admin/student-statistics' },
+      ];
     case 'teacher':
       return [
         { text: 'Dashboard', icon: <HomeIcon />, path: '/teacher/dashboard' },
@@ -84,7 +94,10 @@ const Sidebar: React.FC<SidebarProps> = ({ open }) => {
   const { openSidebar } = useSidebar();
   const role = user?.role || 'student';
   const menuItems = getMenuItemsByRole(role);
-  const [usersOpen, setUsersOpen] = useState<boolean>(location.pathname.startsWith('/admin/users'));
+  const [usersOpen, setUsersOpen] = useState<boolean>(
+    location.pathname.startsWith('/admin/users') || 
+    location.pathname === '/admin/users/staff'
+  );
   const [financialOpen, setFinancialOpen] = useState<boolean>(location.pathname.startsWith('/admin/financial'));
   const [contentOpen, setContentOpen] = useState<boolean>(
     location.pathname.startsWith('/admin/advertisements') ||
@@ -267,6 +280,25 @@ const Sidebar: React.FC<SidebarProps> = ({ open }) => {
                         }}
                       >
                         {open && <ListItemText primary="Phụ huynh" />}
+                      </ListItemButton>
+                      <ListItemButton
+                        selected={location.pathname === '/admin/users/staff'}
+                        onClick={() => {
+                          if (!open) {
+                            openSidebar();
+                          }
+                          navigate('/admin/users/staff');
+                        }}
+                        sx={{
+                          minHeight: 40,
+                          justifyContent: open ? 'initial' : 'center',
+                          px: 2.5,
+                          borderRadius: 2,
+                          ml: open ? 2 : 0,
+                          my: 0.25
+                        }}
+                      >
+                        {open && <ListItemText primary="Nhân viên" />}
                       </ListItemButton>
                     </List>
                   )}

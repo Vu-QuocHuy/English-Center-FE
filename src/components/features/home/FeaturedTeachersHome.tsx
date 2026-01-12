@@ -217,7 +217,7 @@ const FeaturedTeachersHome = () => {
                     height: 550,
                     display: 'flex',
                     flexDirection: 'column',
-                    borderRadius: 3,
+                    borderRadius: 2,
                     overflow: 'hidden',
                     transition: 'all 0.3s ease',
                     cursor: 'pointer',

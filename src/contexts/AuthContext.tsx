@@ -292,6 +292,12 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
                           roleId === 3 ? 'parent' :
                           roleId === 4 ? 'student' : 'unknown';
       }
+      
+      // If user logged in via staff login and is not admin, set role to 'staff'
+      // This is handled in StaffLogin component, but we also check here for consistency
+      if (isAdmin && userData.role !== 'admin' && userData.role !== 'teacher') {
+        (userData as any).role = 'staff';
+      }
 
       localStorage.setItem('access_token', accessToken);
       localStorage.setItem('userData', JSON.stringify(userData));

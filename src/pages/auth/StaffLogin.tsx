@@ -113,20 +113,33 @@ const StaffLogin: React.FC = () => {
       }, true);
 
       if (result && result.user) {
-        const roleId = typeof result.user.role === 'object' ? (result.user.role as any)?.id :
+        const roleObj = typeof result.user.role === 'object' ? result.user.role : null;
+        const roleId = roleObj ? (roleObj as any)?.id :
           (result.user.role === 'admin') ? 1 :
             (result.user.role === 'teacher') ? 2 : 0;
+        const isStaff = roleObj ? (roleObj as any)?.isStaff : false;
 
-        if (roleId !== 1 && roleId !== 2) {
-          setLoginError('Chỉ có quản trị viên và giáo viên mới được phép đăng nhập tại đây');
-          setIsSubmitting(false);
-          return;
-        }
-
+        // Admin (roleId 1) -> admin dashboard with full menu
+        // Teacher (roleId 2) -> teacher dashboard  
+        // Staff (isStaff === true and roleId !== 1) -> staff dashboard (admin interface but limited menu - no role management and audit logs)
         if (roleId === 1) {
+          // Keep as admin - full access
           navigate('/admin/dashboard', { replace: true });
         } else if (roleId === 2) {
           navigate('/teacher/dashboard', { replace: true });
+        } else if (isStaff || (roleId !== 1 && roleId !== 2)) {
+          // Staff with isStaff flag or other roles - set role to 'staff' and navigate to admin dashboard
+          // Update user role in localStorage
+          const userData = { ...result.user, role: 'staff' };
+          localStorage.setItem('userData', JSON.stringify(userData));
+          // Update auth context state
+          // Force reload to refresh auth context with new role
+          setTimeout(() => {
+            window.location.href = '/admin/dashboard';
+          }, 100);
+        } else {
+          setLoginError('Chỉ có quản trị viên, giáo viên và nhân viên mới được phép đăng nhập tại đây');
+          setIsSubmitting(false);
         }
       } else {
         setLoginError('Email hoặc mật khẩu không chính xác');

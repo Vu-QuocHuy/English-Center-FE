@@ -47,7 +47,7 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
 
   if (allowedRoles.length > 0 && user && !allowedRoles.includes(user.role)) {
     // Redirect to appropriate dashboard if user has wrong role
-    if (user.role === 'admin') {
+    if (user.role === 'admin' || user.role === 'staff') {
       return <Navigate to="/admin/dashboard" replace />;
     } else if (user.role === 'teacher') {
       return <Navigate to="/teacher/dashboard" replace />;

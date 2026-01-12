@@ -33,6 +33,7 @@ export const API_ENDPOINTS = {
 // User Roles
 export const USER_ROLES = {
   ADMIN: 'admin',
+  STAFF: 'staff',
   TEACHER: 'teacher',
   STUDENT: 'student',
   PARENT: 'parent',
@@ -41,6 +42,7 @@ export const USER_ROLES = {
 // Role Labels
 export const ROLE_LABELS = {
   [USER_ROLES.ADMIN]: 'Quản trị viên',
+  [USER_ROLES.STAFF]: 'Nhân viên',
   [USER_ROLES.TEACHER]: 'Giáo viên',
   [USER_ROLES.STUDENT]: 'Học sinh',
   [USER_ROLES.PARENT]: 'Phụ huynh',

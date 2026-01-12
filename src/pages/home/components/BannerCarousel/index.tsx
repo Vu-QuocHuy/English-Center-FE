@@ -18,8 +18,6 @@ const BannerCarousel: React.FC = () => {
   const [selectedClassId, setSelectedClassId] = useState<string | null>(null);
   const [selectedClassName, setSelectedClassName] = useState<string>('');
 
-
-
   // Fetch advertisements data
   useEffect(() => {
     const fetchAdvertisements = async () => {
@@ -62,11 +60,6 @@ const BannerCarousel: React.FC = () => {
 
         const finalBanners = activeBanners.slice(0, bannerConfig.maxSlides);
 
-        // 🔍 Debug: Kiểm tra xem banner có classId không
-        console.log('📢 [BannerCarousel] Raw API response:', response.data);
-        console.log('📢 [BannerCarousel] Loaded banners:', finalBanners);
-        console.log('📢 [BannerCarousel] Banners with classId:', finalBanners.filter((b: any) => b.classId));
-
         setAdvertisements(finalBanners);
       } catch (error) {
         console.error('Error fetching advertisements:', error);
@@ -108,11 +101,9 @@ const BannerCarousel: React.FC = () => {
   }
 
   const handleRegisterClick = (classId: string | null, className: string) => {
-    console.log('🎯 [BannerCarousel] handleRegisterClick called!', { classId, className });
     setSelectedClassId(classId);
     setSelectedClassName(className);
     setModalOpen(true);
-    console.log('🎯 [BannerCarousel] Modal should open now!');
   };
 
   return (

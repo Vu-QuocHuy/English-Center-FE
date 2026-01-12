@@ -38,6 +38,11 @@ const ArticleDetailPage: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
+  // Scroll to top when component mounts or article id changes
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, [id]);
+
   useEffect(() => {
     const fetchArticle = async () => {
       if (!id) {
@@ -58,6 +63,8 @@ const ArticleDetailPage: React.FC = () => {
         }
 
         setArticle(articleData);
+        // Scroll to top after article is loaded
+        window.scrollTo(0, 0);
       } catch (err: any) {
         console.error('Error fetching article:', err);
         setError(err.response?.data?.message || 'Không thể tải bài viết');
@@ -122,7 +129,7 @@ const ArticleDetailPage: React.FC = () => {
             <HomeIcon sx={{ mr: 0.5, fontSize: 20 }} />
             Trang chủ
           </Link>
-          {article.menu && (
+          {article.menu && article.menu.title?.toLowerCase() !== 'trang chủ' && (
             <Typography color="text.primary" sx={{ textTransform: 'capitalize' }}>
               {article.menu.title}
             </Typography>

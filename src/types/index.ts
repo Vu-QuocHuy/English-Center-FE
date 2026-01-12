@@ -13,7 +13,7 @@ export interface User extends BaseEntity {
   dayOfBirth?: string;
   gender?: 'male' | 'female';
   address?: string;
-  role: 'admin' | 'teacher' | 'student' | 'parent';
+  role: 'admin' | 'staff' | 'teacher' | 'student' | 'parent';
   avatar?: string;
   username?: string;
   // Role-specific IDs
@@ -87,6 +87,22 @@ export interface Student extends BaseEntity {
   level?: string;
   schoolName?: string;
   isActive?: boolean;
+}
+
+// Staff Types (Nhân viên)
+export interface Staff extends BaseEntity {
+  name: string;
+  email: string;
+  gender: 'male' | 'female';
+  dayOfBirth: string;
+  address: string;
+  phone: string;
+  avatar?: string | null;
+  publicId?: string;
+  role: Role;
+  createdAt: string;
+  updatedAt: string;
+  deletedAt?: string;
 }
 
 // Parent Types
@@ -866,7 +882,6 @@ export interface Permission {
   description: string;
   method: string;
   path: string;
-  version: number;
 }
 
 export interface Role {
@@ -875,19 +890,24 @@ export interface Role {
   description?: string;
   permissions: Permission[];
   isActive: boolean;
+  isStaff: boolean;
+  isSystem: boolean;
 }
 
 export interface CreateRoleRequest {
   name: string;
+  isStaff: boolean;
+  isActive: boolean;
+  isSystem: boolean;
   description?: string;
-  // Accept both shapes depending on caller
   permissions?: number[];
-  permissionIds?: number[];
 }
 
 export interface UpdateRoleRequest {
   name?: string;
+  isActive?: boolean;
+  isStaff?: boolean;
+  isSystem?: boolean;
   description?: string;
   permissions?: number[];
-  permissionIds?: number[];
 }
