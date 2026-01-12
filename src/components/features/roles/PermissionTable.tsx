@@ -69,10 +69,10 @@ const PermissionTable: React.FC<PermissionTableProps> = memo(({
                 <TableHead>
                     <TableRow sx={{ bgcolor: '#f8f9fa' }}>
                         <TableCell sx={{ fontWeight: 600, width: 60 }}>STT</TableCell>
+                        <TableCell sx={{ fontWeight: 600 }}>Module</TableCell>
+                        <TableCell sx={{ fontWeight: 600 }}>Phương thức</TableCell>
                         <TableCell sx={{ fontWeight: 600 }}>Đường dẫn</TableCell>
-                        <TableCell sx={{ fontWeight: 600, width: 100 }}>Phương thức</TableCell>
                         <TableCell sx={{ fontWeight: 600 }}>Mô tả</TableCell>
-                        <TableCell sx={{ fontWeight: 600, width: 150 }}>Module</TableCell>
                         <TableCell sx={{ fontWeight: 600, width: 120, textAlign: 'center' }}>Thao tác</TableCell>
                     </TableRow>
                 </TableHead>
