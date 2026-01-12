@@ -1,4 +1,4 @@
-import React, { useState, useEffect, memo, useMemo, useCallback } from 'react';
+import React, { useState, useEffect, memo, useMemo } from 'react';
 import {
     Dialog,
     DialogTitle,
@@ -263,7 +263,7 @@ const RoleFormDialog: React.FC<RoleFormDialogProps> = memo(({
                                                     <Checkbox
                                                         checked={allSelected}
                                                         indeterminate={someSelected}
-                                                        onChange={() => handleModuleToggle(module, modulePermissions)}
+                                                        onChange={() => handleModuleToggle(modulePermissions)}
                                                         onClick={(e) => e.stopPropagation()}
                                                         size="small"
                                                     />
