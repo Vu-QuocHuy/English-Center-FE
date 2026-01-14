@@ -4,11 +4,9 @@ import {
 } from '@mui/material';
 // Import components
 import BannerCarousel from './components/BannerCarousel';
-import FeedbackHome from '../../components/features/home/FeedbackHome';
-import FeaturedTeachersHome from '../../components/features/home/FeaturedTeachersHome';
+import { FeedbackHome, FeaturedTeachersHome, ArticlesHome } from '@features/home';
 import HomeWelcomeAdPopup from './components/WelcomeAdPopup';
-import PublicLayout from '../../components/layouts/PublicLayout';
-import ArticlesHome from '../../components/features/home/ArticlesHome';
+import PublicLayout from '@shared/components/layouts/PublicLayout';
 
 const InteractiveHome: React.FC = () => {
   return (

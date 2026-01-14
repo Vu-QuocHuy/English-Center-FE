@@ -5,7 +5,7 @@ import App from './App.tsx'
 import { AuthProvider } from './contexts/AuthContext.tsx'
 import { SidebarProvider } from './contexts/SidebarContext'
 import { validateConfig } from './config/environment'
-import { validateEnvironment } from './types/env.d'
+import { validateEnvironment } from '@shared/types/env.d'
 
 // Validate environment variables before starting the app
 try {
@@ -27,10 +27,6 @@ try {
   }
 }
 
-// Load dev helpers in development
-if (import.meta.env.DEV) {
-  import('./utils/testHelpers');
-}
 
 const rootElement = document.getElementById('root');
 

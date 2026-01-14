@@ -1,13 +1,12 @@
 import React, { useState } from 'react';
 import { Box, TextField, MenuItem, Button, CircularProgress, Grid, Paper, Divider, Typography, Card, CardContent } from '@mui/material';
 import { Download as DownloadIcon, Payment as PaymentIcon, Cancel as CancelIcon, Save as SaveIcon, AttachMoney as AttachMoneyIcon, Paid as PaidIcon, AccountBalanceWallet as WalletIcon } from '@mui/icons-material';
-import PaymentHistoryModal from '../../../components/common/PaymentHistoryModal';
-import { getAllPaymentsAPI, payStudentAPI, exportPaymentsReportAPI } from '../../../services/payments';
-import { StudentPaymentsTable } from '../../../components/features/payment';
+import { PaymentHistoryModal } from '@shared/components';
+import { StudentPaymentsTable, getAllPaymentsAPI, payStudentAPI, exportPaymentsReportAPI, type StudentPayment } from '@features/payments';
 import * as XLSX from 'xlsx';
-import BaseDialog from '../../../components/common/BaseDialog';
-import DashboardLayout from '../../../components/layouts/DashboardLayout';
-import { commonStyles } from '../../../utils/styles';
+import { BaseDialog } from '@shared/components';
+import DashboardLayout from '@shared/components/layouts/DashboardLayout';
+import { commonStyles } from '@shared/utils';
 
 interface PaymentHistory {
   id: string;
@@ -18,17 +17,7 @@ interface PaymentHistory {
   createdBy: any;
 }
 
-interface StudentPayment {
-  id: string;
-  month: number;
-  year: number;
-  totalLessons: number;
-  paidAmount: number;
-  totalAmount: number;
-  discountAmount: number;
-  status: string;
-  student: { id: string; name: string; email?: string; phone?: string };
-  class: { id: string; name: string };
+interface StudentPaymentWithHistory extends StudentPayment {
   histories?: PaymentHistory[];
 }
 
@@ -43,7 +32,7 @@ const StudentPayments: React.FC = () => {
   const months = Array.from({ length: 12 }, (_, i) => i + 1);
   const quarters = [1, 2, 3, 4];
 
-  const [payments, setPayments] = React.useState<StudentPayment[]>([]);
+  const [payments, setPayments] = React.useState<StudentPaymentWithHistory[]>([]);
   const [pagination, setPagination] = React.useState<{ page: number; totalPages: number }>({ page: 1, totalPages: 1 });
   const [periodType, setPeriodType] = React.useState<string>('year');
   const [selectedYear, setSelectedYear] = React.useState<number | null>(null);
@@ -54,10 +43,10 @@ const StudentPayments: React.FC = () => {
   const [paymentStatus, setPaymentStatus] = React.useState<string>('all');
 
   const [historyOpen, setHistoryOpen] = React.useState<boolean>(false);
-  const [selectedPaymentForHistory, setSelectedPaymentForHistory] = React.useState<StudentPayment | null>(null);
+  const [selectedPaymentForHistory, setSelectedPaymentForHistory] = React.useState<StudentPaymentWithHistory | null>(null);
 
   const [openPayDialog, setOpenPayDialog] = React.useState<boolean>(false);
-  const [selectedPayment, setSelectedPayment] = React.useState<StudentPayment | null>(null);
+  const [selectedPayment, setSelectedPayment] = React.useState<StudentPaymentWithHistory | null>(null);
   const [studentPaymentForm, setStudentPaymentForm] = React.useState<{ amount: string; method: string; note: string }>({ amount: '', method: 'cash', note: '' });
   const [studentPaymentLoading, setStudentPaymentLoading] = React.useState<boolean>(false);
   const [exportLoading, setExportLoading] = React.useState<boolean>(false);
@@ -149,7 +138,7 @@ const StudentPayments: React.FC = () => {
       // Backend returns JSON: { statusCode, message, data: { meta, result } }
       const res = await exportPaymentsReportAPI(filters);
       const data = (res as any)?.data?.data || (res as any)?.data || {};
-      const list = Array.isArray(data.result) ? (data.result as StudentPayment[]) : [];
+      const list = Array.isArray(data.result) ? (data.result as StudentPaymentWithHistory[]) : [];
 
       const rows = list.map((p) => ({
         'Học sinh': p.student?.name || '',

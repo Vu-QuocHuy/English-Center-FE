@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useDebounce } from '../../hooks/common/useDebounce';
+import { useDebounce } from '@shared/hooks';
 import {
   Box,
   Typography,
@@ -10,10 +10,10 @@ import {
   TextField,
 } from '@mui/material';
 import { Person as PersonIcon, School as SchoolIcon } from '@mui/icons-material';
-import { assignTeacherAPI, unassignTeacherAPI } from '../../services/classes';
-import { getAllTeachersAPI } from '../../services/teachers';
+import { assignTeacherAPI, unassignTeacherAPI } from '@features/classes';
+import { getAllTeachersAPI } from '@features/teachers';
 
-import NotificationSnackbar from '../../components/common/NotificationSnackbar';
+import { NotificationSnackbar } from '@shared/components';
 
 interface Teacher {
   id: string;
@@ -107,10 +107,7 @@ const ClassTeacherManagement: React.FC<ClassTeacherManagementProps> = ({
 
     updateCurrentTeacher();
   }, [classData, allTeachers]);
-
-  // Debounce search input for teacher
-
-
+  
   useEffect(() => {
     const fetchTeachers = async (): Promise<void> => {
       try {

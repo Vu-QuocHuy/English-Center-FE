@@ -23,10 +23,10 @@ import {
   Person as PersonIcon,
 } from '@mui/icons-material';
 import { useAuth } from '../../contexts/AuthContext';
-import DashboardLayout from '../../components/layouts/DashboardLayout';
-import StatCard from '../../components/common/StatCard';
-import { getStudentDashboardAPI } from '../../services/dashboard';
-import { commonStyles } from '../../utils/styles';
+import DashboardLayout from '@shared/components/layouts/DashboardLayout';
+import { StatCard } from '@shared/components';
+import { getStudentDashboardAPI } from '@shared/services';
+import { commonStyles } from '@shared/utils';
 
 const Dashboard = () => {
   const { user } = useAuth();

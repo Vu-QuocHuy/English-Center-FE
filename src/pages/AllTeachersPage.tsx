@@ -11,11 +11,11 @@ import {
   Grid,
 } from '@mui/material';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { getAllTeachersAPI, getPublicTeachersAPI } from '../services/teachers';
-import { getArticlesByMenuIdAPI } from '../services/articles';
-import { useMenuItems } from '../hooks/features/useMenuItems';
-import { Teacher, MenuItem } from '../types';
-import PublicLayout from '../components/layouts/PublicLayout';
+import { getAllTeachersAPI, getPublicTeachersAPI } from '@features/teachers';
+import { getArticlesByMenuIdAPI } from '@features/articles';
+import { useMenuItems } from '@features/menus';
+import { Teacher, MenuItem } from '@shared/types';
+import PublicLayout from '@shared/components/layouts/PublicLayout';
 
 const AllTeachersPage = () => {
   console.log('🎯 AllTeachersPage component rendered');

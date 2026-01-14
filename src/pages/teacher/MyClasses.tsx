@@ -29,14 +29,11 @@ import {
   History as HistoryIcon,
 } from '@mui/icons-material';
 import { useAuth } from '../../contexts/AuthContext';
-import DashboardLayout from '../../components/layouts/DashboardLayout';
-import { getTeacherScheduleAPI } from '../../services/teachers';
-import ClassDetailModal from '../../components/features/teacher/ClassDetailModal';
-import AttendanceModal from '../../components/features/teacher/AttendanceModal';
-import AttendanceHistoryModal from '../../components/features/teacher/AttendanceHistoryModal';
-import { commonStyles } from '../../utils/styles';
-import NotificationSnackbar from '../../components/common/NotificationSnackbar';
-import StatCard from '../../components/common/StatCard';
+import DashboardLayout from '@shared/components/layouts/DashboardLayout';
+import { getTeacherScheduleAPI } from '@features/teachers';
+import { ClassDetailModal, AttendanceModal, AttendanceHistoryModal } from '@features/teachers';
+import { commonStyles } from '@shared/utils';
+import { NotificationSnackbar, StatCard } from '@shared/components';
 
 interface ScheduleOldShape {
   dayOfWeeks: number[];
@@ -214,8 +211,6 @@ const MyClasses: React.FC = () => {
       setLoading(false);
     }
   };
-
-  // Removed checkTodaySessions prefetch function
 
   // Handlers for modals
   const handleOpenDetail = (classItem: ClassData): void => {

@@ -23,9 +23,9 @@ import {
 } from '@mui/icons-material';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
-import { useForm } from '../../hooks/useForm';
-import { loginValidationSchema } from '../../validations/loginValidation';
-import { getDashboardPath } from '../../utils/helpers';
+import { useForm } from '@shared/hooks';
+import { loginValidationSchema } from '@shared/validations/auth';
+import { getDashboardPath } from '@shared/utils';
 
 
 interface LoginFormData {

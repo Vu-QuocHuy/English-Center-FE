@@ -1,7 +1,7 @@
 import React from 'react';
 import { Box, Paper, Tabs, Tab, Typography } from '@mui/material';
-import DashboardLayout from '../../../components/layouts/DashboardLayout';
-import { commonStyles } from '../../../utils/styles';
+import DashboardLayout from '@shared/components/layouts/DashboardLayout';
+import { commonStyles } from '@shared/utils';
 import Transactions from './Transactions';
 import Categories from './Categories';
 

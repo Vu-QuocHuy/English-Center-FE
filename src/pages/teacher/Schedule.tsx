@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { Box, CircularProgress, Alert } from '@mui/material';
 import dayjs, { Dayjs } from 'dayjs';
-import DashboardLayout from '../../components/layouts/DashboardLayout';
-import ScheduleCalendar from '../../components/common/ScheduleCalendar';
-import { getTeacherScheduleAPI, TeacherScheduleClass } from '../../services/teachers';
+import DashboardLayout from '@shared/components/layouts/DashboardLayout';
+import { ScheduleCalendar } from '@shared/components';
+import { getTeacherScheduleAPI, type TeacherScheduleClass } from '@features/teachers';
 import { useAuth } from '../../contexts/AuthContext';
 
 interface Lesson {
@@ -75,7 +75,6 @@ const Schedule: React.FC = () => {
                   formattedLessons.push(lesson);
                 }
 
-                // Chuyển đến ngày tiếp theo
                 currentDate = currentDate.add(1, 'day');
               }
             }

@@ -17,17 +17,17 @@ import {
 } from '@mui/material';
 // import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
-import DashboardLayout from '../../components/layouts/DashboardLayout';
+import DashboardLayout from '@shared/components/layouts/DashboardLayout';
 import PaymentIcon from '@mui/icons-material/Payment';
 import PersonIcon from '@mui/icons-material/Person';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import WarningIcon from '@mui/icons-material/Warning';
-import { commonStyles } from '../../utils/styles';
-import StatCard from '../../components/common/StatCard';
-import { getParentDashboardAPI } from '../../services/dashboard';
-import { getStudentScheduleAPI } from '../../services/students';
-import { getParentByIdAPI } from '../../services/parents';
-import { getStudentStatus } from '../../utils/studentHelpers';
+import { commonStyles } from '@shared/utils';
+import { StatCard } from '@shared/components';
+import { getParentDashboardAPI } from '@shared/services';
+import { getStudentScheduleAPI } from '@features/students';
+import { getParentByIdAPI } from '@features/parents';
+import { getStudentStatus } from '@features/students';
 
 const Dashboard = () => {
   const { user } = useAuth();

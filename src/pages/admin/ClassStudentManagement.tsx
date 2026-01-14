@@ -13,10 +13,9 @@ import {
   IconButton,
 } from '@mui/material';
 import { Add as AddIcon, Delete as DeleteIcon } from '@mui/icons-material';
-import AddStudentToClassDialog from './AddStudentToClassDialog';
-import { removeStudentFromClassAPI, getStudentsInClassAPI } from '../../services/classes';
-import NotificationSnackbar from '../../components/common/NotificationSnackbar';
-import ConfirmDialog from '../../components/common/ConfirmDialog';
+import AddStudentToClassDialog from '../../features/classes/components/AddStudentToClassDialog';
+import { removeStudentFromClassAPI, getStudentsInClassAPI } from '@features/classes';
+import { NotificationSnackbar, ConfirmDialog } from '@shared/components';
 
 interface Student {
   id: string;

@@ -21,12 +21,12 @@ import {
   VisibilityOff
 } from '@mui/icons-material';
 import { useNavigate } from 'react-router-dom';
-import { useForm } from '../../hooks/useForm';
-import { sendRequestPasswordAPI, resetPasswordAPI } from '../../services/auth';
-import { validateOtpCode } from '../../validations/forgotPasswordValidation';
-import { validateEmail, validatePassword } from '../../validations/commonValidation';
-import { validationRules } from '../../utils/validation';
-import NotificationSnackbar from '../../components/common/NotificationSnackbar';
+import { useForm } from '@shared/hooks';
+import { sendRequestPasswordAPI, resetPasswordAPI } from '@shared/services';
+import { validateOtpCode } from '@shared/validations/auth';
+import { validateEmail, validatePassword } from '@shared/validations/common';
+import { validationRules } from '@shared/utils';
+import { NotificationSnackbar } from '@shared/components';
 
 interface FormErrors {
   email?: string;

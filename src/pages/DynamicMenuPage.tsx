@@ -1,13 +1,13 @@
 import React, { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { Box, Typography, Container, CircularProgress, Alert } from '@mui/material';
-import { MenuItem } from '../types';
-import { useMenuItems } from '../hooks/features/useMenuItems';
-import PublicLayout from '../components/layouts/PublicLayout';
+import { MenuItem } from '@shared/types';
+import { useMenuItems } from '@features/menus';
+import PublicLayout from '@shared/components/layouts/PublicLayout';
 import AllTeachersPage from './AllTeachersPage';
 import TestimonialsPage from './TestimonialsPage';
 import SchedulePage from './SchedulePage';
-import ArticleListTemplate from '../components/templates/ArticleListTemplate';
+import ArticleListTemplate from '@features/articles/components/ArticleListTemplate';
 
 
 const DynamicMenuPage: React.FC = () => {

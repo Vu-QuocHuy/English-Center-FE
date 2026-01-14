@@ -15,12 +15,11 @@ import {
 import {
   Star as StarIcon,
 } from '@mui/icons-material';
-import PublicLayout from '../components/layouts/PublicLayout';
-import { getFeedbacksAPI } from '../services/feedback';
-import { getArticlesByMenuIdAPI } from '../services/articles';
-import { useMenuItems } from '../hooks/features/useMenuItems';
-import { MenuItem } from '../types';
-import { Feedback } from '../types';
+import PublicLayout from '@shared/components/layouts/PublicLayout';
+import { getFeedbacksAPI } from '@features/feedback';
+import { getArticlesByMenuIdAPI } from '@features/articles';
+import { useMenuItems } from '@features/menus';
+import { MenuItem, Feedback } from '@shared/types';
 
 const AVATAR_SIZE = 110;
 const AVATAR_BORDER = 4;

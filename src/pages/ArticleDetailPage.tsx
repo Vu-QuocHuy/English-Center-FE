@@ -11,8 +11,8 @@ import {
   Chip
 } from '@mui/material';
 import { Home as HomeIcon, ArrowBack as ArrowBackIcon } from '@mui/icons-material';
-import { getArticleByIdAPI } from '../services/articles';
-import PublicLayout from '../components/layouts/PublicLayout';
+import { getArticleByIdAPI } from '@features/articles';
+import PublicLayout from '@shared/components/layouts/PublicLayout';
 import { Button } from '@mui/material';
 
 interface Article {

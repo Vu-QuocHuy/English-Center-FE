@@ -1,13 +1,12 @@
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
-import { ThemeProvider } from '@mui/material/styles';
-import CssBaseline from '@mui/material/CssBaseline';
 
 import { useAuth } from './contexts/AuthContext';
-import ProtectedRoute from './components/common/ProtectedRoute';
+import { ProtectedRoute } from '@shared/components';
 
-// Import custom theme
-import theme from './theme';
+import { ThemeProvider } from '@mui/material/styles';
+import CssBaseline from '@mui/material/CssBaseline';
+import theme from '@shared/theme';
 
 // Pages
 import Home from './pages/home/InteractiveHome';
@@ -59,7 +58,7 @@ import ParentChildren from './pages/parent/Children';
 import ParentPayments from './pages/parent/Payments';
 import ParentProfile from './pages/profile/ParentProfile';
 
-import { USER_ROLES } from './constants';
+import { USER_ROLES } from '@shared/utils';
 
 // Dynamic Menu Pages
 import DynamicMenuPage from './pages/DynamicMenuPage';

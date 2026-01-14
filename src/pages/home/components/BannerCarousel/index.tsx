@@ -2,11 +2,11 @@ import React, { useState, useEffect } from 'react';
 import {
   Box, Typography, Skeleton
 } from '@mui/material';
-import { getHomeBannersAPI } from '../../../../services/advertisements';
-import { Advertisement } from '../../../../types';
-import { useBannerConfig } from '../../../../hooks/useBannerConfig';
-import AdvertisementSlider from '../../../../components/features/advertisement/AdvertisementSlider';
-import ClassRegistrationModal from '../../../../components/features/home/ClassRegistrationModal';
+import { getHomeBannersAPI } from '@features/advertisements';
+import { Advertisement } from '@shared/types';
+import { useBannerConfig } from '@features/advertisements';
+import { AdvertisementSlider } from '@features/advertisements';
+import { ClassRegistrationModal } from '@features/home';
 
 const BannerCarousel: React.FC = () => {
   const { bannerConfig } = useBannerConfig();

@@ -15,9 +15,9 @@ import {
   Email as EmailIcon,
   ArrowBack as ArrowBackIcon
 } from '@mui/icons-material';
-import { getPublicTeacherByIdAPI, getTeacherBySlugAPI, getTypicalTeacherDetailAPI } from '../../services/teachers';
-import { Teacher } from '../../types';
-import PublicLayout from '../../components/layouts/PublicLayout';
+import { getPublicTeacherByIdAPI, getTeacherBySlugAPI, getTypicalTeacherDetailAPI } from '@features/teachers';
+import { Teacher } from '@shared/types';
+import PublicLayout from '@shared/components/layouts/PublicLayout';
 
 const TeacherDetail: React.FC = () => {
   const { slug } = useParams<{ slug: string }>();

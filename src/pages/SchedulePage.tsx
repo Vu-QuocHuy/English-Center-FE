@@ -17,12 +17,12 @@ import {
   ExpandMore as ExpandMoreIcon,
   ExpandLess as ExpandLessIcon,
 } from '@mui/icons-material';
-import PublicLayout from '../components/layouts/PublicLayout';
-import { getPublicClassesAPI } from '../services/classes';
-import { getArticlesByMenuIdAPI } from '../services/articles';
-import { useMenuItems } from '../hooks/features/useMenuItems';
-import { MenuItem } from '../types';
-import ClassRegistrationModal from '../components/features/home/ClassRegistrationModal';
+import PublicLayout from '@shared/components/layouts/PublicLayout';
+import { getPublicClassesAPI } from '@features/classes';
+import { getArticlesByMenuIdAPI } from '@features/articles';
+import { useMenuItems } from '@features/menus';
+import { MenuItem } from '@shared/types';
+import { ClassRegistrationModal } from '@features/home';
 
 interface Class {
   id: string;

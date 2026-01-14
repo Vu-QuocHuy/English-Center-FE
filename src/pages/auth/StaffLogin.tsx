@@ -21,8 +21,8 @@ import {
 } from '@mui/icons-material';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
-import { useForm } from '../../hooks/useForm';
-import { adminLoginValidationSchema } from '../../validations/loginValidation';
+import { useForm } from '@shared/hooks';
+import { adminLoginValidationSchema } from '@shared/validations/auth';
 
 interface StaffLoginFormData {
   email: string;
@@ -33,13 +33,11 @@ const StaffLogin: React.FC = () => {
   const navigate = useNavigate();
   const { login, error: authError, clearError } = useAuth();
   const [showPassword, setShowPassword] = useState<boolean>(false);
-  const [loginError, setLoginError] = useState<string>('');
 
   const {
     values,
     errors,
     handleChange,
-    handleBlur,
     isSubmitting,
     setIsSubmitting,
     setValue,
@@ -51,14 +49,6 @@ const StaffLogin: React.FC = () => {
     },
     adminLoginValidationSchema
   );
-
-  useEffect(() => {
-    clearError();
-    setLoginError('');
-    return () => {
-      clearError();
-    };
-  }, [clearError]);
 
   // Autofill detection (same as user Login)
   useEffect(() => {
@@ -98,7 +88,6 @@ const StaffLogin: React.FC = () => {
     e.preventDefault();
     setIsSubmitting(true);
     clearError();
-    setLoginError('');
 
     const isValid = validate();
     if (!isValid) {
@@ -138,23 +127,11 @@ const StaffLogin: React.FC = () => {
             window.location.href = '/admin/dashboard';
           }, 100);
         } else {
-          setLoginError('Chỉ có quản trị viên, giáo viên và nhân viên mới được phép đăng nhập tại đây');
           setIsSubmitting(false);
         }
-      } else {
-        setLoginError('Email hoặc mật khẩu không chính xác');
       }
     } catch (error: any) {
       console.error('Staff login failed:', error);
-      if (error?.code === 'ERR_NETWORK' || error?.message === 'Network Error') {
-        setLoginError('Không thể kết nối đến server. Vui lòng kiểm tra kết nối mạng hoặc CORS settings.');
-      } else if (error?.response?.status === 401) {
-        setLoginError('Email hoặc mật khẩu không chính xác');
-      } else if (error?.response?.status === 403) {
-        setLoginError('Bạn không có quyền truy cập hệ thống quản lý');
-      } else {
-        setLoginError(`Lỗi đăng nhập: ${error?.message || 'Có lỗi xảy ra khi đăng nhập'}`);
-      }
     } finally {
       setIsSubmitting(false);
     }
@@ -221,9 +198,9 @@ const StaffLogin: React.FC = () => {
                 </Typography>
               </Box>
 
-              {(authError || loginError) && (
+              {authError && (
                 <Alert severity="error" sx={{ mb: 2 }}>
-                  {authError || loginError}
+                  {authError}
                 </Alert>
               )}
 
@@ -240,7 +217,6 @@ const StaffLogin: React.FC = () => {
                   autoFocus
                   value={values.email}
                   onChange={handleChange}
-                  onBlur={handleBlur}
                   error={!!errors.email}
                   helperText={errors.email}
                   InputProps={{
@@ -296,7 +272,6 @@ const StaffLogin: React.FC = () => {
                   autoComplete="current-password"
                   value={values.password}
                   onChange={handleChange}
-                  onBlur={handleBlur}
                   error={!!errors.password}
                   helperText={errors.password}
                   InputProps={{

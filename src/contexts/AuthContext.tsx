@@ -1,7 +1,7 @@
 import React, { createContext, useContext, useReducer, useEffect, ReactNode } from 'react';
 
-import { loginUserAPI as loginAPI, loginAdminAPI, refreshTokenAPI } from '../services/auth';
-import { User } from '../types';
+import { loginUserAPI as loginAPI, loginAdminAPI, refreshTokenAPI } from '@shared/services';
+import { User } from '@shared/types';
 
 interface AuthState {
   user: User | null;

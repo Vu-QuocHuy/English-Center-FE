@@ -17,38 +17,12 @@ import {
   CardContent
 } from '@mui/material';
 import { Payment as PaymentIcon, AttachMoney as AttachMoneyIcon, Paid as PaidIcon, AccountBalanceWallet as WalletIcon, Download as DownloadIcon } from '@mui/icons-material';
-import { TeacherPaymentsTable } from '../../../components/features/payment';
+import { TeacherPaymentsTable, getAllTeacherPaymentsAPI, updateTeacherPaymentAPI, getTeacherPaymentByIdAPI, exportTeacherPaymentsReportAPI, type TeacherPayment } from '@features/payments';
 // @ts-ignore: Allow using xlsx without local type resolution
 import * as XLSX from 'xlsx';
-import PaymentHistoryModal from '../../../components/common/PaymentHistoryModal';
-import BaseDialog from '../../../components/common/BaseDialog';
-import DashboardLayout from '../../../components/layouts/DashboardLayout';
-import { commonStyles } from '../../../utils/styles';
-import {
-  getAllTeacherPaymentsAPI,
-  updateTeacherPaymentAPI,
-  getTeacherPaymentByIdAPI,
-  exportTeacherPaymentsReportAPI,
-} from '../../../services/payments';
-
-interface TeacherPayment {
-  id: string;
-  teacherId?: { id?: string; userId?: { id?: string; name?: string }; name?: string };
-  teacher?: {
-    id: string;
-    name: string;
-    email: string;
-    phone: string;
-    salaryPerLesson?: number;
-  };
-  month?: number;
-  year?: number;
-  salaryPerLesson?: number;
-  totalAmount?: number;
-  paidAmount?: number;
-  status?: string;
-  classes?: Array<{ classId?: { name: string }; totalLessons?: number }>;
-}
+import { PaymentHistoryModal, BaseDialog } from '@shared/components';
+import DashboardLayout from '@shared/components/layouts/DashboardLayout';
+import { commonStyles } from '@shared/utils';
 
 const TeacherPayments: React.FC = () => {
   const years = Array.from({ length: 5 }, (_, i) => new Date().getFullYear() - i);

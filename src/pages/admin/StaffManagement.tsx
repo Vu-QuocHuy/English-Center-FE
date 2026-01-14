@@ -1,13 +1,12 @@
 import React, { useState } from 'react';
 import { Box, Typography, Button, Pagination } from '@mui/material';
 import { Add as AddIcon } from '@mui/icons-material';
-import { commonStyles } from '../../utils/styles';
-import DashboardLayout from '../../components/layouts/DashboardLayout';
-import ConfirmDialog from '../../components/common/ConfirmDialog';
-import NotificationSnackbar from '../../components/common/NotificationSnackbar';
-import { useStaffManagement } from '../../hooks/features/useStaffManagement';
-import { StaffTable, StaffForm, StaffFilters, StaffViewDialog } from '../../components/features/staff';
-import { Staff } from '../../types';
+import { commonStyles } from '@shared/utils';
+import DashboardLayout from '@shared/components/layouts/DashboardLayout';
+import { ConfirmDialog, NotificationSnackbar } from '@shared/components';
+import { useStaffManagement } from '@features/staff';
+import { StaffTable, StaffForm, StaffFilters, StaffViewDialog } from '@features/staff';
+import { Staff } from '@shared/types';
 
 interface SnackbarState {
   open: boolean;
@@ -60,8 +59,9 @@ const StaffManagement: React.FC = () => {
 
   const handleCloseDialog = (): void => {
     setOpenDialog(false);
+    setTimeout(() => {
     setSelectedStaff(null);
-    fetchStaffs(); // Refresh list
+    }, 100);
   };
 
   const handleOpenViewDialog = async (staff: Staff): Promise<void> => {

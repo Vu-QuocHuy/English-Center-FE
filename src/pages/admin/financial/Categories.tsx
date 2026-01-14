@@ -1,8 +1,7 @@
 import React from 'react';
 import { Box, Button, TextField, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, Typography, IconButton, Tooltip, Grid, MenuItem } from '@mui/material';
-import BaseDialog from '../../../components/common/BaseDialog';
-import ConfirmDialog from '../../../components/common/ConfirmDialog';
-import { getAllTransactionCategoriesAPI, createTransactionCategoryAPI, getTransactionCategoryByIdAPI, updateTransactionCategoryAPI, deleteTransactionCategoryAPI } from '../../../services/transactions';
+import { BaseDialog, ConfirmDialog } from '@shared/components';
+import { getAllTransactionCategoriesAPI, createTransactionCategoryAPI, getTransactionCategoryByIdAPI, updateTransactionCategoryAPI, deleteTransactionCategoryAPI } from '@shared/services';
 import { Edit as EditIcon, Delete as DeleteIcon, Add as AddIcon } from '@mui/icons-material';
 
 const Categories: React.FC = () => {

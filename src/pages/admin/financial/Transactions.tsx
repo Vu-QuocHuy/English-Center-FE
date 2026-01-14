@@ -1,8 +1,7 @@
 import React from 'react';
 import { Box, Button, TextField, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, Pagination, Typography, IconButton, Tooltip, Grid, MenuItem, Card, CardContent } from '@mui/material';
-import BaseDialog from '../../../components/common/BaseDialog';
-import ConfirmDialog from '../../../components/common/ConfirmDialog';
-import { getAllTransactionsAPI, createTransactionAPI, updateTransactionAPI, deleteTransactionAPI, getAllTransactionCategoriesAPI, exportTransactionsReportAPI } from '../../../services/transactions';
+import { BaseDialog, ConfirmDialog } from '@shared/components';
+import { getAllTransactionsAPI, createTransactionAPI, updateTransactionAPI, deleteTransactionAPI, getAllTransactionCategoriesAPI, exportTransactionsReportAPI } from '@shared/services';
 import { Edit as EditIcon, Delete as DeleteIcon, Download as DownloadIcon, Add as AddIcon } from '@mui/icons-material';
 import * as XLSX from 'xlsx';
 

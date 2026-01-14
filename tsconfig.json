@@ -24,19 +24,11 @@
     "baseUrl": ".",
     "paths": {
       "@/*": ["src/*"],
-      "@components/*": ["src/components/*"],
-      "@teacher/*": ["src/components/features/teacher/*"],
+      "@features/*": ["src/features/*"],
+      "@shared/*": ["src/shared/*"],
       "@pages/*": ["src/pages/*"],
-      "@utils/*": ["src/utils/*"],
-      "@services/*": ["src/services/*"],
       "@contexts/*": ["src/contexts/*"],
-      "@hooks/*": ["src/hooks/*"],
-      "@types/*": ["src/types/*"],
-      "@constants/*": ["src/constants/*"],
-      "@lib/*": ["src/lib/*"],
       "@config/*": ["src/config/*"],
-      "@theme/*": ["src/theme/*"],
-      "@styles/*": ["src/styles/*"],
       "@assets/*": ["src/assets/*"]
     }
   },

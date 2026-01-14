@@ -21,13 +21,13 @@ import {
   Logout as LogoutIcon,
   KeyboardArrowDown as ArrowDownIcon,
 } from '@mui/icons-material';
-import { COLORS } from '../../utils/colors';
+import { COLORS } from '@shared/utils';
 import { useNavigate } from 'react-router-dom';
-import { commonStyles } from '../../utils/styles';
+import { commonStyles } from '@shared/utils';
 import { useAuth } from '../../contexts/AuthContext';
-import { useMenuItems } from '../../hooks/features/useMenuItems';
-import { NavigationMenuItem } from '../../types';
-import ConfirmDialog from '../../components/common/ConfirmDialog';
+import { useMenuItems } from '@features/menus';
+import { NavigationMenuItem } from '@shared/types';
+import { ConfirmDialog } from '@shared/components';
 
 const scrollToSection = (id: string): void => {
   const el = document.getElementById(id);

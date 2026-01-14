@@ -7,19 +7,15 @@ import {
   Add as AddIcon,
   CloudUpload as CloudUploadIcon
 } from '@mui/icons-material';
-import DashboardLayout from '../../components/layouts/DashboardLayout';
-import NotificationSnackbar from '../../components/common/NotificationSnackbar';
-import ConfirmDialog from '../../components/common/ConfirmDialog';
-import BaseDialog from '../../components/common/BaseDialog';
-import TestimonialTable from '../../components/features/feedback/TestimonialTable';
-import { commonStyles } from '../../utils/styles';
-import { createFeedbackAPI, getFeedbacksAPI, updateFeedbackAPI, deleteFeedbackAPI } from '../../services/feedback';
-import { uploadFileAPI, deleteFileAPI } from '../../services/files';
-import { Feedback, CreateFeedbackRequest } from '../../types';
+import DashboardLayout from '@shared/components/layouts/DashboardLayout';
+import { NotificationSnackbar, ConfirmDialog, BaseDialog } from '@shared/components';
+import { TestimonialTable } from '@features/feedback';
+import { commonStyles } from '@shared/utils';
+import { createFeedbackAPI, getFeedbacksAPI, updateFeedbackAPI, deleteFeedbackAPI } from '@features/feedback';
+import { uploadFileAPI, deleteFileAPI } from '@shared/services';
+import { Feedback, CreateFeedbackRequest } from '@shared/types';
 
 const TestimonialsManagement: React.FC = () => {
-
-  // State
   const [feedbacks, setFeedbacks] = useState<Feedback[]>([]);
   const [loading, setLoading] = useState(true);
   const [openDialog, setOpenDialog] = useState(false);

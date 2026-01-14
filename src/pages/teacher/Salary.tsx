@@ -2,17 +2,16 @@ import { useEffect, useState } from 'react';
 import {
   Box, Typography, Paper, CircularProgress, Grid, Table, TableBody, TableCell, TableContainer, TableHead, TableRow
 } from '@mui/material';
-import { getTeacherPaymentsAPI, getTeacherPaymentByIdAPI } from '../../services/payments';
-import DashboardLayout from '../../components/layouts/DashboardLayout';
-import StatCard from '../../components/common/StatCard';
-import { commonStyles } from '../../utils/styles';
+import { getTeacherPaymentsAPI, getTeacherPaymentByIdAPI } from '@features/payments';
+import DashboardLayout from '@shared/components/layouts/DashboardLayout';
+import { StatCard } from '@shared/components';
+import { commonStyles } from '@shared/utils';
 import PaymentIcon from '@mui/icons-material/Payment';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import MoneyOffIcon from '@mui/icons-material/MoneyOff';
 import { useAuth } from '../../contexts/AuthContext';
-import { TeacherSalaryTable } from '../../components/features/teacher';
-import PaymentHistoryModal from '../../components/common/PaymentHistoryModal';
-import BaseDialog from '../../components/common/BaseDialog';
+import { TeacherSalaryTable } from '@features/teachers';
+import { PaymentHistoryModal, BaseDialog } from '@shared/components';
 
 const Salary = () => {
   const { user } = useAuth();
@@ -262,19 +261,19 @@ const Salary = () => {
                         </Typography>
                         <Typography variant="body2" sx={{ mb: 1, display: 'flex', justifyContent: 'space-between' }}>
                           <span style={{ color: '#666' }}>Lương/buổi:</span>
-                          <span style={{ fontWeight: 600, color: '#27ae60' }}>
+                          <span style={{ fontWeight: 500, color: '#2c3e50' }}>
                             {(selectedPayment.teacher?.salaryPerLesson ?? 0).toLocaleString()} ₫
                           </span>
                         </Typography>
                         <Typography variant="body2" sx={{ mb: 1, display: 'flex', justifyContent: 'space-between' }}>
                           <span style={{ color: '#666' }}>Tổng lương:</span>
-                          <span style={{ fontWeight: 600, color: '#e74c3c' }}>
+                          <span style={{ fontWeight: 500, color: '#2c3e50' }}>
                             {(selectedPayment.totalAmount ?? 0).toLocaleString()} ₫
                           </span>
                         </Typography>
                         <Typography variant="body2" sx={{ display: 'flex', justifyContent: 'space-between' }}>
                           <span style={{ color: '#666' }}>Đã nhận:</span>
-                          <span style={{ fontWeight: 600, color: '#27ae60' }}>
+                          <span style={{ fontWeight: 500, color: '#2c3e50' }}>
                             {(selectedPayment.paidAmount ?? 0).toLocaleString()} ₫
                           </span>
                         </Typography>
@@ -292,26 +291,27 @@ const Salary = () => {
                   }}>
                     <Box sx={{
                       p: 3,
-                      background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-                      color: 'white'
+                      background: 'linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%)',
                     }}>
-                      <Typography variant="h6" sx={{
+                      <Typography variant="h6" gutterBottom sx={{
+                        color: '#2c3e50',
                         fontWeight: 600,
                         display: 'flex',
                         alignItems: 'center',
-                        gap: 1
+                        gap: 1,
+                        mb: 2
                       }}>
                         <Box sx={{
                           width: 4,
                           height: 20,
-                          bgcolor: 'white',
+                          bgcolor: '#667eea',
                           borderRadius: 2
                         }} />
                         Chi tiết từng lớp
                       </Typography>
                       <Typography variant="body2" sx={{ opacity: 0.9, mt: 0.5 }}>
                         Thông tin chi tiết về số buổi dạy và lương từng lớp
-                          </Typography>
+                      </Typography>
                     </Box>
                     <TableContainer sx={commonStyles.tableContainer}>
                       <Table>
@@ -330,16 +330,16 @@ const Salary = () => {
                               hover
                               sx={commonStyles.tableRow}
                             >
-                              <TableCell sx={{ fontWeight: 500, color: '#2c3e50' }}>
+                              <TableCell sx={{ fontWeight: 600, color: '#2c3e50' }}>
                                 {classItem.name || 'N/A'}
                       </TableCell>
-                              <TableCell align="right" sx={{ fontWeight: 500, color: '#2c3e50' }}>
+                              <TableCell align="right" sx={{ fontWeight: 600, color: '#2c3e50' }}>
                                 {classItem.totalLessons || 0}
                       </TableCell>
-                              <TableCell align="right" sx={{ fontWeight: 500, color: '#27ae60' }}>
+                              <TableCell align="right" sx={{ fontWeight: 600, color: '2c3e50' }}>
                                 {(selectedPayment.teacher?.salaryPerLesson ?? 0).toLocaleString()} ₫
                       </TableCell>
-                              <TableCell align="right" sx={{ fontWeight: 600, color: '#e74c3c' }}>
+                              <TableCell align="right" sx={{ fontWeight: 600, color: '2c3e50' }}>
                                 {((classItem.totalLessons || 0) * (selectedPayment.teacher?.salaryPerLesson ?? 0)).toLocaleString()} ₫
                       </TableCell>
                     </TableRow>
@@ -361,8 +361,6 @@ const Salary = () => {
           title="Lịch sử thanh toán lương"
           showPaymentDetails={true}
         />
-
-
         </Box>
       </Box>
     </DashboardLayout>

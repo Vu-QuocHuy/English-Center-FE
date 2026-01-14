@@ -1,16 +1,12 @@
 import React, { useState, useCallback } from 'react';
 import { Box, Typography, Button, Pagination } from '@mui/material';
 import { Add as AddIcon } from '@mui/icons-material';
-import { commonStyles } from '../../utils/styles';
-import DashboardLayout from '../../components/layouts/DashboardLayout';
-import ConfirmDialog from '../../components/common/ConfirmDialog';
-import NotificationSnackbar from '../../components/common/NotificationSnackbar';
-import { useParentManagement } from '../../hooks/features/useParentManagement';
-import ParentTable from '../../components/features/parent/ParentTable';
-import ParentFilters from '../../components/features/parent/ParentFilters';
-import ParentViewDialog from '../../components/features/parent/ParentViewDialog';
-import ParentForm from '../../components/features/parent/ParentForm';
-import { Parent } from '../../types';
+import { commonStyles } from '@shared/utils';
+import DashboardLayout from '@shared/components/layouts/DashboardLayout';
+import { ConfirmDialog, NotificationSnackbar } from '@shared/components';
+import { useParentManagement } from '@features/parents';
+import { ParentTable, ParentFilters, ParentViewDialog, ParentForm } from '@features/parents';
+import { Parent } from '@shared/types';
 
 interface SnackbarState {
   open: boolean;
@@ -61,8 +57,6 @@ const ParentManagement: React.FC = () => {
     }, 100);
   }, []);
 
-
-
   const handleOpenDeleteDialog = useCallback((parent: Parent): void => {
     setParentToDelete(parent);
     setOpenDeleteDialog(true);
@@ -85,10 +79,6 @@ const ParentManagement: React.FC = () => {
       setSnackbar({ open: true, message: result.message, severity: 'error' });
     }
   }, [parentToDelete, deleteParent, handleCloseDeleteDialog]);
-
-
-
-
 
   return (
     <DashboardLayout role="admin">
@@ -141,8 +131,6 @@ const ParentManagement: React.FC = () => {
         </Box>
       </Box>
 
-
-
       <ConfirmDialog
         open={openDeleteDialog}
         onClose={handleCloseDeleteDialog}
@@ -152,7 +140,7 @@ const ParentManagement: React.FC = () => {
         loading={loading}
       />
 
-             <NotificationSnackbar
+      <NotificationSnackbar
          open={snackbar.open}
          onClose={() => setSnackbar({ ...snackbar, open: false })}
          message={snackbar.message}
@@ -181,7 +169,6 @@ const ParentManagement: React.FC = () => {
           }
         }}
         onSubmit={(result) => {
-          // Refresh danh sách phụ huynh
           fetchParents();
 
           // Show notification

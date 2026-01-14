@@ -15,14 +15,14 @@ import {
 import {
   Add as AddIcon
 } from '@mui/icons-material';
-import { getAllMenusAPI } from '../../services/menus';
-import ConfirmDialog from '../../components/common/ConfirmDialog';
-import DashboardLayout from '../../components/layouts/DashboardLayout';
-import { commonStyles } from '../../utils/styles';
-import { getAllArticlesAPI, updateArticleAPI, deleteArticleAPI, getArticleByIdAPI } from '../../services/articles';
-import { MenuItem as MenuItemType } from '../../types';
-import ArticleForm from '../../components/articles/ArticleForm';
-import ArticleTable from '../../components/features/article/ArticleTable';
+import { getAllMenusAPI } from '@features/menus';
+import { ConfirmDialog } from '@shared/components';
+import DashboardLayout from '@shared/components/layouts/DashboardLayout';
+import { commonStyles } from '@shared/utils';
+import { getAllArticlesAPI, updateArticleAPI, deleteArticleAPI, getArticleByIdAPI } from '@features/articles';
+import { MenuItem as MenuItemType } from '@shared/types';
+import { ArticleForm } from '@features/articles';
+import { ArticleTable } from '@features/articles';
 
 interface Article {
   id: string;

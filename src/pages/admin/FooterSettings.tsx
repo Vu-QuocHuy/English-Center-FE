@@ -9,11 +9,12 @@ import {
   CircularProgress
 } from '@mui/material';
 import { Save as SaveIcon } from '@mui/icons-material';
-import DashboardLayout from '../../components/layouts/DashboardLayout';
-import { useFooterSettings, FooterSettings as FooterSettingsType } from '../../hooks/useFooterSettings';
-import { commonStyles } from '../../utils/styles';
-import NotificationSnackbar from '../../components/common/NotificationSnackbar';
-import { updateFooterSettingsAPI, createFooterSettingsAPI } from '../../services/footer-settings';
+import DashboardLayout from '@shared/components/layouts/DashboardLayout';
+import { useFooterSettings } from '@features/footer-settings';
+import type { FooterSettings as FooterSettingsType } from '@features/footer-settings';
+import { commonStyles } from '@shared/utils';
+import { NotificationSnackbar } from '@shared/components';
+import { updateFooterSettingsAPI, createFooterSettingsAPI } from '@features/footer-settings';
 
 const FooterSettings: React.FC = () => {
   const { footerSettings, loading, hasData } = useFooterSettings();
@@ -54,7 +55,7 @@ const FooterSettings: React.FC = () => {
       }
     }
 
-    setSettings(prev => ({
+    setSettings((prev: FooterSettingsType) => ({
       ...prev,
       [field]: value
     }));

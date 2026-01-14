@@ -10,13 +10,12 @@ import {
   Paper,
   Chip
 } from '@mui/material';
-import DashboardLayout from '../../components/layouts/DashboardLayout';
-import BaseDialog from '../../components/common/BaseDialog';
-import { getAuditLogsAPI } from '../../services/audit';
-import type { AuditLogItem } from '../../services/audit';
-import { commonStyles } from '../../utils/styles';
-import { AuditLogTable } from '../../components/features/audit';
-import axiosInstance from '../../utils/axios.customize';
+import DashboardLayout from '@shared/components/layouts/DashboardLayout';
+import { BaseDialog } from '@shared/components';
+import { getAuditLogsAPI, type AuditLogItem } from '@features/audit';
+import { commonStyles } from '@shared/utils';
+import { AuditLogTable } from '@features/audit';
+import axiosInstance from '@shared/utils/axios.customize';
 
 const AuditLog: React.FC = () => {
   const [logs, setLogs] = useState<AuditLogItem[]>([]);

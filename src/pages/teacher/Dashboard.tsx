@@ -21,10 +21,10 @@ import {
   Schedule as ScheduleIcon,
 } from '@mui/icons-material';
 import { useAuth } from '../../contexts/AuthContext';
-import { commonStyles } from '../../utils/styles';
-import DashboardLayout from '../../components/layouts/DashboardLayout';
-import StatCard from '../../components/common/StatCard';
-import { getTeacherDashboardAPI } from '../../services/dashboard';
+import { commonStyles } from '@shared/utils';
+import DashboardLayout from '@shared/components/layouts/DashboardLayout';
+import { StatCard } from '@shared/components';
+import { getTeacherDashboardAPI } from '@shared/services';
 
 const Dashboard = () => {
   const { user } = useAuth();

@@ -1,15 +1,13 @@
 import React, { useState } from 'react';
 import { Box, Typography, Button, Pagination } from '@mui/material';
 import { Add as AddIcon } from '@mui/icons-material';
-import { commonStyles } from '../../utils/styles';
-import DashboardLayout from '../../components/layouts/DashboardLayout';
-import ConfirmDialog from '../../components/common/ConfirmDialog';
-import NotificationSnackbar from '../../components/common/NotificationSnackbar';
-import { useStudentManagement } from '../../hooks/features/useStudentManagement';
-import { useStudentForm } from '../../hooks/features/useStudentForm';
-import { StudentForm, StudentTable, StudentFilters, StudentViewDialog } from '../../components/features/student';
-import { Student } from '../../types';
-import { getStudentByIdAPI } from '../../services/students';
+import { commonStyles } from '@shared/utils';
+import DashboardLayout from '@shared/components/layouts/DashboardLayout';
+import { ConfirmDialog, NotificationSnackbar } from '@shared/components';
+import { useStudentManagement, useStudentForm } from '@features/students';
+import { StudentForm, StudentTable, StudentFilters, StudentViewDialog } from '@features/students';
+import { Student } from '@shared/types';
+import { getStudentByIdAPI } from '@features/students';
 
 interface SnackbarState {
   open: boolean;
@@ -41,22 +39,13 @@ const StudentManagement: React.FC = () => {
   } = useStudentManagement();
 
   const {
-    // form,
-    // classEdits,
-    // formErrors,
-    // formLoading,
-    // formError,
-    // handleChange,
-    // handleClassEditChange,
     setFormData,
     resetForm,
-    // handleSubmit,
   } = useStudentForm();
 
   // Dialog handlers
   const handleOpenDialog = async (student: Student | null = null): Promise<void> => {
     if (student?.id) {
-      // Set selectedStudent trước khi mở dialog để header hiển thị đúng ngay từ đầu
       setSelectedStudent(student);
       setFormData(student || undefined);
       setOpenDialog(true);
