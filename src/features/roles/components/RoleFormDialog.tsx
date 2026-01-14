@@ -145,7 +145,7 @@ const RoleFormDialog: React.FC<RoleFormDialogProps> = memo(({
             isActive: formData.isActive,
             isStaff: formData.isStaff,
             isSystem: formData.isSystem,
-            permissions: formData.permissions,
+            permissionIds: formData.permissions.length > 0 ? formData.permissions : undefined,
         });
 
         if (result.success) {

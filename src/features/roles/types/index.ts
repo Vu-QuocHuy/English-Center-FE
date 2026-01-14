@@ -5,7 +5,7 @@ export interface CreateRoleRequest {
   isActive: boolean;
   isSystem: boolean;
   description?: string;
-  permissions?: number[];
+  permissionIds?: number[];
 }
 
 export interface UpdateRoleRequest {
@@ -14,7 +14,7 @@ export interface UpdateRoleRequest {
   isStaff?: boolean;
   isSystem?: boolean;
   description?: string;
-  permissions?: number[];
+  permissionIds?: number[];
 }
 
 export interface CreatePermissionRequest {
