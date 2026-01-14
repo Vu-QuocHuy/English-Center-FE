@@ -65,7 +65,6 @@ export default defineConfig(({ mode }) => {
           // Hooks
           'common-hooks': [
             './src/shared/hooks/useDebounce.ts',
-            './src/shared/hooks/useServiceWorker.ts',
           ],
           'feature-hooks': [
             './src/features/teachers/hooks/useTeacherManagement.ts',
