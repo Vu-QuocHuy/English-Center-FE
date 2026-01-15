@@ -140,7 +140,7 @@ const Transactions: React.FC = () => {
       else if ((res as any)?.data?.result && Array.isArray((res as any).data.result)) data = (res as any).data.result;
       setCategories(Array.isArray(data) ? data : []);
     } catch (error) {
-      console.error('Error fetching categories:', error);
+      // Error handled silently
     }
   }, []);
 
@@ -247,7 +247,6 @@ const Transactions: React.FC = () => {
         severity: 'success',
       });
     } catch (e) {
-      console.error('Error creating transaction:', e);
       setSnackbar({
         open: true,
         message: 'Có lỗi xảy ra khi thêm hóa đơn.',
@@ -287,7 +286,6 @@ const Transactions: React.FC = () => {
         severity: 'success',
       });
     } catch (e) {
-      console.error('Error updating transaction:', e);
       setSnackbar({
         open: true,
         message: 'Có lỗi xảy ra khi cập nhật hóa đơn.',
@@ -316,7 +314,6 @@ const Transactions: React.FC = () => {
         severity: 'success',
       });
     } catch (e) {
-      console.error('Error deleting transaction:', e);
       setSnackbar({
         open: true,
         message: 'Có lỗi xảy ra khi xóa hóa đơn.',

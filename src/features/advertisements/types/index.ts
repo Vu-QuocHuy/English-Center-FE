@@ -1,4 +1,3 @@
-// Advertisement types
 export interface AdvertisementData {
   title: string;
   description: string;

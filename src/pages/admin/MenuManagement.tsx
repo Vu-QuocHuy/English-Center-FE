@@ -102,7 +102,6 @@ const MenuManagement: React.FC = () => {
         setMenuItems(response.data.data);
       }
     } catch (error) {
-      console.error('Error fetching menu items:', error);
       setNotification({
         open: true,
         message: 'Lỗi khi tải danh sách menu',
@@ -148,7 +147,6 @@ const MenuManagement: React.FC = () => {
       handleCloseDialog();
       fetchMenuItems();
     } catch (error) {
-      console.error('Error creating menu item:', error);
       setNotification({
         open: true,
         message: 'Lỗi khi tạo menu',
@@ -179,7 +177,6 @@ const MenuManagement: React.FC = () => {
       handleCloseDialog();
       fetchMenuItems();
     } catch (error) {
-      console.error('Error updating menu item:', error);
       setNotification({
         open: true,
         message: 'Lỗi khi cập nhật menu',
@@ -209,7 +206,6 @@ const MenuManagement: React.FC = () => {
       setDeleteDialogOpen(false);
       setMenuToDelete(null);
     } catch (error) {
-      console.error('Error deleting menu item:', error);
       setNotification({
         open: true,
         message: 'Lỗi khi xóa menu',

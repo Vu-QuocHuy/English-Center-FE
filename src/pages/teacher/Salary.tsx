@@ -32,7 +32,6 @@ const Salary = () => {
         page: 1,
           limit: 50
         });
-        console.log('API getTeacherPaymentsAPI response:', res);
 
         // Handle the response structure from Get All Teacher Payments API
         if (res && res.data && res.data.data && res.data.data.result) {
@@ -41,7 +40,6 @@ const Salary = () => {
           setPayments([]);
         }
       } catch (err) {
-        console.error('Error fetching payments:', err);
         setPayments([]);
     } finally {
       setLoading(false);
@@ -55,27 +53,21 @@ const Salary = () => {
   const totalPaid = payments.reduce((sum, payment) => sum + (payment.paidAmount ?? 0), 0);
   const totalUnpaid = totalSalary - totalPaid;
 
-  // Log state payments để kiểm tra dữ liệu render
-  console.log('Payments state:', payments);
-
   const handleViewDetail = async (payment: any) => {
     try {
       // Gọi API Get Teacher Payment by ID để lấy thông tin chi tiết
       const res = await getTeacherPaymentByIdAPI(payment.id);
-      console.log('API getTeacherPaymentByIdAPI response for detail:', res);
 
       if (res && res.data && res.data.data) {
         // Cập nhật selectedPayment với thông tin chi tiết từ API
         setSelectedPayment(res.data.data);
         setDetailModalOpen(true);
       } else {
-        console.error('Invalid response from getTeacherPaymentByIdAPI');
         // Fallback: sử dụng payment data hiện tại
         setSelectedPayment(payment);
         setDetailModalOpen(true);
       }
     } catch (err) {
-      console.error('Error fetching payment details:', err);
       // Fallback: sử dụng payment data hiện tại
       setSelectedPayment(payment);
       setDetailModalOpen(true);
@@ -86,21 +78,17 @@ const Salary = () => {
     try {
       // Gọi API Get Teacher Payment by ID để lấy thông tin chi tiết
       const res = await getTeacherPaymentByIdAPI(payment.id);
-      console.log('API getTeacherPaymentByIdAPI response:', res);
-
 
       if (res && res.data && res.data.data) {
         // Cập nhật selectedPayment với thông tin chi tiết từ API
         setSelectedPayment(res.data.data);
         setHistoryModalOpen(true);
       } else {
-        console.error('Invalid response from getTeacherPaymentByIdAPI');
         // Fallback: sử dụng payment data hiện tại
         setSelectedPayment(payment);
         setHistoryModalOpen(true);
       }
     } catch (err) {
-      console.error('Error fetching payment details:', err);
       // Fallback: sử dụng payment data hiện tại
       setSelectedPayment(payment);
       setHistoryModalOpen(true);

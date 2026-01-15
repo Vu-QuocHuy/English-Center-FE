@@ -54,9 +54,6 @@ const Schedule: React.FC = () => {
                   grade: classData.grade.toString(),
                   section: classData.section.toString()
                 });
-
-                // Log thông tin giảm giá
-                console.log(`Lớp ${classData.name}: Giảm giá ${item.discountPercent}%`);
               }
               currentDate = currentDate.add(1, 'day');
             }
@@ -66,7 +63,6 @@ const Schedule: React.FC = () => {
         setLessons(lessons);
       }
     } catch (error: any) {
-      console.error('Error fetching student schedule:', error);
       setError(error.response?.data?.message || 'Có lỗi xảy ra khi tải lịch học');
     } finally {
       setLoading(false);

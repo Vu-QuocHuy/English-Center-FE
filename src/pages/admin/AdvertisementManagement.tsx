@@ -159,9 +159,7 @@ const AdvertisementManagement: React.FC = () => {
         if (previousPublicId && data.publicId && data.publicId !== previousPublicId) {
           try {
             await deleteFileAPI(previousPublicId);
-            console.log('Old file deleted successfully:', previousPublicId);
           } catch (fileError) {
-            console.error('Error deleting old file:', fileError);
             // Don't show error to user if file deletion fails
           }
         }
@@ -210,9 +208,7 @@ const AdvertisementManagement: React.FC = () => {
       if (advertisement?.publicId) {
         try {
           await deleteFileAPI(advertisement.publicId);
-          console.log('File deleted successfully:', advertisement.publicId);
         } catch (fileError) {
-          console.error('Error deleting file:', fileError);
           // Don't show error to user if file deletion fails, as advertisement is already deleted
         }
       }

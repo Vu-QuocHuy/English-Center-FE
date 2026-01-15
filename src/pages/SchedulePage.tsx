@@ -110,7 +110,6 @@ const SchedulePage: React.FC = () => {
               setArticles(sortedArticles);
             }
           } catch (articleError) {
-            console.log('No articles found for this menu, continuing without banner/intro');
             setArticles([]);
           }
         }
@@ -125,7 +124,6 @@ const SchedulePage: React.FC = () => {
         const classesData = response.data?.data?.result || response.data?.data || [];
         setClasses(classesData);
       } catch (err: any) {
-        console.error('Error fetching data:', err);
         setError(err?.response?.data?.message || 'Không thể tải dữ liệu');
         setClasses([]);
       } finally {

@@ -63,7 +63,6 @@ const ArticleManagement: React.FC = () => {
         setMenuItems(response.data.data);
       }
     } catch (error) {
-      console.error('Error fetching menu items:', error);
       setNotification({
         open: true,
         message: 'Lỗi khi tải danh sách menu',
@@ -97,7 +96,6 @@ const ArticleManagement: React.FC = () => {
 
       setArticles(sortedArticles as Article[]);
     } catch (error) {
-      console.error('Error fetching articles:', error);
       setNotification({
         open: true,
         message: 'Lỗi khi tải danh sách bài viết',
@@ -122,7 +120,6 @@ const ArticleManagement: React.FC = () => {
       });
       fetchArticles(selectedMenu);
     } catch (error) {
-      console.error('Error deleting article:', error);
       setNotification({
         open: true,
         message: 'Lỗi khi xóa bài viết',
@@ -154,7 +151,6 @@ const ArticleManagement: React.FC = () => {
       });
       fetchArticles(selectedMenu);
     } catch (error) {
-      console.error('Error updating status:', error);
       setNotification({
         open: true,
         message: 'Lỗi khi cập nhật trạng thái',
@@ -262,7 +258,6 @@ const ArticleManagement: React.FC = () => {
                       setEditingArticle(fullArticle as Article);
                       setFormOpen(true);
                     } catch (error) {
-                      console.error('Error fetching article details:', error);
                       // Fallback to article from table if fetch fails
                       setEditingArticle(article);
                       setFormOpen(true);

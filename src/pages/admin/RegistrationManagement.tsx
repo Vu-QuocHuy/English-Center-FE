@@ -88,12 +88,8 @@ const RegistrationManagement: React.FC = () => {
       // Only add filters if at least one filter is set
       if (Object.keys(filterOptions).length > 0) {
         params.filters = filterOptions;
-        console.log('🔍 Applying filters:', filterOptions);
-      } else {
-        console.log('🔍 No filters applied - fetching all registrations');
       }
 
-      console.log('🔍 Final API params:', params);
       const res = await getAllRegistrationsAPI(params);
 
       const responseData = res.data?.data || res.data;
@@ -103,10 +99,7 @@ const RegistrationManagement: React.FC = () => {
       setRows(list);
       setPage(meta?.page || pageNum);
       setTotalPages(meta?.totalPages || 1);
-
-      console.log('📊 Fetched registrations:', list.length, 'Total pages:', meta?.totalPages);
     } catch (error) {
-      console.error('Error fetching registrations:', error);
       setNotification({ open: true, message: 'Lỗi khi tải dữ liệu', severity: 'error' });
     } finally {
       setLoading(false);
@@ -131,7 +124,6 @@ const RegistrationManagement: React.FC = () => {
       setNotification({ open: true, message: 'Đã đánh dấu hoàn thành xử lý', severity: 'success' });
       fetchData(page); // Reload current page
     } catch (error) {
-      console.error('Error updating registration:', error);
       setNotification({ open: true, message: 'Cập nhật thất bại', severity: 'error' });
     }
   };
@@ -142,7 +134,6 @@ const RegistrationManagement: React.FC = () => {
       const data = res.data?.data || res.data;
       setViewDialog({ open: true, data });
     } catch (error) {
-      console.error('Error fetching registration details:', error);
       setNotification({ open: true, message: 'Không thể tải thông tin', severity: 'error' });
     }
   };
@@ -155,7 +146,6 @@ const RegistrationManagement: React.FC = () => {
       setDeleteDialog({ open: false, id: null });
       fetchData(page); // Reload current page
     } catch (error) {
-      console.error('Error deleting registration:', error);
       setNotification({ open: true, message: 'Xóa thất bại', severity: 'error' });
     }
   };

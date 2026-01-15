@@ -53,7 +53,7 @@ export const useBannerConfig = () => {
           setPopupConfig(JSON.parse(savedPopupConfig));
         }
       } catch (error) {
-        console.error('Error loading banner configurations:', error);
+        // Silently handle localStorage errors
       }
     };
 
@@ -75,7 +75,7 @@ export const useBannerConfig = () => {
       localStorage.setItem('popupConfig', JSON.stringify(config));
       setPopupConfig(config);
     } catch (error) {
-      console.error('Error saving popup configuration:', error);
+      // Silently handle localStorage errors
     }
   };
 

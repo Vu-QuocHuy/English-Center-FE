@@ -125,7 +125,6 @@ const Dashboard: React.FC = () => {
       });
 
     } catch (err: any) {
-      console.error('Error fetching admin dashboard data:', err);
       setError('Không thể tải dữ liệu dashboard');
     } finally {
       setLoading(false);

@@ -11,9 +11,7 @@ import ArticleListTemplate from '@features/articles/components/ArticleListTempla
 
 
 const DynamicMenuPage: React.FC = () => {
-  console.log('🚀 DynamicMenuPage component mounted');
   const { slug, parentSlug, childSlug } = useParams<{ slug?: string; parentSlug?: string; childSlug?: string }>();
-  console.log('📋 Route params:', { slug, parentSlug, childSlug });
   const { menuItems } = useMenuItems();
   const [menuItem, setMenuItem] = useState<MenuItem | null>(null);
   const [loading, setLoading] = useState(true);
@@ -22,11 +20,8 @@ const DynamicMenuPage: React.FC = () => {
   // Combine slug from params - support both /:slug and /:parentSlug/:childSlug
   const fullSlug = childSlug ? `${parentSlug}/${childSlug}` : slug;
 
-  console.log('🔍 DynamicMenuPage - fullSlug:', fullSlug, 'slug:', slug, 'parentSlug:', parentSlug, 'childSlug:', childSlug);
-
   // Check if this is a special page FIRST - before any loading/effects
   const normalizedSlug = fullSlug?.toLowerCase().trim().replace(/^\//, '');
-  console.log('🔍 DynamicMenuPage - normalizedSlug:', normalizedSlug);
   
   // Check for special pages
   const isTeacherPage = normalizedSlug === 'teacher' || 
@@ -48,25 +43,18 @@ const DynamicMenuPage: React.FC = () => {
     normalizedSlug?.includes('lich-khai-giang') ||
     normalizedSlug?.includes('schedule');
 
-  console.log('🔍 DynamicMenuPage - Special pages:', { isTeacherPage, isTestimonialsPage, isSchedulePage });
-
   // Render special pages immediately
   if (isTeacherPage) {
-    console.log('✅ Rendering AllTeachersPage');
     return <AllTeachersPage />;
   }
 
   if (isTestimonialsPage) {
-    console.log('✅ Rendering TestimonialsPage');
     return <TestimonialsPage />;
   }
 
   if (isSchedulePage) {
-    console.log('✅ Rendering SchedulePage');
     return <SchedulePage />;
   }
-  
-  console.log('❌ Not a special page, continuing with normal flow');
 
   useEffect(() => {
     const fetchMenuItem = async () => {
@@ -93,7 +81,6 @@ const DynamicMenuPage: React.FC = () => {
         }
 
       } catch (error) {
-        console.error('Error fetching menu item:', error);
         setError('Không tìm thấy trang này');
       } finally {
         setLoading(false);

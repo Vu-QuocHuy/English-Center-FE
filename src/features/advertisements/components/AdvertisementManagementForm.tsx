@@ -241,7 +241,7 @@ const AdvertisementManagementForm: React.FC<AdvertisementManagementFormProps> = 
       resetClassSearch();
       onClose();
     } catch (error) {
-      console.error('Error submitting form:', error);
+      // Error handled by notification
     }
   };
 

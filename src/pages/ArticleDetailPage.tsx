@@ -66,7 +66,6 @@ const ArticleDetailPage: React.FC = () => {
         // Scroll to top after article is loaded
         window.scrollTo(0, 0);
       } catch (err: any) {
-        console.error('Error fetching article:', err);
         setError(err.response?.data?.message || 'Không thể tải bài viết');
       } finally {
         setLoading(false);

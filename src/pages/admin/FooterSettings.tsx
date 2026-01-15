@@ -122,7 +122,6 @@ const FooterSettings: React.FC = () => {
         window.location.reload();
       }, 1000);
     } catch (error) {
-      console.error('Error saving footer settings:', error);
       setSnackbar({
         open: true,
         message: 'Có lỗi xảy ra khi lưu cài đặt',

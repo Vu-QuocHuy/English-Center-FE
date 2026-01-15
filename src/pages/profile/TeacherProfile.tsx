@@ -286,7 +286,6 @@ const TeacherProfile: React.FC = () => {
                       size={200}
                       onAvatarUpdate={(newAvatarUrl) => {
                         // Avatar will be updated through the context
-                        console.log('Avatar updated:', newAvatarUrl);
                       }}
                     />
                   </Box>

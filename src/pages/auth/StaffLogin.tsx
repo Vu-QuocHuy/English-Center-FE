@@ -131,7 +131,6 @@ const StaffLogin: React.FC = () => {
         }
       }
     } catch (error: any) {
-      console.error('Staff login failed:', error);
     } finally {
       setIsSubmitting(false);
     }

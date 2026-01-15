@@ -96,7 +96,7 @@ const ClassTeacherManagement: React.FC<ClassTeacherManagementProps> = ({
               teacherObj = foundTeacher;
             }
           } catch (error) {
-            console.error('Error fetching teacher data:', error);
+            // Error handled silently
           }
         }
       } else if (typeof classData?.teacherId === 'object' && classData.teacherId) {
@@ -129,7 +129,6 @@ const ClassTeacherManagement: React.FC<ClassTeacherManagementProps> = ({
           setAllTeachers([]);
         }
       } catch (error) {
-        console.error('Error fetching teachers:', error);
         setAllTeachers([]);
       }
     };
@@ -171,7 +170,6 @@ const ClassTeacherManagement: React.FC<ClassTeacherManagementProps> = ({
         onClose();
       }, 1000);
     } catch (error: any) {
-      console.error('Error assigning teacher:', error);
       setNotification({
         open: true,
         message: error.response?.data?.message || 'Có lỗi xảy ra khi phân công giáo viên',
@@ -220,7 +218,6 @@ const ClassTeacherManagement: React.FC<ClassTeacherManagementProps> = ({
         onClose();
       }, 1000);
     } catch (error: any) {
-      console.error('Error unassigning teacher:', error);
       setNotification({
         open: true,
         message: error.response?.data?.message || 'Có lỗi xảy ra khi hủy phân công giáo viên',

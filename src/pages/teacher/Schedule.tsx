@@ -27,7 +27,6 @@ const Schedule: React.FC = () => {
   useEffect(() => {
     const fetchTeacherSchedule = async (): Promise<void> => {
       if (!user) {
-        console.error('No user found');
         setError('Không tìm thấy thông tin người dùng');
         setLoading(false);
         return;
@@ -88,7 +87,6 @@ const Schedule: React.FC = () => {
           setLessons([]);
         }
       } catch (err: any) {
-        console.error('Error fetching teacher schedule:', err);
 
         let errorMessage: string = 'Không thể tải lịch dạy học. Vui lòng thử lại sau.';
 

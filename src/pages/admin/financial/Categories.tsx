@@ -37,7 +37,7 @@ const Categories: React.FC = () => {
       else if ((res as any)?.data?.result && Array.isArray((res as any).data.result)) data = (res as any).data.result;
       setCategories(Array.isArray(data) ? data : []);
     } catch (error) {
-      console.error('Error fetching categories:', error);
+      // Error handled silently
     }
   }, []);
 
@@ -67,7 +67,6 @@ const Categories: React.FC = () => {
         severity: 'success',
       });
     } catch (e) {
-      console.error('Error creating category:', e);
       setSnackbar({
         open: true,
         message: 'Có lỗi xảy ra khi thêm danh mục.',
@@ -92,7 +91,6 @@ const Categories: React.FC = () => {
         severity: 'success',
       });
     } catch (e) {
-      console.error('Error deleting category:', e);
       setSnackbar({
         open: true,
         message: 'Có lỗi xảy ra khi xóa danh mục.',

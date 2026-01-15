@@ -61,7 +61,6 @@ const TestimonialsManagement: React.FC = () => {
         setFeedbacks(response.data.data.result);
       }
     } catch (error) {
-      console.error('Error fetching feedbacks:', error);
       setNotification({
         open: true,
         message: 'Không thể tải danh sách đánh giá',
@@ -159,9 +158,6 @@ const TestimonialsManagement: React.FC = () => {
         socialUrl: formData.socialUrl || undefined
       };
 
-      // Debug log để kiểm tra payload
-      console.log('Submit Data:', submitData);
-
       if (editingFeedback) {
         // Update existing feedback
         await updateFeedbackAPI(editingFeedback.id, submitData);
@@ -195,7 +191,6 @@ const TestimonialsManagement: React.FC = () => {
       handleCloseDialog();
       fetchFeedbacks();
     } catch (error) {
-      console.error('Error saving feedback:', error);
       setNotification({
         open: true,
         message: 'Có lỗi xảy ra khi lưu đánh giá',
@@ -238,7 +233,6 @@ const TestimonialsManagement: React.FC = () => {
       setDeleteDialogOpen(false);
       setFeedbackToDelete(null);
     } catch (error) {
-      console.error('Error deleting feedback:', error);
       setNotification({
         open: true,
         message: 'Có lỗi xảy ra khi xóa đánh giá',
@@ -266,7 +260,6 @@ const TestimonialsManagement: React.FC = () => {
       try {
         setImageUploading(true);
         const uploadRes = await uploadFileAPI(file);
-        console.log('Upload Response:', uploadRes.data);
         setUploadedImageUrl(uploadRes.data.data.url);
         setUploadedPublicId(uploadRes.data.data.public_id);
       } catch (_err) {

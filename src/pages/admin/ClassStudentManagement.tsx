@@ -75,7 +75,6 @@ const ClassStudentManagement: React.FC<ClassStudentManagementProps> = ({ classDa
             setStudents([]);
           }
         } catch (error) {
-          console.error('Error fetching students:', error);
           setStudents([]);
         } finally {
           setStudentsLoading(false);
@@ -100,7 +99,7 @@ const ClassStudentManagement: React.FC<ClassStudentManagementProps> = ({ classDa
           setStudents(res.data.students);
         }
       } catch (error) {
-        console.error('Error refreshing students:', error);
+        // Error handled silently
       }
     };
     fetchStudents();
@@ -128,7 +127,6 @@ const ClassStudentManagement: React.FC<ClassStudentManagementProps> = ({ classDa
       }
       if (onUpdate) onUpdate();
     } catch (error: any) {
-      console.error('Error removing student:', error);
       setNotification({
         open: true,
         message: error.response?.data?.message || 'Có lỗi xảy ra khi xóa học sinh',

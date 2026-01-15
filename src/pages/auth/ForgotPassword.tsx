@@ -89,7 +89,6 @@ const ForgotPassword: React.FC = () => {
       setEmail(values.email);
       setCurrentStep('verify');
     } catch (error: any) {
-      console.error('Send request password failed:', error);
       if (error.response?.data?.message) {
         setError(error.response.data.message);
       } else {
@@ -151,7 +150,6 @@ const ForgotPassword: React.FC = () => {
       await resetPasswordAPI(email, verificationCode, newPassword, confirmPassword);
       setCurrentStep('success');
     } catch (error: any) {
-      console.error('Reset password failed:', error);
       if (error.response?.data?.message) {
         setError(error.response.data.message);
       } else {
@@ -176,7 +174,6 @@ const ForgotPassword: React.FC = () => {
       setSnackbarOpen(true);
       // Hiển thị thông báo thành công qua snackbar
     } catch (error: any) {
-      console.error('Resend code failed:', error);
       if (error.response?.data?.message) {
         setError(error.response.data.message);
       } else {

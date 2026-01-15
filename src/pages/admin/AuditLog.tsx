@@ -86,7 +86,6 @@ const AuditLog: React.FC = () => {
       const response = await axiosInstance.get(`/audit-log/${logId}`);
       setDetailData(response.data?.data || null);
     } catch (e: any) {
-      console.error('Error fetching log detail:', e);
       setDetailData(null);
     } finally {
       setDetailLoading(false);

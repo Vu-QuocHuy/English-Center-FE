@@ -12,8 +12,6 @@ try {
   validateEnvironment();
   validateConfig();
 } catch (error) {
-  console.error('❌ Environment validation failed:', error);
-  // In production, you might want to show a user-friendly error page
   if (import.meta.env.PROD) {
     document.body.innerHTML = `
       <div style="display: flex; justify-content: center; align-items: center; height: 100vh; font-family: Arial, sans-serif;">

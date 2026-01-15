@@ -24,7 +24,7 @@ const HomeWelcomeAdPopup: React.FC = () => {
           setAdvertisements(popupAds);
         }
       } catch (error) {
-        console.error('Error fetching popup advertisements:', error);
+        // Error handled silently
       }
     };
 

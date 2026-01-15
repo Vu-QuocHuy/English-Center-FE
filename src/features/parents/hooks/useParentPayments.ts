@@ -239,9 +239,6 @@ export const useParentPayments = (user: any | null): UseParentPaymentsReturn => 
       case 'pending':
       case 'chờ thanh toán':
         return 'warning';
-      case 'overdue':
-      case 'quá hạn':
-        return 'error';
       default:
         return 'default';
     }
@@ -258,9 +255,6 @@ export const useParentPayments = (user: any | null): UseParentPaymentsReturn => 
       case 'pending':
       case 'chờ thanh toán':
         return 'Chờ thanh toán';
-      case 'overdue':
-      case 'quá hạn':
-        return 'Quá hạn';
       default:
         return status;
     }

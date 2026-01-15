@@ -82,7 +82,6 @@ const Dashboard = () => {
       });
 
     } catch (err) {
-      console.error('Error fetching student dashboard data:', err);
       setError('Không thể tải dữ liệu dashboard');
     } finally {
       setLoading(false);

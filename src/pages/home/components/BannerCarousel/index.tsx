@@ -62,7 +62,6 @@ const BannerCarousel: React.FC = () => {
 
         setAdvertisements(finalBanners);
       } catch (error) {
-        console.error('Error fetching advertisements:', error);
         setError('Không thể tải quảng cáo');
         setAdvertisements([]);
       } finally {

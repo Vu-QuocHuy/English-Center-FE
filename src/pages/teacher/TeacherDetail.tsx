@@ -56,7 +56,6 @@ const TeacherDetail: React.FC = () => {
             const fallback = await getPublicTeacherByIdAPI(teacherId);
             setTeacher(fallback.data?.data || fallback.data);
           } catch (innerErr) {
-            console.error('Error fetching teacher detail:', innerErr);
             setError('Không thể tải thông tin giáo viên');
           }
         } finally {
@@ -69,7 +68,6 @@ const TeacherDetail: React.FC = () => {
           const response = await getTeacherBySlugAPI(slug);
           setTeacher(response.data?.data || response.data);
         } catch (err) {
-          console.error('Error fetching teacher by slug:', err);
           setError('Không thể tải thông tin giáo viên');
         } finally {
           setLoading(false);

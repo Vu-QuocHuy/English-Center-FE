@@ -72,7 +72,6 @@ const Dashboard = () => {
       });
 
     } catch (err) {
-      console.error('Error fetching teacher dashboard data:', err);
       setError('Không thể tải dữ liệu dashboard');
     } finally {
       setLoading(false);

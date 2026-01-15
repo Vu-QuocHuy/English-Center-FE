@@ -18,7 +18,6 @@ import { Teacher, MenuItem } from '@shared/types';
 import PublicLayout from '@shared/components/layouts/PublicLayout';
 
 const AllTeachersPage = () => {
-  console.log('🎯 AllTeachersPage component rendered');
   const navigate = useNavigate();
   const location = useLocation();
   const { menuItems } = useMenuItems();
@@ -27,8 +26,6 @@ const AllTeachersPage = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [showAll, setShowAll] = useState(false);
-  
-  console.log('📊 Current state:', { loading, teachersCount: teachers.length, error, showAll });
 
   const INITIAL_DISPLAY_COUNT = 8; // 2 hàng x 4 cột
 
@@ -38,7 +35,6 @@ const AllTeachersPage = () => {
   useEffect(() => {
     const fetchTeachers = async () => {
       try {
-        console.log('🔄 Fetching teachers...');
         setLoading(true);
         setError(null);
 
@@ -50,15 +46,12 @@ const AllTeachersPage = () => {
             limit: 100, // Lấy nhiều để hiển thị tất cả khi cần
           });
         } catch (publicError) {
-          console.log('Public API failed, trying authenticated API...', publicError);
           // Fallback to authenticated API if public API doesn't exist
           response = await getAllTeachersAPI({
             page: 1,
             limit: 100,
           });
         }
-
-        console.log('✅ Teachers API response:', response);
 
         // Handle different response formats
         let teachersData = [];
@@ -72,21 +65,14 @@ const AllTeachersPage = () => {
           teachersData = response.data;
         }
 
-        console.log('📊 Teachers data extracted:', teachersData);
-
         // Filter active teachers only
         const activeTeachers = teachersData.filter((teacher: any) => teacher.isActive !== false);
 
-        console.log('👥 Active teachers:', activeTeachers.length);
-
         setTeachers(activeTeachers);
       } catch (teacherError: any) {
-        console.error('❌ Error fetching teachers:', teacherError);
-        console.error('Error details:', teacherError?.response?.data || teacherError?.message);
         setError(teacherError?.response?.data?.message || 'Không thể tải dữ liệu giáo viên');
         setTeachers([]);
       } finally {
-        console.log('🏁 Finished fetching teachers');
         setLoading(false);
       }
     };
@@ -132,7 +118,6 @@ const AllTeachersPage = () => {
               setArticles(sortedArticles);
             }
           } catch (articleError) {
-            console.log('No articles found for this menu');
             setArticles([]);
           }
         }
@@ -169,10 +154,7 @@ const AllTeachersPage = () => {
   const displayedTeachers = showAll ? teachers : teachers.slice(0, INITIAL_DISPLAY_COUNT);
   const hasMore = teachers.length > INITIAL_DISPLAY_COUNT;
 
-  console.log('🎨 Rendering with:', { loading, teachersCount: teachers.length, displayedCount: displayedTeachers.length, error });
-
   if (loading) {
-    console.log('⏳ Showing loading spinner');
     return (
       <PublicLayout>
         <Box sx={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', minHeight: '60vh' }}>

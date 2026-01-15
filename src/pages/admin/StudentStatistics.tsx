@@ -133,7 +133,6 @@ const StudentStatistics: React.FC = () => {
         period: apiData.summary?.period || { startDate: '', endDate: '' }
       });
     } catch (err) {
-      console.error('Error fetching monthly data:', err);
       setError('Không thể tải dữ liệu thống kê');
       setMonthlyData([]);
     } finally {

@@ -240,7 +240,6 @@ const TestimonialsPage: React.FC = () => {
               setArticles(sortedArticles);
             }
           } catch (articleError) {
-            console.log('No articles found for this menu');
             setArticles([]);
           }
         }
@@ -254,11 +253,9 @@ const TestimonialsPage: React.FC = () => {
             setFeedbacks([]);
           }
         } catch (feedbackError) {
-          console.error('Error fetching feedbacks:', feedbackError);
           setFeedbacks([]);
         }
       } catch (err: any) {
-        console.error('Error fetching data:', err);
         setError(err?.response?.data?.message || 'Không thể tải dữ liệu');
       } finally {
         setLoading(false);

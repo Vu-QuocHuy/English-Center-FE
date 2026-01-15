@@ -211,12 +211,6 @@ const AdvertisementSlider: React.FC<AdvertisementSliderProps> = ({
     );
   }
 
-  // 🔍 Debug: Kiểm tra từng banner
-  console.log('🎨 [AdvertisementSlider] Total ads:', sortedAds.length);
-  sortedAds.forEach((ad, idx) => {
-    console.log(`🎨 [Banner ${idx + 1}] Title: "${ad.title}", classId: "${(ad as any).class?.id || 'KHÔNG CÓ'}", onRegisterClick: ${!!onRegisterClick}`);
-  });
-
   const settings = {
     dots: showDots,
     infinite: true,
