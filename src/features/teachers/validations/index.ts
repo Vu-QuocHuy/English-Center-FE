@@ -38,6 +38,7 @@ export interface TeacherValidationErrors {
   email?: string;
   password?: string;
   phone?: string;
+  dayOfBirth?: string;
   address?: string;
   gender?: string;
   description?: string;
@@ -74,9 +75,26 @@ export function validateTeacher(form: TeacherFormData): TeacherValidationErrors 
   const phoneError = validatePhone(form.phone);
   if (phoneError) errors.phone = phoneError;
 
-  // Bỏ validation ngày sinh
-  // const dobError = validateDayOfBirth(form.dayOfBirth);
-  // if (dobError) errors.dayOfBirth = dobError;
+  // Validate dayOfBirth (YYYY-MM-DD format from date input)
+  if (!form.dayOfBirth) {
+    errors.dayOfBirth = 'Ngày sinh không được để trống';
+  } else {
+    const dateRegex = /^\d{4}-\d{2}-\d{2}$/;
+    if (!dateRegex.test(form.dayOfBirth)) {
+      errors.dayOfBirth = 'Ngày sinh không hợp lệ';
+    } else {
+      const date = new Date(form.dayOfBirth);
+      if (isNaN(date.getTime())) {
+        errors.dayOfBirth = 'Ngày sinh không hợp lệ';
+      } else {
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+        if (date >= today) {
+          errors.dayOfBirth = 'Ngày sinh phải nhỏ hơn ngày hiện tại';
+        }
+      }
+    }
+  }
 
   const addressError = validateAddress(form.address);
   if (addressError) errors.address = addressError;
@@ -84,11 +102,11 @@ export function validateTeacher(form: TeacherFormData): TeacherValidationErrors 
   const genderError = validateGender(form.gender);
   if (genderError) errors.gender = genderError;
 
-  // Validate salaryPerLesson (optional, but if provided must be valid)
-  if (form.salaryPerLesson !== undefined && form.salaryPerLesson !== null && form.salaryPerLesson !== '') {
-    if (isNaN(Number(form.salaryPerLesson)) || Number(form.salaryPerLesson) < 0) {
-      errors.salaryPerLesson = 'Lương phải là số lớn hơn hoặc bằng 0';
-    }
+  // Validate salaryPerLesson (required)
+  if (form.salaryPerLesson === undefined || form.salaryPerLesson === null || form.salaryPerLesson === '') {
+    errors.salaryPerLesson = 'Lương mỗi buổi học không được để trống';
+  } else if (isNaN(Number(form.salaryPerLesson)) || Number(form.salaryPerLesson) < 0) {
+    errors.salaryPerLesson = 'Lương phải là số lớn hơn hoặc bằng 0';
   }
 
   // Các validate khác (qualifications, specializations, description) đang được bỏ qua

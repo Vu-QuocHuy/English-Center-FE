@@ -26,7 +26,7 @@ import type { Parent, Student } from '@shared/types';
 import { useParentForm } from '@features/parents';
 import { getParentByIdAPI, getParentChildrenAPI, createParentAPI, updateParentAPI } from '../services/parents.api';
 import { getAllStudentsAPI } from '@features/students';
-import { BaseDialog } from '@shared/components';
+import { BaseDialog, ConfirmDialog } from '@shared/components';
 import {
   validateName,
   validateEmail,
@@ -69,6 +69,9 @@ const ParentForm: React.FC<ParentFormProps> = ({ open, onClose, onSubmit, parent
   const [refreshKey, setRefreshKey] = useState<number>(0);
   const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState<FormErrors>({});
+  const [originalData, setOriginalData] = useState<any>(null);
+  const [openRemoveChildDialog, setOpenRemoveChildDialog] = useState(false);
+  const [studentToRemove, setStudentToRemove] = useState<Student | null>(null);
   const busy = loading || externalLoading;
 
   // Lazy search hook for student search
@@ -101,13 +104,25 @@ const ParentForm: React.FC<ParentFormProps> = ({ open, onClose, onSubmit, parent
   useEffect(() => {
     if (parent && open) {
       setFormData(parent as any);
+      // Store original data for comparison
+      setOriginalData({
+        name: parent.name || (parent as any)?.userId?.name || '',
+        email: parent.email || (parent as any)?.userId?.email || '',
+        phone: parent.phone || (parent as any)?.userId?.phone || '',
+        dayOfBirth: parent.dayOfBirth || (parent as any)?.userId?.dayOfBirth || '',
+        address: parent.address || (parent as any)?.userId?.address || '',
+        gender: parent.gender || (parent as any)?.userId?.gender || 'male',
+        canSeeTeacherInfo: (parent as any)?.canSeeTeacherInfo ?? true
+      });
       // Không reset tab khi đã mở dialog
     } else if (!open) {
       // Chỉ reset tab, không reset form/children ở đây để tránh conflict với handleClose
       setTab(0); // Reset về tab đầu tiên khi đóng dialog
+      setOriginalData(null);
     } else if (!parent && open) {
       // Khi mở dialog thêm mới
       setTab(0); // Chỉ hiển thị tab thông tin cơ bản
+      setOriginalData(null);
     }
   }, [parent, open, setFormData]);
 
@@ -234,19 +249,26 @@ const ParentForm: React.FC<ParentFormProps> = ({ open, onClose, onSubmit, parent
 
       let body: any;
       if (parent) {
-        // Update existing parent
+        // Update existing parent - only send changed fields
+        const changedFields: any = {};
+        
+        if (originalData) {
+          if (form.name !== originalData.name) changedFields.name = form.name;
+          if (form.email !== originalData.email) changedFields.email = form.email;
+          if (form.phone !== originalData.phone) changedFields.phone = form.phone;
+          if (form.dayOfBirth !== originalData.dayOfBirth) changedFields.dayOfBirth = toAPIDateFormat(form.dayOfBirth);
+          if (form.gender !== originalData.gender) changedFields.gender = form.gender;
+          if (form.address !== originalData.address) changedFields.address = form.address;
+        }
+
+        const parentDataChanged: any = {};
+        if (originalData && form.canSeeTeacherInfo !== originalData.canSeeTeacherInfo) {
+          parentDataChanged.canSeeTeacherInfo = form.canSeeTeacherInfo;
+        }
+
         body = {
-          userData: {
-            name: form.name,
-            email: form.email,
-            phone: form.phone,
-            dayOfBirth: toAPIDateFormat(form.dayOfBirth),
-            gender: form.gender,
-            address: form.address,
-          },
-          parentData: {
-            canSeeTeacherInfo: form.canSeeTeacherInfo,
-          }
+          ...(Object.keys(changedFields).length > 0 ? { userData: changedFields } : {}),
+          ...(Object.keys(parentDataChanged).length > 0 ? { parentData: parentDataChanged } : {})
         };
 
         await updateParentAPI(parent.id, body);
@@ -310,14 +332,24 @@ const ParentForm: React.FC<ParentFormProps> = ({ open, onClose, onSubmit, parent
     }
   };
 
-  const removeChild = async (studentId: string) => {
-    if (!parent?.id) return;
+  const handleOpenRemoveChildDialog = (student: Student) => {
+    setStudentToRemove(student);
+    setOpenRemoveChildDialog(true);
+  };
 
-    const result = await handleRemoveChild(String(studentId), String(parent.id));
+  const handleCloseRemoveChildDialog = () => {
+    setOpenRemoveChildDialog(false);
+    setStudentToRemove(null);
+  };
+
+  const handleConfirmRemoveChild = async () => {
+    if (!parent?.id || !studentToRemove) return;
+
+    const result = await handleRemoveChild(String(studentToRemove.id), String(parent.id));
 
     if (result.success) {
       // Cập nhật danh sách con ngay lập tức
-      const updatedList = childrenList.filter((s: any) => String(s.id) !== String(studentId));
+      const updatedList = childrenList.filter((s: any) => String(s.id) !== String(studentToRemove.id));
       setChildrenList(updatedList);
 
       // Hiển thị thông báo thành công
@@ -333,6 +365,12 @@ const ParentForm: React.FC<ParentFormProps> = ({ open, onClose, onSubmit, parent
         onMessage(result.message, 'error');
       }
     }
+
+    handleCloseRemoveChildDialog();
+  };
+
+  const removeChild = (student: Student) => {
+    handleOpenRemoveChildDialog(student);
   };
 
   const handleClose = () => {
@@ -560,7 +598,7 @@ const ParentForm: React.FC<ParentFormProps> = ({ open, onClose, onSubmit, parent
                             variant="outlined"
                             color="error"
                             size="small"
-                            onClick={() => removeChild(String(child.id))}
+                            onClick={() => removeChild(child)}
                             sx={{
                               borderRadius: 2,
                               px: 2,
@@ -706,6 +744,19 @@ const ParentForm: React.FC<ParentFormProps> = ({ open, onClose, onSubmit, parent
             </Paper>
           </Box>
         )}
+
+      {/* Confirm Dialog for removing child */}
+      <ConfirmDialog
+        open={openRemoveChildDialog}
+        onClose={handleCloseRemoveChildDialog}
+        onConfirm={handleConfirmRemoveChild}
+        title="Xác nhận xóa con"
+        message={studentToRemove ? `Bạn có chắc chắn muốn xóa "${studentToRemove.name}" khỏi danh sách con của phụ huynh này?` : ''}
+        confirmText="Xóa"
+        cancelText="Hủy"
+        confirmColor="error"
+        loading={busy}
+      />
     </BaseDialog>
   );
 };

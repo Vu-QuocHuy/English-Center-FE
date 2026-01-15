@@ -13,3 +13,6 @@ export * from './hooks/useStaffForm';
 
 // Types
 export * from './types';
+
+// Validations
+export * from './validations';

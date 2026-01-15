@@ -16,11 +16,14 @@ import {
 import { Save as SaveIcon, Cancel as CancelIcon, Edit as EditIcon, Add as AddIcon } from '@mui/icons-material';
 import { Teacher } from '@shared/types';
 import { BaseDialog } from '@shared/components';
+import { validateTeacher } from '@features/teachers/validations';
+import type { TeacherFormData } from '@features/teachers/validations';
+import { createTeacherAPI, updateTeacherAPI } from '../services/teachers.api';
 
 interface TeacherFormProps {
   open: boolean;
   onClose: () => void;
-  onSubmit: (teacherData: Partial<Teacher>) => Promise<void>;
+  onSubmit?: (result: { success: boolean; message?: string }) => void;
   teacher?: Teacher | null;
   loading?: boolean;
 }
@@ -48,7 +51,9 @@ interface FormErrors {
   email?: string;
   password?: string;
   phone?: string;
+  dayOfBirth?: string;
   address?: string;
+  gender?: string;
   description?: string;
   qualifications?: string;
   specializations?: string;
@@ -64,8 +69,9 @@ const TeacherForm: React.FC<TeacherFormProps> = ({
   onClose,
   onSubmit,
   teacher,
-  loading = false
+  loading: externalLoading = false
 }) => {
+  const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState<FormData>({
     name: '',
     email: '',
@@ -85,11 +91,12 @@ const TeacherForm: React.FC<TeacherFormProps> = ({
   });
 
   const [errors, setErrors] = useState<FormErrors>({});
+  const [originalData, setOriginalData] = useState<FormData | null>(null);
 
   useEffect(() => {
     // Chỉ coi là chế độ chỉnh sửa khi có teacher và có id
     if (teacher && (teacher as any)?.id) {
-      setFormData({
+      const initialData = {
         name: teacher.name || (teacher as any)?.userId?.name || '',
         email: teacher.email || (teacher as any)?.userId?.email || '',
         password: '', // Không hiển thị password khi edit
@@ -115,10 +122,17 @@ const TeacherForm: React.FC<TeacherFormProps> = ({
           : '',
         isActive: (teacher as any)?.isActive ?? true,
         typical: (teacher as any)?.typical ?? false
-      });
+      };
+      setFormData(initialData);
+      setOriginalData(initialData); // Store original data for comparison
+    } else if (open && !teacher) {
+      // Reset form when opening dialog for new teacher
+      resetForm();
+      setOriginalData(null);
     } else if (!open) {
       // Reset only when dialog closes to keep inputs while open
       resetForm();
+      setOriginalData(null);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [teacher, open]);
@@ -142,6 +156,51 @@ const TeacherForm: React.FC<TeacherFormProps> = ({
       typical: false
     });
     setErrors({});
+    setOriginalData(null);
+  };
+
+  // Helper function to get only changed fields (flat structure for backend)
+  const getChangedFields = (newData: FormData, original: FormData | null): Partial<FormData> => {
+    if (!original) {
+      // If no original data, return all data (for create)
+      return newData;
+    }
+
+    const changedFields: Partial<FormData> = {};
+
+    // Check all fields
+    if (newData.name !== original.name) changedFields.name = newData.name;
+    if (newData.email !== original.email) changedFields.email = newData.email;
+    if (newData.phone !== original.phone) changedFields.phone = newData.phone;
+    if (newData.address !== original.address) changedFields.address = newData.address;
+    if (newData.gender !== original.gender) changedFields.gender = newData.gender;
+    if (newData.dayOfBirth !== original.dayOfBirth) changedFields.dayOfBirth = newData.dayOfBirth;
+    if (newData.description !== original.description) changedFields.description = newData.description;
+    
+    // Compare qualifications (arrays)
+    const newQuals = newData.qualifications ? newData.qualifications.split(',').map(q => q.trim()).filter(q => q).sort().join(',') : '';
+    const origQuals = original.qualifications ? original.qualifications.split(',').map(q => q.trim()).filter(q => q).sort().join(',') : '';
+    if (newQuals !== origQuals) {
+      changedFields.qualifications = newData.qualifications;
+    }
+    
+    // Compare specializations (arrays)
+    const newSpecs = newData.specializations ? newData.specializations.split(',').map(s => s.trim()).filter(s => s).sort().join(',') : '';
+    const origSpecs = original.specializations ? original.specializations.split(',').map(s => s.trim()).filter(s => s).sort().join(',') : '';
+    if (newSpecs !== origSpecs) {
+      changedFields.specializations = newData.specializations;
+    }
+    
+    if (newData.introduction !== original.introduction) changedFields.introduction = newData.introduction;
+    if (newData.workExperience !== original.workExperience) changedFields.workExperience = newData.workExperience;
+    
+    const newSalary = newData.salaryPerLesson ? Number(newData.salaryPerLesson) : 0;
+    const origSalary = original.salaryPerLesson ? Number(original.salaryPerLesson) : 0;
+    if (newSalary !== origSalary) changedFields.salaryPerLesson = newData.salaryPerLesson;
+    
+    if (newData.isActive !== original.isActive) changedFields.isActive = newData.isActive;
+
+    return changedFields;
   };
 
   const handleInputChange = (field: keyof FormData, value: string | boolean) => {
@@ -159,39 +218,137 @@ const TeacherForm: React.FC<TeacherFormProps> = ({
   };
 
   const validate = (): boolean => {
-    // Tạm thời bỏ validation để test
-    setErrors({});
-    return true;
+    const newErrors: FormErrors = {};
+    
+    // Convert formData to TeacherFormData format for validation
+    const teacherFormData: TeacherFormData = {
+      name: formData.name,
+      email: formData.email,
+      password: teacher && (teacher as any)?.id ? undefined : formData.password, // Only validate password for new teachers
+      phone: formData.phone,
+      dayOfBirth: formData.dayOfBirth,
+      address: formData.address,
+      gender: formData.gender,
+      description: formData.description,
+      qualifications: formData.qualifications ? formData.qualifications.split(',').map(q => q.trim()).filter(q => q) : [],
+      specializations: formData.specializations ? formData.specializations.split(',').map(s => s.trim()).filter(s => s) : [],
+      introduction: formData.introduction,
+      workExperience: formData.workExperience,
+      salaryPerLesson: formData.salaryPerLesson ? Number(formData.salaryPerLesson) : undefined,
+      isActive: formData.isActive
+    };
+
+    // Validate using the validation function
+    const validationErrors = validateTeacher(teacherFormData);
+    
+    // Map validation errors to form errors
+    if (validationErrors.name) newErrors.name = validationErrors.name;
+    if (validationErrors.email) newErrors.email = validationErrors.email;
+    if (validationErrors.password) newErrors.password = validationErrors.password;
+    if (validationErrors.phone) newErrors.phone = validationErrors.phone;
+    if (validationErrors.dayOfBirth) newErrors.dayOfBirth = validationErrors.dayOfBirth;
+    if (validationErrors.address) newErrors.address = validationErrors.address;
+    if (validationErrors.gender) newErrors.gender = validationErrors.gender;
+    if (validationErrors.description) newErrors.description = validationErrors.description;
+    if (validationErrors.qualifications) newErrors.qualifications = validationErrors.qualifications;
+    if (validationErrors.specializations) newErrors.specializations = validationErrors.specializations;
+    if (validationErrors.introduction) newErrors.introduction = validationErrors.introduction;
+    if (validationErrors.workExperience) newErrors.workExperience = validationErrors.workExperience;
+    if (validationErrors.salaryPerLesson) newErrors.salaryPerLesson = validationErrors.salaryPerLesson;
+
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
   };
 
   const handleSubmit = async () => {
     if (!validate()) return;
 
-    try {
-      const teacherData: Partial<Teacher> = {
-        ...(teacher ? { id: teacher.id } : {}),
-        name: formData.name,
-        email: formData.email,
-        ...(formData.password ? { password: formData.password } : {}),
-        phone: formData.phone,
-        address: formData.address,
-        gender: formData.gender as any,
-        dayOfBirth: formData.dayOfBirth as any,
-        description: formData.description,
-        qualifications: formData.qualifications ? formData.qualifications.split(',').map(q => q.trim()).filter(q => q) as any : [],
-        specializations: formData.specializations ? formData.specializations.split(',').map(s => s.trim()).filter(s => s) as any : [],
-        introduction: formData.introduction,
-        workExperience: formData.workExperience || 'null',
-        ...(formData.salaryPerLesson ? { salaryPerLesson: Number(formData.salaryPerLesson) } : {}),
-        isActive: formData.isActive,
-        typical: formData.typical
-      };
+    setLoading(true);
 
-      await onSubmit(teacherData);
+    try {
+      // Convert dayOfBirth from YYYY-MM-DD to MM/DD/YYYY format for backend
+      let formattedDayOfBirth = formData.dayOfBirth;
+      if (formData.dayOfBirth && formData.dayOfBirth.match(/^\d{4}-\d{2}-\d{2}$/)) {
+        const [year, month, day] = formData.dayOfBirth.split('-');
+        formattedDayOfBirth = `${month}/${day}/${year}`;
+      }
+
+      let payload: any;
+      
+      if (teacher && (teacher as any)?.id) {
+        // Update: only send changed fields (flat structure)
+        const changedFields = getChangedFields(formData, originalData);
+        
+        // Convert date format if dayOfBirth changed
+        if (changedFields.dayOfBirth) {
+          changedFields.dayOfBirth = formattedDayOfBirth;
+        }
+
+        // Convert qualifications and specializations to arrays if changed
+        const updatePayload: any = {};
+        if (changedFields.name !== undefined) updatePayload.name = changedFields.name;
+        if (changedFields.email !== undefined) updatePayload.email = changedFields.email;
+        if (changedFields.phone !== undefined) updatePayload.phone = changedFields.phone;
+        if (changedFields.address !== undefined) updatePayload.address = changedFields.address;
+        if (changedFields.gender !== undefined) updatePayload.gender = changedFields.gender;
+        if (changedFields.dayOfBirth !== undefined) updatePayload.dayOfBirth = changedFields.dayOfBirth;
+        if (changedFields.description !== undefined) updatePayload.description = changedFields.description;
+        if (changedFields.qualifications !== undefined) {
+          updatePayload.qualifications = changedFields.qualifications 
+            ? changedFields.qualifications.split(',').map(q => q.trim()).filter(q => q) 
+            : [];
+        }
+        if (changedFields.specializations !== undefined) {
+          updatePayload.specializations = changedFields.specializations 
+            ? changedFields.specializations.split(',').map(s => s.trim()).filter(s => s) 
+            : [];
+        }
+        if (changedFields.introduction !== undefined) updatePayload.introduction = changedFields.introduction;
+        if (changedFields.workExperience !== undefined) updatePayload.workExperience = changedFields.workExperience || '';
+        if (changedFields.salaryPerLesson !== undefined) {
+          updatePayload.salaryPerLesson = changedFields.salaryPerLesson ? Number(changedFields.salaryPerLesson) : 0;
+        }
+        if (changedFields.isActive !== undefined) updatePayload.isActive = changedFields.isActive;
+        
+        await updateTeacherAPI(teacher.id, updatePayload);
+      } else {
+        // Create: send all fields
+        payload = {
+          name: formData.name,
+          email: formData.email,
+          password: formData.password,
+          dayOfBirth: formattedDayOfBirth,
+          phone: formData.phone,
+          address: formData.address,
+          gender: formData.gender,
+          description: formData.description,
+          qualifications: formData.qualifications ? formData.qualifications.split(',').map(q => q.trim()).filter(q => q) : [],
+          specializations: formData.specializations ? formData.specializations.split(',').map(s => s.trim()).filter(s => s) : [],
+          introduction: formData.introduction,
+          workExperience: formData.workExperience || '',
+          salaryPerLesson: formData.salaryPerLesson ? Number(formData.salaryPerLesson) : 0,
+          isActive: formData.isActive
+        };
+        
+        await createTeacherAPI(payload);
+      }
+
+      // Notify parent component
+      if (onSubmit) {
+        onSubmit({ success: true, message: teacher && (teacher as any)?.id ? 'Cập nhật giáo viên thành công!' : 'Thêm giáo viên thành công!' });
+      }
+
       resetForm();
       onClose();
-    } catch (error) {
-      console.error('Error submitting teacher form:', error);
+    } catch (error: any) {
+      const errorMessage = error.response?.data?.message || 'Có lỗi xảy ra khi lưu giáo viên';
+
+      // Notify parent component
+      if (onSubmit) {
+        onSubmit({ success: false, message: errorMessage });
+      }
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -239,7 +396,7 @@ const TeacherForm: React.FC<TeacherFormProps> = ({
               }
             }}
           >
-            {loading ? 'Đang lưu...' : (teacher && (teacher as any)?.id ? 'Cập nhật' : 'Tạo mới')}
+            {(loading || externalLoading) ? 'Đang lưu...' : (teacher && (teacher as any)?.id ? 'Cập nhật' : 'Tạo mới')}
           </Button>
         </>
       }
@@ -319,7 +476,10 @@ const TeacherForm: React.FC<TeacherFormProps> = ({
                     type="date"
                     value={formData.dayOfBirth}
                     onChange={(e) => handleInputChange('dayOfBirth', e.target.value)}
+                    error={!!errors.dayOfBirth}
+                    helperText={errors.dayOfBirth}
                     InputLabelProps={{ shrink: true }}
+                    required
                   />
                 </Grid>
                 <Grid item xs={12} md={6}>
@@ -345,6 +505,7 @@ const TeacherForm: React.FC<TeacherFormProps> = ({
                     error={!!errors.salaryPerLesson}
                     helperText={errors.salaryPerLesson}
                     placeholder="200000"
+                    required
                   />
                 </Grid>
                 {teacher && (teacher as any)?.id && (

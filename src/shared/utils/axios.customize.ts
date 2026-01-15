@@ -174,11 +174,42 @@ instance.interceptors.response.use(
                     }
                 } catch (refreshError: any) {
                     processQueue(refreshError, null);
-                    // Clear credentials and redirect to login on refresh failure
+                    // Get user role before clearing localStorage
+                    let loginPath = '/login'; // Default to parent/student login
+                    try {
+                        const userDataStr = localStorage.getItem('userData');
+                        if (userDataStr) {
+                            const userData = JSON.parse(userDataStr);
+                            const role = userData.role;
+                            
+                            // Determine login path based on role
+                            // admin (role id 1) or teacher (role id 2) -> staff login
+                            // parent (role id 3) or student (role id 4) -> regular login
+                            if (role === 'admin' || role === 'teacher' || role === 'staff') {
+                                loginPath = '/staff/login';
+                            } else if (role === 'parent' || role === 'student') {
+                                loginPath = '/login';
+                            }
+                            // If role is an object with id, check the id
+                            else if (role && typeof role === 'object' && 'id' in role) {
+                                const roleId = (role as any).id;
+                                if (roleId === 1 || roleId === 2) {
+                                    loginPath = '/staff/login';
+                                } else if (roleId === 3 || roleId === 4) {
+                                    loginPath = '/login';
+                                }
+                            }
+                        }
+                    } catch (e) {
+                        // If parsing fails, use default login path
+                        console.error('Error parsing userData:', e);
+                    }
+                    
+                    // Clear credentials and redirect to appropriate login on refresh failure
                     localStorage.removeItem('access_token');
                     localStorage.removeItem('userData');
                     if (typeof window !== 'undefined') {
-                        window.location.href = '/login';
+                        window.location.href = loginPath;
                     }
                     return Promise.reject(refreshError);
                 } finally {

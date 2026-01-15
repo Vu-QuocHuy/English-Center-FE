@@ -1,6 +1,7 @@
 import { useState, useCallback } from 'react';
 import { createStaffAPI, updateStaffAPI, type CreateStaffData, type UpdateStaffData } from '@features/staff';
 import { Staff } from '@shared/types';
+import { validateStaff, type StaffFormData as StaffValidationData, type StaffValidationErrors } from '../validations';
 
 interface StaffFormData {
   id?: string;
@@ -16,13 +17,13 @@ interface StaffFormData {
 
 interface UseStaffFormReturn {
   form: StaffFormData;
-  formErrors: Record<string, string>;
+  formErrors: StaffValidationErrors;
   loading: boolean;
   error: string;
   setFormData: (data?: Staff) => void;
   resetForm: () => void;
   handleChange: (event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => void;
-  handleSubmit: (onSuccess?: () => void) => Promise<{ success: boolean; message?: string }>;
+  handleSubmit: (changedFields?: Partial<StaffFormData> | null, onSuccess?: () => void) => Promise<{ success: boolean; message?: string }>;
 }
 
 export const useStaffForm = (): UseStaffFormReturn => {
@@ -37,7 +38,7 @@ export const useStaffForm = (): UseStaffFormReturn => {
     roleId: '',
   });
 
-  const [formErrors, setFormErrors] = useState<Record<string, string>>({});
+  const [formErrors, setFormErrors] = useState<StaffValidationErrors>({});
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string>('');
 
@@ -49,10 +50,10 @@ export const useStaffForm = (): UseStaffFormReturn => {
     }));
 
     // Clear error for this field
-    if (formErrors[name]) {
+    if (formErrors[name as keyof StaffValidationErrors]) {
       setFormErrors((prev) => {
-        const newErrors = { ...prev };
-        delete newErrors[name];
+        const newErrors: StaffValidationErrors = { ...prev };
+        delete newErrors[name as keyof StaffValidationErrors];
         return newErrors;
       });
     }
@@ -60,13 +61,13 @@ export const useStaffForm = (): UseStaffFormReturn => {
 
   const setFormData = useCallback((data?: Staff): void => {
     if (data) {
-      // Format dayOfBirth from Date to MM/DD/YYYY
+      // Format dayOfBirth from Date to YYYY-MM-DD (for input type="date")
       const formatDate = (dateString: string | Date): string => {
         const date = new Date(dateString);
+        const year = date.getFullYear();
         const month = String(date.getMonth() + 1).padStart(2, '0');
         const day = String(date.getDate()).padStart(2, '0');
-        const year = date.getFullYear();
-        return `${month}/${day}/${year}`;
+        return `${year}-${month}-${day}`;
       };
 
       setForm({
@@ -103,6 +104,7 @@ export const useStaffForm = (): UseStaffFormReturn => {
   }, []);
 
   const handleSubmit = useCallback(async (
+    changedFields?: Partial<StaffFormData> | null,
     onSuccess?: () => void
   ): Promise<{ success: boolean; message?: string }> => {
     setLoading(true);
@@ -110,53 +112,61 @@ export const useStaffForm = (): UseStaffFormReturn => {
     setFormErrors({});
 
     try {
-      // Basic validation
-      const errors: Record<string, string> = {};
-      if (!form.name.trim()) errors.name = 'Tên không được để trống';
-      if (!form.email.trim()) errors.email = 'Email không được để trống';
-      if (!form.id && !form.password) errors.password = 'Mật khẩu không được để trống';
-      if (!form.dayOfBirth) errors.dayOfBirth = 'Ngày sinh không được để trống';
-      if (!form.address.trim()) errors.address = 'Địa chỉ không được để trống';
-      if (!form.phone.trim()) errors.phone = 'Số điện thoại không được để trống';
+      // Validate form using validation function
+      const validationData: StaffValidationData = {
+        name: form.name,
+        email: form.email,
+        phone: form.phone,
+        dayOfBirth: form.dayOfBirth,
+        address: form.address,
+        gender: form.gender,
+        password: form.password,
+        roleId: form.roleId
+      };
+
+      const errors = validateStaff(validationData, !!form.id);
 
       if (Object.keys(errors).length > 0) {
         setFormErrors(errors);
         setLoading(false);
-        return { success: false, message: 'Vui lòng điền đầy đủ thông tin' };
+        return { success: false, message: 'Vui lòng kiểm tra lại thông tin' };
       }
 
-      // Convert dayOfBirth from DD/MM/YYYY to MM/DD/YYYY for backend
+      // Convert dayOfBirth from YYYY-MM-DD (input type="date") to MM/DD/YYYY for backend
       const convertToBackendFormat = (dateStr: string): string => {
         if (!dateStr) return '';
-        // Parse DD/MM/YYYY format and convert to MM/DD/YYYY
-        const dateRegex = /^(\d{1,2})\/(\d{1,2})\/(\d{4})$/;
+        // Parse YYYY-MM-DD format and convert to MM/DD/YYYY
+        const dateRegex = /^(\d{4})-(\d{2})-(\d{2})$/;
         const match = dateStr.match(dateRegex);
         if (match) {
-          const [, day, month, year] = match;
-          // Convert DD/MM/YYYY to MM/DD/YYYY
+          const [, year, month, day] = match;
+          // Convert YYYY-MM-DD to MM/DD/YYYY
           return `${month}/${day}/${year}`;
         }
         return dateStr;
       };
 
       if (form.id) {
-        // Update existing staff - do not include password
-        const staffData: UpdateStaffData = {
-          name: form.name,
-          email: form.email,
-          gender: form.gender,
-          dayOfBirth: convertToBackendFormat(form.dayOfBirth),
-          address: form.address,
-          phone: form.phone,
-        };
+        // Update existing staff - only send changed fields
+        const updateData: UpdateStaffData = {} as UpdateStaffData;
 
-        if (form.roleId) {
-          staffData.roleId = form.roleId;
+        if (changedFields) {
+          if (changedFields.name !== undefined) updateData.name = changedFields.name;
+          if (changedFields.email !== undefined) updateData.email = changedFields.email;
+          if (changedFields.phone !== undefined) updateData.phone = changedFields.phone;
+          if (changedFields.address !== undefined) updateData.address = changedFields.address;
+          if (changedFields.gender !== undefined) updateData.gender = changedFields.gender as 'male' | 'female';
+          if (changedFields.dayOfBirth !== undefined) {
+            updateData.dayOfBirth = convertToBackendFormat(changedFields.dayOfBirth);
+          }
+          if (changedFields.roleId !== undefined) {
+            updateData.roleId = changedFields.roleId;
+          }
         }
 
-        await updateStaffAPI(form.id, staffData);
+        await updateStaffAPI(form.id, updateData);
       } else {
-        // Create new staff - password is required
+        // Create new staff - password is required (already validated above)
         const staffData: CreateStaffData = {
           name: form.name,
           email: form.email,
@@ -166,12 +176,6 @@ export const useStaffForm = (): UseStaffFormReturn => {
           address: form.address,
           phone: form.phone,
         };
-
-        if (!staffData.password) {
-          setFormErrors({ password: 'Mật khẩu không được để trống' });
-          setLoading(false);
-          return { success: false, message: 'Mật khẩu không được để trống' };
-        }
 
         if (form.roleId) {
           staffData.roleId = form.roleId;

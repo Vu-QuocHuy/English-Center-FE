@@ -13,7 +13,7 @@ import { Person as PersonIcon, School as SchoolIcon } from '@mui/icons-material'
 import { assignTeacherAPI, unassignTeacherAPI } from '@features/classes';
 import { getAllTeachersAPI } from '@features/teachers';
 
-import { NotificationSnackbar } from '@shared/components';
+import { NotificationSnackbar, ConfirmDialog } from '@shared/components';
 
 interface Teacher {
   id: string;
@@ -59,6 +59,7 @@ const ClassTeacherManagement: React.FC<ClassTeacherManagementProps> = ({
   });
 
   const [currentTeacherObj, setCurrentTeacherObj] = useState<Teacher | null>(null);
+  const [openUnassignDialog, setOpenUnassignDialog] = useState(false);
 
   // Cập nhật currentTeacherObj khi classData thay đổi
   useEffect(() => {
@@ -181,13 +182,24 @@ const ClassTeacherManagement: React.FC<ClassTeacherManagementProps> = ({
     }
   };
 
-  const handleUnassignTeacher = async (): Promise<void> => {
+  const handleOpenUnassignDialog = (): void => {
     if (!currentTeacherObj) {
       setNotification({
         open: true,
         message: 'Không có giáo viên để hủy phân công',
         severity: 'warning'
       });
+      return;
+    }
+    setOpenUnassignDialog(true);
+  };
+
+  const handleCloseUnassignDialog = (): void => {
+    setOpenUnassignDialog(false);
+  };
+
+  const handleConfirmUnassignTeacher = async (): Promise<void> => {
+    if (!currentTeacherObj) {
       return;
     }
 
@@ -216,6 +228,7 @@ const ClassTeacherManagement: React.FC<ClassTeacherManagementProps> = ({
       });
     } finally {
       setLoading(false);
+      handleCloseUnassignDialog();
     }
   };
 
@@ -301,7 +314,7 @@ const ClassTeacherManagement: React.FC<ClassTeacherManagementProps> = ({
               <Button
                 variant="outlined"
                 color="error"
-                onClick={handleUnassignTeacher}
+                onClick={handleOpenUnassignDialog}
                 disabled={loading}
                 startIcon={<SchoolIcon />}
               >
@@ -323,6 +336,18 @@ const ClassTeacherManagement: React.FC<ClassTeacherManagementProps> = ({
         onClose={handleCloseNotification}
         message={notification.message}
         severity={notification.severity}
+      />
+
+      <ConfirmDialog
+        open={openUnassignDialog}
+        onClose={handleCloseUnassignDialog}
+        onConfirm={handleConfirmUnassignTeacher}
+        title="Xác nhận hủy phân công giáo viên"
+        message={currentTeacherObj ? `Bạn có chắc chắn muốn hủy phân công giáo viên "${currentTeacherObj.name}" khỏi lớp học này?` : ''}
+        confirmText="Hủy phân công"
+        cancelText="Hủy"
+        confirmColor="error"
+        loading={loading}
       />
     </>
   );

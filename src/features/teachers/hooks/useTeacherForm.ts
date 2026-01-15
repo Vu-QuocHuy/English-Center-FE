@@ -144,21 +144,34 @@ export const useTeacherForm = (): UseFormReturn<Teacher> => {
       }
     } else {
       // For create - validate all required fields
+      // Handle both flat structure (from TeacherForm) and nested structure (from hook)
+      console.log('📝 TeacherData received for create:', teacherData);
+      
       const teacherFormData = {
-        name: teacherData.userId?.name || '',
-        email: teacherData.userId?.email || '',
-        phone: teacherData.userId?.phone || '',
-        dayOfBirth: teacherData.userId?.dayOfBirth || '',
-        address: teacherData.userId?.address || '',
-        gender: teacherData.userId?.gender || '',
+        name: teacherData.name || teacherData.userId?.name || '',
+        email: teacherData.email || teacherData.userId?.email || '',
+        phone: teacherData.phone || teacherData.userId?.phone || '',
+        dayOfBirth: teacherData.dayOfBirth || teacherData.userId?.dayOfBirth || '',
+        address: teacherData.address || teacherData.userId?.address || '',
+        gender: teacherData.gender || teacherData.userId?.gender || '',
         description: teacherData.description || '',
-        salaryPerLesson: 0,
-        qualifications: '',
-        specializations: teacherData.specialization || '',
-        introduction: '',
-        workExperience: 0,
-        isActive: true,
+        password: teacherData.password || undefined,
+        salaryPerLesson: teacherData.salaryPerLesson !== undefined && teacherData.salaryPerLesson !== null 
+          ? teacherData.salaryPerLesson 
+          : undefined,
+        qualifications: Array.isArray(teacherData.qualifications) 
+          ? teacherData.qualifications 
+          : (teacherData.qualifications ? [teacherData.qualifications] : []),
+        specializations: Array.isArray(teacherData.specializations) 
+          ? teacherData.specializations 
+          : (teacherData.specializations ? [teacherData.specializations] : []),
+        introduction: teacherData.introduction || '',
+        workExperience: teacherData.workExperience || '',
+        isActive: teacherData.isActive !== undefined ? teacherData.isActive : true,
       };
+      
+      console.log('📝 TeacherFormData prepared for validation:', teacherFormData);
+      
       const errors = validateTeacher(teacherFormData as any);
       if (Object.keys(errors).length > 0) {
         console.log('❌ Validation errors for create:', errors);
@@ -178,16 +191,40 @@ export const useTeacherForm = (): UseFormReturn<Teacher> => {
         await updateTeacherAPI(teacherData.id, updateData);
       } else {
         // Create new teacher
+        // Handle both flat structure (from TeacherForm) and nested structure (from hook)
+        const dayOfBirthValue = teacherData.dayOfBirth || teacherData.userId?.dayOfBirth || '';
+        
+        // Convert YYYY-MM-DD to MM/DD/YYYY format for backend
+        let formattedDayOfBirth = dayOfBirthValue;
+        if (dayOfBirthValue && dayOfBirthValue.match(/^\d{4}-\d{2}-\d{2}$/)) {
+          const [year, month, day] = dayOfBirthValue.split('-');
+          formattedDayOfBirth = `${month}/${day}/${year}`;
+        }
+        
         const createData = {
-          name: teacherData.userId?.name || '',
-          email: teacherData.userId?.email || '',
-          phone: teacherData.userId?.phone || '',
-          dayOfBirth: teacherData.userId?.dayOfBirth || '',
-          address: teacherData.userId?.address || '',
-          gender: teacherData.userId?.gender || '',
+          name: teacherData.name || teacherData.userId?.name || '',
+          email: teacherData.email || teacherData.userId?.email || '',
+          phone: teacherData.phone || teacherData.userId?.phone || '',
+          dayOfBirth: formattedDayOfBirth,
+          address: teacherData.address || teacherData.userId?.address || '',
+          gender: teacherData.gender || teacherData.userId?.gender || '',
+          password: teacherData.password || '',
           description: teacherData.description || '',
-          specialization: teacherData.specialization || ''
+          qualifications: Array.isArray(teacherData.qualifications) 
+            ? teacherData.qualifications 
+            : (teacherData.qualifications ? [teacherData.qualifications] : []),
+          specializations: Array.isArray(teacherData.specializations) 
+            ? teacherData.specializations 
+            : (teacherData.specializations ? [teacherData.specializations] : []),
+          introduction: teacherData.introduction || '',
+          workExperience: teacherData.workExperience || '',
+          salaryPerLesson: teacherData.salaryPerLesson !== undefined && teacherData.salaryPerLesson !== null 
+            ? Number(teacherData.salaryPerLesson) 
+            : 0,
+          isActive: teacherData.isActive !== undefined ? teacherData.isActive : true
         };
+        
+        console.log('📤 CreateData to send to API:', createData);
         await createTeacherAPI(createData as any);
       }
 

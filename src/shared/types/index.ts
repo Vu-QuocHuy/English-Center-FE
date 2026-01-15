@@ -597,22 +597,6 @@ export interface VirtualListProps<T> {
   'data-testid'?: string;
 }
 
-export interface ServiceWorkerState {
-  isSupported: boolean;
-  isRegistered: boolean;
-  isInstalled: boolean;
-  isUpdated: boolean;
-  registration: ServiceWorkerRegistration | null;
-  error: string | null;
-}
-
-export interface UseServiceWorkerReturn extends ServiceWorkerState {
-  register: () => Promise<void>;
-  unregister: () => Promise<void>;
-  update: () => Promise<void>;
-  skipWaiting: () => Promise<void>;
-}
-
 // Form Component Types
 export interface FormDialogProps {
   open: boolean;

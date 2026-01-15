@@ -107,8 +107,6 @@ export function validateStudentUpdate(data: StudentUpdateData): StudentUpdateErr
     errors.grade = 'Lớp phải là số từ 1 đến 12';
   }
 
-  // parentId có thể là null nên không cần validate
-
   return errors;
 }
 

@@ -53,15 +53,12 @@ const TeacherManagement: React.FC = () => {
   // Teacher form hook
   const {
     form,
-    loading: formLoading,
     setFormData,
     resetForm,
-    handleSubmit
   } = useTeacherForm();
 
   // Local state
   const [openDialog, setOpenDialog] = useState<boolean>(false);
-  const [selectedTeacher, setSelectedTeacher] = useState<Teacher | null>(null);
   const [openViewDialog, setOpenViewDialog] = useState<boolean>(false);
   const [openDeleteDialog, setOpenDeleteDialog] = useState<boolean>(false);
   const [teacherToDelete, setTeacherToDelete] = useState<Teacher | null>(null);
@@ -72,7 +69,6 @@ const TeacherManagement: React.FC = () => {
     if (teacher) {
       // Gọi API để lấy thông tin chi tiết khi chỉnh sửa
       const detailData = await getTeacherById(teacher.id);
-      setSelectedTeacher(teacher);
 
       // Sử dụng dữ liệu từ API response để set form
       if (detailData) {
@@ -106,7 +102,6 @@ const TeacherManagement: React.FC = () => {
       }
     } else {
       // Tạo mới teacher
-      setSelectedTeacher(null);
       resetForm();
     }
     setOpenDialog(true);
@@ -115,7 +110,6 @@ const TeacherManagement: React.FC = () => {
   const handleCloseDialog = (): void => {
     setOpenDialog(false);
     setTimeout(() => {
-      setSelectedTeacher(null);
       resetForm();
     }, 100);
   };
@@ -140,16 +134,13 @@ const TeacherManagement: React.FC = () => {
   };
 
   // Action handlers
-  const handleFormSubmit = async (): Promise<void> => {
-    const result = await handleSubmit(selectedTeacher || undefined, () => {
+  const handleFormSubmit = (result: { success: boolean; message?: string }): void => {
+    if (result.success) {
+      setSnackbar({ open: true, message: result.message || 'Thành công', severity: 'success' });
       handleCloseDialog();
       if (fetchTeachers) {
         fetchTeachers();
       }
-    });
-
-    if (result.success) {
-      setSnackbar({ open: true, message: result.message || 'Thành công', severity: 'success' });
     } else {
       setSnackbar({ open: true, message: result.message || 'Có lỗi xảy ra', severity: 'error' });
     }
@@ -265,7 +256,7 @@ const TeacherManagement: React.FC = () => {
               onClose={handleCloseDialog}
               teacher={form as any}
               onSubmit={handleFormSubmit}
-              loading={formLoading || loadingDetail}
+              loading={loadingDetail}
             />
 
             <TeacherViewDialog

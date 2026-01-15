@@ -74,13 +74,14 @@ const StudentForm: React.FC<StudentFormProps> = ({
   const [errors, setErrors] = useState<FormErrors>({});
   const [classEdits, setClassEdits] = useState<Array<{ classId?: string; className: string; discountPercent: number; status: 'active' | 'completed'; }>>([]);
   const [loading, setLoading] = useState(false);
+  const [originalData, setOriginalData] = useState<FormData | null>(null);
   // Removed avatar editing in this dialog
 
   // Removed levels/grades UI for this dialog per design
 
   useEffect(() => {
     if (student) {
-      setFormData({
+      const initialData = {
         name: student.name || student.userId?.name || '',
         email: student.email || student.userId?.email || '',
         password: '', // Không hiển thị password khi edit
@@ -89,7 +90,9 @@ const StudentForm: React.FC<StudentFormProps> = ({
         dateOfBirth: student.dayOfBirth ? new Date(student.dayOfBirth).toISOString().split('T')[0] :
                      student.dateOfBirth ? new Date(student.dateOfBirth).toISOString().split('T')[0] : '',
         gender: student.gender || 'male'
-      });
+      };
+      setFormData(initialData);
+      setOriginalData(initialData); // Store original data for comparison
       const mapped = (student.classes || []).map((cls: any, index: number) => ({
         classId: cls.class?.id || cls.classId?.id || cls.classId,
         className: cls.class?.name || cls.classId?.name || cls.name ||
@@ -100,8 +103,10 @@ const StudentForm: React.FC<StudentFormProps> = ({
         status: (cls.status as 'active' | 'completed') ?? 'active'
       }));
       setClassEdits(mapped);
-    } else {
+    } else if (!open) {
       resetForm();
+    } else if (open && !student) {
+      setOriginalData(null);
     }
   }, [student, open]);
 
@@ -117,6 +122,25 @@ const StudentForm: React.FC<StudentFormProps> = ({
     });
     setErrors({});
     setClassEdits([]);
+    setOriginalData(null);
+  };
+
+  // Helper function to get only changed fields
+  const getChangedFields = (newData: FormData, original: FormData | null): Partial<FormData> => {
+    if (!original) {
+      return newData; // If no original data, send all data (for create)
+    }
+
+    const changedFields: Partial<FormData> = {};
+    
+    if (newData.name !== original.name) changedFields.name = newData.name;
+    if (newData.email !== original.email) changedFields.email = newData.email;
+    if (newData.phone !== original.phone) changedFields.phone = newData.phone;
+    if (newData.address !== original.address) changedFields.address = newData.address;
+    if (newData.dateOfBirth !== original.dateOfBirth) changedFields.dateOfBirth = newData.dateOfBirth;
+    if (newData.gender !== original.gender) changedFields.gender = newData.gender;
+
+    return changedFields;
   };
 
   const handleInputChange = (field: keyof FormData, value: string | boolean) => {
@@ -209,36 +233,52 @@ const StudentForm: React.FC<StudentFormProps> = ({
     setLoading(true);
 
     try {
-      const payload = student?.id
-        ? {
-            userData: {
-              name: formData.name,
-              email: formData.email,
-              phone: formData.phone,
-              dayOfBirth: formData.dateOfBirth,
-              gender: formData.gender,
-              address: formData.address,
-            },
-            studentData: classEdits.map(edit => ({
-              classId: edit.classId,
-              status: edit.status,
-              discountPercent: edit.discountPercent || 0
-            }))
-          }
-        : {
-            email: formData.email,
-            password: formData.password,
-            name: formData.name,
-            dayOfBirth: formData.dateOfBirth,
-            phone: formData.phone,
-            address: formData.address,
-            gender: formData.gender
-          };
-
+      let payload: any;
+      
       if (student?.id) {
-        await updateStudentAPI(student.id, payload as any);
+        // Update: only send changed fields
+        const changedFields = getChangedFields(formData, originalData);
+        
+        // Convert date format for API
+        const dayOfBirth = changedFields.dateOfBirth 
+          ? (changedFields.dateOfBirth.includes('-') 
+              ? changedFields.dateOfBirth.split('-').reverse().join('/') 
+              : changedFields.dateOfBirth)
+          : undefined;
+
+        const userData: any = {};
+        if (changedFields.name !== undefined) userData.name = changedFields.name;
+        if (changedFields.email !== undefined) userData.email = changedFields.email;
+        if (changedFields.phone !== undefined) userData.phone = changedFields.phone;
+        if (changedFields.address !== undefined) userData.address = changedFields.address;
+        if (dayOfBirth !== undefined) userData.dayOfBirth = dayOfBirth;
+        if (changedFields.gender !== undefined) userData.gender = changedFields.gender;
+
+        payload = {
+          ...(Object.keys(userData).length > 0 ? { userData } : {}),
+          studentData: classEdits.map(edit => ({
+            classId: edit.classId,
+            status: edit.status,
+            discountPercent: edit.discountPercent || 0
+          }))
+        };
+        
+        await updateStudentAPI(student.id, payload);
       } else {
-        await createStudentAPI(payload as any);
+        // Create: send all fields
+        payload = {
+          email: formData.email,
+          password: formData.password,
+          name: formData.name,
+          dayOfBirth: formData.dateOfBirth.includes('-') 
+            ? formData.dateOfBirth.split('-').reverse().join('/') 
+            : formData.dateOfBirth,
+          phone: formData.phone,
+          address: formData.address,
+          gender: formData.gender
+        };
+        
+        await createStudentAPI(payload);
       }
 
       // Notify parent component

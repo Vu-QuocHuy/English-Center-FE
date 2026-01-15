@@ -29,6 +29,7 @@ import { getClassByIdAPI } from '../services/classes.api';
 import ClassTeacherManagement from '../../../pages/admin/ClassTeacherManagement';
 import ClassStudentManagement from '../../../pages/admin/ClassStudentManagement';
 import { BaseDialog } from '@shared/components';
+import { createClassValidationSchema } from '../validations';
 
 interface ClassFormProps {
   open: boolean;
@@ -191,31 +192,76 @@ const ClassForm: React.FC<ClassFormProps> = ({
   };
 
   const validateForm = (): boolean => {
-    // Bỏ validation - luôn return true
-    return true;
+    try {
+      // Map formData sang format của schema Yup
+      const validationData = {
+        grade: Number(formData.grade) || 0,
+        section: Number(formData.section) || 0,
+        name: formData.name || '',
+        feePerLesson: Number(formData.feePerLesson) || 0,
+        maxStudents: Number(formData.max_student) || 0,
+        room: formData.room || '',
+        description: formData.description || '',
+        schedule: {
+          startDate: formData.schedule?.start_date || '',
+          endDate: formData.schedule?.end_date || '',
+          dayOfWeeks: (formData.schedule?.days_of_week || []).map((d) => Number(d)),
+          timeSlots: {
+            startTime: formData.schedule?.time_slots?.start_time || '',
+            endTime: formData.schedule?.time_slots?.end_time || ''
+          }
+        }
+      };
+
+      // Validate với schema (sync) – nếu lỗi sẽ ném exception
+      createClassValidationSchema.validateSync(validationData, { abortEarly: false });
+
+      // Nếu không lỗi thì clear error cũ
+      setErrors({});
+      setMaxStudentError('');
+      return true;
+    } catch (err: any) {
+      const newErrors: ClassFormErrors = {};
+
+      if (err.inner && Array.isArray(err.inner)) {
+        err.inner.forEach((e: any) => {
+          const path: string = e.path || '';
+
+          // Map đường dẫn trong schema về key trong ClassFormErrors
+          if (path === 'grade') newErrors.grade = e.message;
+          else if (path === 'section') newErrors.section = e.message;
+          else if (path === 'name') newErrors.name = e.message;
+          else if (path === 'feePerLesson') newErrors.feePerLesson = e.message;
+          else if (path === 'maxStudents') newErrors.max_student = e.message;
+          else if (path === 'room') newErrors.room = e.message;
+          else if (path === 'description') newErrors.description = e.message;
+          else if (path === 'schedule.startDate') newErrors.start_date = e.message;
+          else if (path === 'schedule.endDate') newErrors.end_date = e.message;
+          else if (path === 'schedule.dayOfWeeks') newErrors.days_of_week = e.message;
+          else if (path === 'schedule.timeSlots.startTime') newErrors.start_time = e.message;
+          else if (path === 'schedule.timeSlots.endTime') newErrors.end_time = e.message;
+        });
+      }
+
+      setErrors(newErrors);
+      return false;
+    }
   };
 
   const handleSubmit = async () => {
-    if (!validateForm()) {
+    // Validate form using schema
+    const isValid = await validateForm();
+    if (!isValid) {
       return;
     }
 
-    // Validate số học sinh tối đa
+    // Additional validation: số học sinh tối đa không được nhỏ hơn số học sinh hiện tại
     const currentMax = Number(formData.max_student) || 0;
     const currentStudentsCount = Array.isArray(studentsInfo) ? studentsInfo.length : 0;
 
-    if (!currentMax || currentMax <= 0) {
-      setMaxStudentError('Số học sinh tối đa phải lớn hơn 0');
-      return;
-    }
-
-    if (currentMax > 100) {
-      setMaxStudentError('Số học sinh tối đa không được vượt quá 100');
-      return;
-    }
-
     if (classItem && currentStudentsCount > 0 && currentMax < currentStudentsCount) {
       setMaxStudentError(`Số học sinh tối đa không được nhỏ hơn số học sinh hiện tại (${currentStudentsCount})`);
+      setErrors(prev => ({ ...prev, max_student: `Số học sinh tối đa không được nhỏ hơn số học sinh hiện tại (${currentStudentsCount})` }));
       return;
     }
 
@@ -328,6 +374,7 @@ const ClassForm: React.FC<ClassFormProps> = ({
             value={formData.schedule?.time_slots?.start_time ?? ''}
             onChange={(e) => handleInputChange('schedule.time_slots.start_time', e.target.value)}
             error={!!errors.start_time}
+            helperText={errors.start_time || 'Giờ học là bắt buộc'}
             required
             InputLabelProps={{ shrink: true }}
             inputProps={{
@@ -392,6 +439,7 @@ const ClassForm: React.FC<ClassFormProps> = ({
             value={formData.schedule?.time_slots?.end_time ?? ''}
             onChange={(e) => handleInputChange('schedule.time_slots.end_time', e.target.value)}
             error={!!errors.end_time}
+            helperText={errors.end_time || 'Giờ học là bắt buộc'}
             required
             InputLabelProps={{ shrink: true }}
             inputProps={{

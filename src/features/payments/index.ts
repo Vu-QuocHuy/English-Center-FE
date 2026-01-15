@@ -5,5 +5,9 @@ export { default as StudentPaymentsTable } from './components/StudentPaymentsTab
 // Services
 export * from './services/payments.api';
 
+// Hooks
+export * from './hooks/useStudentPaymentsPage';
+export * from './hooks/useTeacherPaymentsPage';
+
 // Types
 export * from './types';

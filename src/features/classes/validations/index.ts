@@ -69,13 +69,13 @@ export const createClassValidationSchema = Yup.object().shape({
   name: Yup.string()
     .required('Tên lớp là bắt buộc')
     .min(2, 'Tên lớp phải có ít nhất 2 ký tự')
-    .max(50, 'Tên lớp không được quá 50 ký tự'),
+    .max(30, 'Tên lớp không được quá 30 ký tự'),
 
   feePerLesson: Yup.number()
     .required('Học phí mỗi buổi là bắt buộc')
     .typeError('Học phí phải là số')
     .min(1, 'Học phí phải lớn hơn 0')
-    .max(10000000, 'Học phí không được quá 10 triệu VNĐ'),
+    .max(1000000, 'Học phí không được quá 1 triệu VNĐ'),
 
   maxStudents: Yup.number()
     .required('Số học sinh tối đa là bắt buộc')
@@ -86,7 +86,7 @@ export const createClassValidationSchema = Yup.object().shape({
   room: Yup.string()
     .required('Phòng học là bắt buộc')
     .min(1, 'Phòng học phải có ít nhất 1 ký tự')
-    .max(20, 'Phòng học không được quá 20 ký tự'),
+    .max(10, 'Phòng học không được quá 20 ký tự'),
 
   description: Yup.string()
     .max(500, 'Mô tả không được quá 500 ký tự'),
@@ -134,13 +134,9 @@ export const createClassValidationSchema = Yup.object().shape({
   }),
 });
 
-// Hàm validate lịch học trùng lặp giữa các lớp
-// Hiện chưa sử dụng, giữ lại signature tối thiểu để dễ mở rộng sau này
 export function validateScheduleConflicts(): ScheduleValidationResult {
   const errors: ValidationErrors = {};
 
-  // Logic kiểm tra trùng lịch giữa lớp mới và các lớp hiện có
-  // (giữ nguyên từ file classValidation.ts gốc nếu có thêm logic ở phần dưới)
 
   return {
     isValid: Object.keys(errors).length === 0,

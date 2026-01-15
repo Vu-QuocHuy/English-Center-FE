@@ -1,6 +1,7 @@
 import { useState, useEffect, useMemo, useCallback } from 'react';
 import { getParentByIdAPI } from '@features/parents';
 import { getPaymentsByStudentAPI, getQRCodeAPI } from '@features/payments';
+import { usePaymentSocket } from '@shared/hooks/usePaymentSocket';
 
 export interface PaymentTransaction {
   id: string;
@@ -97,6 +98,7 @@ export const useParentPayments = (user: any | null): UseParentPaymentsReturn => 
   const [qrCodeUrl, setQrCodeUrl] = useState<string>('');
   const [qrCodeLoading, setQrCodeLoading] = useState<boolean>(false);
   const [qrDialogOpen, setQrDialogOpen] = useState<boolean>(false);
+  const [currentReferenceCode, setCurrentReferenceCode] = useState<string | null>(null);
 
   // History modal
   const [paymentHistoryModalOpen, setPaymentHistoryModalOpen] = useState<boolean>(false);
@@ -339,6 +341,7 @@ export const useParentPayments = (user: any | null): UseParentPaymentsReturn => 
     setPaymentAmount('');
     setPaymentError('');
     setQrCodeUrl('');
+    setCurrentReferenceCode(null); // Clear referenceCode khi đóng dialog
   };
 
   const handleGenerateQRCode = async (
@@ -386,6 +389,7 @@ export const useParentPayments = (user: any | null): UseParentPaymentsReturn => 
     setPaymentAmount('');
     setPaymentError('');
     setQrCodeUrl('');
+    setCurrentReferenceCode(null); // Clear referenceCode khi đóng dialog
     void fetchPaymentData();
   };
 
@@ -402,6 +406,33 @@ export const useParentPayments = (user: any | null): UseParentPaymentsReturn => 
   const handleCloseSnackbar = () => {
     setSnackbar((prev) => ({ ...prev, open: false }));
   };
+
+  usePaymentSocket({
+    referenceCode: currentReferenceCode,
+    enabled: !!currentReferenceCode && qrDialogOpen,
+    onPaymentSuccess: (data) => {
+      console.log('Payment success received:', data);
+      setSnackbar({
+        open: true,
+        message: 'Thanh toán thành công! Đang cập nhật thông tin...',
+        severity: 'success',
+      });
+      // Refresh payment data
+      void fetchPaymentData();
+      // Đóng dialog sau 2 giây
+      setTimeout(() => {
+        handleCloseQRDialog();
+      }, 2000);
+    },
+    onPaymentFailure: (data) => {
+      console.log('Payment failure received:', data);
+      setSnackbar({
+        open: true,
+        message: 'Thanh toán thất bại. Vui lòng thử lại.',
+        severity: 'error',
+      });
+    },
+  });
 
   const handleRegenerateQRCode = () => {
     if (!selectedInvoice) return;

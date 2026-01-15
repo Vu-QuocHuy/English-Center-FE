@@ -68,6 +68,19 @@ const Dashboard = () => {
       const parentDashboardRes = await getParentDashboardAPI(parentId);
       const dash = (parentDashboardRes as any)?.data?.data || (parentDashboardRes as any)?.data || {};
 
+      // Get student payments from dashboard API response
+      const studentPayments = Array.isArray(dash.studentPayments) ? dash.studentPayments : [];
+      
+      // Create a map of studentId -> payment info for quick lookup
+      const paymentMap = new Map();
+      studentPayments.forEach((payment: any) => {
+        paymentMap.set(payment.studentId, {
+          totalAmount: payment.totalAmount || 0,
+          totalPaidAmount: payment.totalPaidAmount || 0,
+          totalUnPaidAmount: payment.totalUnPaidAmount || 0,
+        });
+      });
+
       // Get full children list from parent detail API
       const parentDetailRes = await getParentByIdAPI(String(parentId));
       const parentPayload = (parentDetailRes as any)?.data?.data ?? (parentDetailRes as any)?.data ?? {};
@@ -82,20 +95,43 @@ const Dashboard = () => {
           // Normalize to array of schedules; support both array and object shapes
           const schedules = (scheduleData as any).schedules || (Array.isArray(scheduleData) ? scheduleData : []);
           const totalActiveClasses = (scheduleData as any).totalActiveClasses || 0;
+          
+          // Get payment info for this student from paymentMap
+          const paymentInfo = paymentMap.get(stu.id) || {
+            totalAmount: 0,
+            totalPaidAmount: 0,
+            totalUnPaidAmount: 0,
+          };
+          
           return {
             studentId: stu.id,
             studentName: stu.name || parentPayload?.name,
             studentEmail: stu.email || parentPayload?.email,
             schedules,
             totalActiveClasses,
+            // Add payment information
+            totalAmount: paymentInfo.totalAmount,
+            totalPaidAmount: paymentInfo.totalPaidAmount,
+            totalUnPaidAmount: paymentInfo.totalUnPaidAmount,
           };
         } catch (err) {
+          // Get payment info for this student from paymentMap even if schedule fetch fails
+          const paymentInfo = paymentMap.get(stu.id) || {
+            totalAmount: 0,
+            totalPaidAmount: 0,
+            totalUnPaidAmount: 0,
+          };
+          
           return {
             studentId: stu.id,
             studentName: stu.name || parentPayload?.name,
             studentEmail: stu.email || parentPayload?.email,
             schedules: [],
             totalActiveClasses: 0,
+            // Add payment information
+            totalAmount: paymentInfo.totalAmount,
+            totalPaidAmount: paymentInfo.totalPaidAmount,
+            totalUnPaidAmount: paymentInfo.totalUnPaidAmount,
           };
         }
       });
