@@ -403,9 +403,9 @@ const TeacherPayments: React.FC = () => {
                         }
                       }}
                     >
-                      <MenuItem value="banking">Chuyển khoản</MenuItem>
+                      <MenuItem value="bank_transfer">Chuyển khoản</MenuItem>
                       <MenuItem value="cash">Tiền mặt</MenuItem>
-                      <MenuItem value="check">Séc</MenuItem>
+                      <MenuItem value="card">Thẻ</MenuItem>
                     </Select>
                   </FormControl>
                 </Grid>

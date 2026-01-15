@@ -112,17 +112,18 @@ const ParentPaymentsTable: React.FC<ParentPaymentsTableProps> = ({
                   />
                 </Box>
               </TableCell>
-              <TableCell align="left">
-                <Box sx={{ display: 'flex', gap: 1, justifyContent: 'left' }}>
+              <TableCell align="center">
+                <Box sx={{ display: 'flex', gap: 1, justifyContent: 'center', alignItems: 'center' }}>
                   {invoice.status.toLowerCase() !== 'paid' && (
-                    <Button
-                      variant="contained"
-                      color="primary"
-                      size="small"
-                      onClick={() => onPayment(invoice)}
-                    >
-                      Thanh toán
-                    </Button>
+                    <Tooltip title="Thanh toán">
+                      <IconButton
+                        size="small"
+                        color="primary"
+                        onClick={() => onPayment(invoice)}
+                      >
+                        <PaymentIcon />
+                      </IconButton>
+                    </Tooltip>
                   )}
                   {invoice.paymentHistory && invoice.paymentHistory.length > 0 && (
                     <Tooltip title="Xem lịch sử thanh toán">

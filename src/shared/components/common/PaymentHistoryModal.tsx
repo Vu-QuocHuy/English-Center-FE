@@ -222,7 +222,12 @@ const getPaymentMethodLabel = (method?: string): string => {
     case 'cash':
       return 'Tiền mặt';
     case 'bank_transfer':
+    case 'banking': // Backward compatibility
       return 'Chuyển khoản';
+    case 'card':
+      return 'Thẻ';
+    case 'check': // Backward compatibility
+      return 'Séc';
     default:
       return method || 'Không xác định';
   }

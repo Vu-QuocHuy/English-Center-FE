@@ -69,21 +69,12 @@ export const getAllTeacherPaymentsAPI = (params?: ApiParams) => {
   return axiosInstance.get('/teacher-payments', { params: queryParams });
 };
 
-export const updateTeacherPaymentAPI = (id: string, data: {
-  method?: string;
-  paidAmount?: number;
-  note?: string;
-}) => axiosInstance.patch(`/teacher-payments/${id}`, data);
-
-export const payTeacherAPI = (id: string, data: PaymentData, params: ApiParams = {}) => {
-  const formData = new URLSearchParams();
-  formData.append('amount', String(Number(data.amount)));
-  if (data.method) formData.append('method', data.method);
-  if (data.note) formData.append('note', data.note);
-  return axiosInstance.post(`/teacher-payments/${id}/pay`, formData, {
-    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-    params
-  });
+// Thanh toán lương giáo viên
+export const payTeacherAPI = (
+  id: string,
+  data: { amount: number; method?: string; note?: string },
+) => {
+  return axiosInstance.patch(`/teacher-payments/${id}/pay`, data);
 };
 
 export const getTeacherPaymentByIdAPI = (id: string) => axiosInstance.get(`/teacher-payments/${id}`);

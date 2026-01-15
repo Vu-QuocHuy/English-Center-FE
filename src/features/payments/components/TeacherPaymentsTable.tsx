@@ -84,9 +84,11 @@ const TeacherPaymentsTable: React.FC<TeacherPaymentsTableProps> = ({
                 </TableCell>
                 <TableCell align="center">
                   <Box sx={{ display: 'flex', gap: 1, justifyContent: 'center' }}>
-                    <IconButton size="small" onClick={() => onOpenDialog(p)} color="primary">
-                      <PaymentIcon />
-                    </IconButton>
+                    {p.status !== 'paid' && (
+                      <IconButton size="small" onClick={() => onOpenDialog(p)} color="primary">
+                        <PaymentIcon />
+                      </IconButton>
+                    )}
                     <IconButton size="small" onClick={() => onOpenHistory(p)} color="info">
                       <HistoryIcon />
                     </IconButton>

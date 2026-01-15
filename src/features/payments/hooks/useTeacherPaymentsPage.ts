@@ -1,7 +1,7 @@
 import React from 'react';
 import {
   getAllTeacherPaymentsAPI,
-  updateTeacherPaymentAPI,
+  payTeacherAPI,
   getTeacherPaymentByIdAPI,
   exportTeacherPaymentsReportAPI,
   type TeacherPayment,
@@ -37,7 +37,7 @@ export const useTeacherPaymentsPage = () => {
   const [dialogSummary, setDialogSummary] = React.useState<{ totalAmount: number; paidAmount: number; remainingAmount: number } | null>(null);
 
   const [formData, setFormData] = React.useState({
-    method: 'banking',
+    method: 'bank_transfer',
     paidAmount: 0,
     note: '',
   });
@@ -196,7 +196,7 @@ export const useTeacherPaymentsPage = () => {
       setDialogSummary({ totalAmount, paidAmount, remainingAmount });
 
       setFormData({
-        method: 'banking',
+        method: 'bank_transfer',
         paidAmount: 0,
         note: '',
       });
@@ -234,9 +234,10 @@ export const useTeacherPaymentsPage = () => {
     setAmountError('');
 
     try {
-      await updateTeacherPaymentAPI(editingPayment.id, {
+      // Gọi đúng endpoint thanh toán lương giáo viên: PATCH /teacher-payments/:id/pay
+      await payTeacherAPI(editingPayment.id, {
+        amount: formData.paidAmount,
         method: formData.method,
-        paidAmount: formData.paidAmount,
         note: formData.note,
       });
 

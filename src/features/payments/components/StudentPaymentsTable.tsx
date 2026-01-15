@@ -87,11 +87,6 @@ const StudentPaymentsTable: React.FC<StudentPaymentsTableProps> = ({
                 </TableCell>
                 <TableCell align="center">
                   <Box sx={{ display: 'flex', gap: 1, justifyContent: 'center', alignItems: 'center' }}>
-                    <Tooltip title="Lịch sử thanh toán">
-                      <IconButton onClick={() => onOpenHistory(p)}>
-                        <HistoryIcon />
-                      </IconButton>
-                    </Tooltip>
                     {p.status !== 'paid' && (
                       <Tooltip title="Thanh toán">
                         <IconButton color="primary" onClick={() => onOpenPayDialog(p)}>
@@ -99,6 +94,11 @@ const StudentPaymentsTable: React.FC<StudentPaymentsTableProps> = ({
                         </IconButton>
                       </Tooltip>
                     )}
+                    <Tooltip title="Lịch sử thanh toán">
+                      <IconButton onClick={() => onOpenHistory(p)}>
+                        <HistoryIcon />
+                      </IconButton>
+                    </Tooltip>
                   </Box>
                 </TableCell>
               </TableRow>
