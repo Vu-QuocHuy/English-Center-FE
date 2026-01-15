@@ -1,6 +1,6 @@
 import React from 'react';
 import { Box, Button, TextField, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, Pagination, Typography, IconButton, Tooltip, Grid, MenuItem, Card, CardContent } from '@mui/material';
-import { BaseDialog, ConfirmDialog } from '@shared/components';
+import { BaseDialog, ConfirmDialog, NotificationSnackbar } from '@shared/components';
 import { getAllTransactionsAPI, createTransactionAPI, updateTransactionAPI, deleteTransactionAPI, getAllTransactionCategoriesAPI, exportTransactionsReportAPI } from '@shared/services';
 import { Edit as EditIcon, Delete as DeleteIcon, Download as DownloadIcon, Add as AddIcon } from '@mui/icons-material';
 import * as XLSX from 'xlsx';
@@ -33,6 +33,16 @@ const Transactions: React.FC = () => {
   const [customStart, setCustomStart] = React.useState<string>(new Date().toISOString().split('T')[0].substring(0, 8) + '01');
   const [customEnd, setCustomEnd] = React.useState<string>(new Date().toISOString().split('T')[0]);
   const [typeFilter, setTypeFilter] = React.useState<'all' | 'revenue' | 'expense'>('all');
+
+  const [snackbar, setSnackbar] = React.useState<{
+    open: boolean;
+    message: string;
+    severity: 'success' | 'error' | 'warning' | 'info';
+  }>({
+    open: false,
+    message: '',
+    severity: 'success',
+  });
 
   const [openTransactionDialog, setOpenTransactionDialog] = React.useState<boolean>(false);
   const [transactionForm, setTransactionForm] = React.useState<{ amount: string; category_id: string; description: string }>({ amount: '', category_id: '', description: '' });
@@ -231,6 +241,18 @@ const Transactions: React.FC = () => {
       setOpenTransactionDialog(false);
       setTransactionForm({ amount: '', category_id: '', description: '' });
       await fetchOtherTransactions(1);
+      setSnackbar({
+        open: true,
+        message: 'Thêm hóa đơn thu/chi thành công!',
+        severity: 'success',
+      });
+    } catch (e) {
+      console.error('Error creating transaction:', e);
+      setSnackbar({
+        open: true,
+        message: 'Có lỗi xảy ra khi thêm hóa đơn.',
+        severity: 'error',
+      });
     } finally {
       setTransactionLoading(false);
     }
@@ -259,6 +281,18 @@ const Transactions: React.FC = () => {
       setTransactionToEdit(null);
       setEditTransactionForm({ amount: '', category_id: '', description: '' });
       await fetchOtherTransactions(1);
+      setSnackbar({
+        open: true,
+        message: 'Cập nhật hóa đơn thu/chi thành công!',
+        severity: 'success',
+      });
+    } catch (e) {
+      console.error('Error updating transaction:', e);
+      setSnackbar({
+        open: true,
+        message: 'Có lỗi xảy ra khi cập nhật hóa đơn.',
+        severity: 'error',
+      });
     } finally {
       setEditTransactionLoading(false);
     }
@@ -276,6 +310,18 @@ const Transactions: React.FC = () => {
       setOpenDeleteTransactionDialog(false);
       setTransactionToDelete(null);
       await fetchOtherTransactions(1);
+      setSnackbar({
+        open: true,
+        message: 'Xóa hóa đơn thu/chi thành công!',
+        severity: 'success',
+      });
+    } catch (e) {
+      console.error('Error deleting transaction:', e);
+      setSnackbar({
+        open: true,
+        message: 'Có lỗi xảy ra khi xóa hóa đơn.',
+        severity: 'error',
+      });
     } finally {
       setDeleteTransactionLoading(false);
     }
@@ -370,7 +416,28 @@ const Transactions: React.FC = () => {
           )}
         </Box>
         <Box>
-          <Button variant="outlined" startIcon={<DownloadIcon />} onClick={exportToExcel}>Xuất Excel</Button>
+          <Button
+            variant="outlined"
+            startIcon={<DownloadIcon />}
+            onClick={async () => {
+              try {
+                await exportToExcel();
+                setSnackbar({
+                  open: true,
+                  message: 'Xuất báo cáo thu chi khác thành công!',
+                  severity: 'success',
+                });
+              } catch (e) {
+                setSnackbar({
+                  open: true,
+                  message: 'Có lỗi xảy ra khi xuất báo cáo thu chi khác.',
+                  severity: 'error',
+                });
+              }
+            }}
+          >
+            Xuất Excel
+          </Button>
         </Box>
       </Box>
 
@@ -539,6 +606,13 @@ const Transactions: React.FC = () => {
         confirmText="Xóa"
         confirmColor="error"
         loading={deleteTransactionLoading}
+      />
+
+      <NotificationSnackbar
+        open={snackbar.open}
+        message={snackbar.message}
+        severity={snackbar.severity}
+        onClose={() => setSnackbar(prev => ({ ...prev, open: false }))}
       />
     </>
   );

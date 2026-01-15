@@ -79,6 +79,7 @@ interface UseParentPaymentsReturn {
   // Snackbar
   snackbar: SnackbarState;
   handleCloseSnackbar: () => void;
+  paymentSuccess: boolean;
 }
 
 export const useParentPayments = (user: any | null): UseParentPaymentsReturn => {
@@ -110,6 +111,9 @@ export const useParentPayments = (user: any | null): UseParentPaymentsReturn => 
     message: '',
     severity: 'success',
   });
+
+  // Success state for QR payment
+  const [paymentSuccess, setPaymentSuccess] = useState<boolean>(false);
 
   useEffect(() => {
     if (user) {
@@ -359,9 +363,15 @@ export const useParentPayments = (user: any | null): UseParentPaymentsReturn => 
 
       const response = await getQRCodeAPI(amount, paymentId);
 
-      const qrUrl = response.data?.data?.qrUrl;
+      const qrData = (response as any)?.data?.data ?? (response as any)?.data ?? {};
+      const qrUrl = qrData?.qrUrl;
+      const referenceCode = qrData?.referenceCode;
+
       if (qrUrl) {
         setQrCodeUrl(qrUrl);
+        if (referenceCode) {
+          setCurrentReferenceCode(referenceCode);
+        }
         setQrDialogOpen(true);
         setSnackbar({
           open: true,
@@ -412,17 +422,13 @@ export const useParentPayments = (user: any | null): UseParentPaymentsReturn => 
     enabled: !!currentReferenceCode && qrDialogOpen,
     onPaymentSuccess: (data) => {
       console.log('Payment success received:', data);
-      setSnackbar({
-        open: true,
-        message: 'Thanh toán thành công! Đang cập nhật thông tin...',
-        severity: 'success',
-      });
-      // Refresh payment data
-      void fetchPaymentData();
-      // Đóng dialog sau 2 giây
+      // Đánh dấu thành công để UI QR dialog hiển thị hiệu ứng
+      setPaymentSuccess(true);
+      // Đóng dialog sau 3 giây (refresh dữ liệu sẽ được gọi trong handleCloseQRDialog)
       setTimeout(() => {
+        setPaymentSuccess(false);
         handleCloseQRDialog();
-      }, 2000);
+      }, 3000);
     },
     onPaymentFailure: (data) => {
       console.log('Payment failure received:', data);
@@ -458,6 +464,38 @@ export const useParentPayments = (user: any | null): UseParentPaymentsReturn => 
     void handleGenerateQRCode(paymentId, amount);
   };
 
+  const handleChangePaymentAmount = (value: string) => {
+    setPaymentAmount(value);
+
+    // Xóa lỗi khi không có hóa đơn được chọn
+    if (!selectedInvoice) {
+      setPaymentError('');
+      return;
+    }
+
+    // Khi để trống thì không báo lỗi, để user nhập lại
+    if (value === '') {
+      setPaymentError('');
+      return;
+    }
+
+    const numericValue = Number(value);
+    const maxAmount = selectedInvoice.remainingAmount || 0;
+
+    if (Number.isNaN(numericValue) || numericValue <= 0) {
+      setPaymentError('Số tiền phải lớn hơn 0');
+      return;
+    }
+
+    if (maxAmount > 0 && numericValue > maxAmount) {
+      setPaymentError('Số tiền thanh toán không được vượt quá số tiền còn lại');
+      return;
+    }
+
+    // Hợp lệ
+    setPaymentError('');
+  };
+
   return {
     loading,
     error,
@@ -474,7 +512,7 @@ export const useParentPayments = (user: any | null): UseParentPaymentsReturn => 
     paymentDialogOpen,
     selectedInvoice,
     paymentAmount,
-    setPaymentAmount,
+    setPaymentAmount: handleChangePaymentAmount,
     paymentError,
     qrCodeUrl,
     qrCodeLoading,
@@ -489,5 +527,6 @@ export const useParentPayments = (user: any | null): UseParentPaymentsReturn => 
     handleClosePaymentHistory,
     snackbar,
     handleCloseSnackbar,
+    paymentSuccess,
   };
 };

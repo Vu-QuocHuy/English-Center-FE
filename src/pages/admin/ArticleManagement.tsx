@@ -8,15 +8,13 @@ import {
   InputLabel,
   Select,
   MenuItem,
-  Chip,
-  Alert,
-  Snackbar
+  Chip
 } from '@mui/material';
 import {
   Add as AddIcon
 } from '@mui/icons-material';
 import { getAllMenusAPI } from '@features/menus';
-import { ConfirmDialog } from '@shared/components';
+import { ConfirmDialog, NotificationSnackbar } from '@shared/components';
 import DashboardLayout from '@shared/components/layouts/DashboardLayout';
 import { commonStyles } from '@shared/utils';
 import { getAllArticlesAPI, updateArticleAPI, deleteArticleAPI, getArticleByIdAPI } from '@features/articles';
@@ -291,19 +289,12 @@ const ArticleManagement: React.FC = () => {
           />
 
           {/* Notification Snackbar */}
-          <Snackbar
+          <NotificationSnackbar
             open={notification.open}
-            autoHideDuration={6000}
+            message={notification.message}
+            severity={notification.severity}
             onClose={handleNotificationClose}
-          >
-            <Alert
-              onClose={handleNotificationClose}
-              severity={notification.severity}
-              sx={{ width: '100%' }}
-            >
-              {notification.message}
-            </Alert>
-          </Snackbar>
+          />
 
           {/* Article Form Dialog */}
           <ArticleForm

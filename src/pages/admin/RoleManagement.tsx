@@ -6,8 +6,6 @@ import {
     Tabs,
     Tab,
     Pagination,
-    Snackbar,
-    Alert,
 } from '@mui/material';
 import {
     Add as AddIcon,
@@ -15,7 +13,7 @@ import {
     VpnKey as VpnKeyIcon,
 } from '@mui/icons-material';
 import DashboardLayout from '@shared/components/layouts/DashboardLayout';
-import { BaseDialog } from '@shared/components';
+import { BaseDialog, NotificationSnackbar } from '@shared/components';
 import { commonStyles } from '@shared/utils';
 import { useRoleManagement, usePermissionManagement } from '@features/roles';
 import {
@@ -347,21 +345,13 @@ const RoleManagement: React.FC = () => {
                         </Typography>
                     </BaseDialog>
 
-                    {/* Snackbar */}
-                    <Snackbar
+                    {/* Notification Snackbar */}
+                    <NotificationSnackbar
                         open={snackbar.open}
-                        autoHideDuration={4000}
+                        message={snackbar.message}
+                        severity={snackbar.severity}
                         onClose={handleCloseSnackbar}
-                        anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
-                    >
-                        <Alert
-                            onClose={handleCloseSnackbar}
-                            severity={snackbar.severity}
-                            variant="filled"
-                        >
-                            {snackbar.message}
-                        </Alert>
-                    </Snackbar>
+                    />
                 </Box>
             </Box>
         </DashboardLayout>

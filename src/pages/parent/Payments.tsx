@@ -12,7 +12,7 @@ import {
   Tabs,
   Tab,
   InputAdornment,
-  CircularProgress,
+  CircularProgress
 } from '@mui/material';
 import {
   Payment as PaymentIcon,
@@ -22,6 +22,7 @@ import {
   QrCode2 as QrCodeIcon,
   AttachMoney as AttachMoneyIcon
 } from '@mui/icons-material';
+import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import { useAuth } from '../../contexts/AuthContext';
 import DashboardLayout from '@shared/components/layouts/DashboardLayout';
 import { commonStyles } from '@shared/utils';
@@ -61,6 +62,7 @@ const Payments: React.FC = () => {
     handleClosePaymentHistory,
     snackbar,
     handleCloseSnackbar,
+    paymentSuccess,
   } = useParentPayments(user);
 
   if (loading) {
@@ -252,7 +254,39 @@ const Payments: React.FC = () => {
         }}
       >
         <Box sx={{ p: 4 }}>
-          {qrCodeUrl ? (
+          {paymentSuccess ? (
+            <Box
+              sx={{
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: 2,
+                minHeight: 320,
+                textAlign: 'center',
+              }}
+            >
+              {/* Success circle with checkmark */}
+              <Box
+                sx={{
+                  width: 120,
+                  height: 120,
+                  borderRadius: '50%',
+                  border: '4px solid',
+                  borderColor: 'success.main',
+                  bgcolor: 'transparent',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                }}
+              >
+                <CheckCircleIcon sx={{ fontSize: 72, color: 'success.main' }} />
+              </Box>
+              <Typography variant="h6" sx={{ mt: 2, fontWeight: 600 }}>
+                Thanh toán thành công
+              </Typography>
+            </Box>
+          ) : qrCodeUrl ? (
             <Box
               sx={{
                 display: 'flex',

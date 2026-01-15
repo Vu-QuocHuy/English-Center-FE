@@ -178,6 +178,7 @@ export const useTeacherPaymentsPage = () => {
       XLSX.writeFile(wb, `BaoCao_GiaoVien_${now.getFullYear()}-${now.getMonth() + 1}-${now.getDate()}.xlsx`);
     } catch (e) {
       console.error('Export teacher payments error:', e);
+      throw e;
     }
   };
 
@@ -216,16 +217,16 @@ export const useTeacherPaymentsPage = () => {
     setAmountError('');
   };
 
-  const handleSubmit = async () => {
-    if (!editingPayment) return;
+  const handleSubmit = async (): Promise<boolean> => {
+    if (!editingPayment) return false;
 
     if (!formData.paidAmount || formData.paidAmount <= 0) {
       setAmountError('Vui lòng nhập số tiền thanh toán');
-      return;
+      return false;
     }
     if (dialogSummary && formData.paidAmount > dialogSummary.remainingAmount) {
       setAmountError(`Số tiền không được lớn hơn ${dialogSummary.remainingAmount.toLocaleString()} ₫`);
-      return;
+      return false;
     }
 
     setLoading(true);
@@ -241,11 +242,13 @@ export const useTeacherPaymentsPage = () => {
 
       handleCloseDialog();
       fetchPayments(1);
+      return true;
     } catch (err: any) {
       setError(err?.response?.data?.message || 'Có lỗi xảy ra');
     } finally {
       setLoading(false);
     }
+    return false;
   };
 
   const openHistory = async (payment: TeacherPayment) => {

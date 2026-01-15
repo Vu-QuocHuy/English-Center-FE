@@ -1,6 +1,6 @@
 import React from 'react';
 import { Box, Button, TextField, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, Typography, IconButton, Tooltip, Grid, MenuItem } from '@mui/material';
-import { BaseDialog, ConfirmDialog } from '@shared/components';
+import { BaseDialog, ConfirmDialog, NotificationSnackbar } from '@shared/components';
 import { getAllTransactionCategoriesAPI, createTransactionCategoryAPI, getTransactionCategoryByIdAPI, updateTransactionCategoryAPI, deleteTransactionCategoryAPI } from '@shared/services';
 import { Edit as EditIcon, Delete as DeleteIcon, Add as AddIcon } from '@mui/icons-material';
 
@@ -16,6 +16,16 @@ const Categories: React.FC = () => {
   const [categoryToDelete, setCategoryToDelete] = React.useState<any | null>(null);
   const [deleteCategoryLoading, setDeleteCategoryLoading] = React.useState<boolean>(false);
   const [categoryLoading, setCategoryLoading] = React.useState<boolean>(false);
+
+  const [snackbar, setSnackbar] = React.useState<{
+    open: boolean;
+    message: string;
+    severity: 'success' | 'error' | 'warning' | 'info';
+  }>({
+    open: false,
+    message: '',
+    severity: 'success',
+  });
 
   const fetchCategories = React.useCallback(async () => {
     try {
@@ -51,6 +61,18 @@ const Categories: React.FC = () => {
       setOpenCategoryDialog(false);
       setCategoryForm({ type: 'expense', name: '' });
       await fetchCategories();
+      setSnackbar({
+        open: true,
+        message: 'Thêm danh mục thu/chi thành công!',
+        severity: 'success',
+      });
+    } catch (e) {
+      console.error('Error creating category:', e);
+      setSnackbar({
+        open: true,
+        message: 'Có lỗi xảy ra khi thêm danh mục.',
+        severity: 'error',
+      });
     } finally {
       setCategoryLoading(false);
     }
@@ -64,6 +86,18 @@ const Categories: React.FC = () => {
       setOpenDeleteCategoryDialog(false);
       setCategoryToDelete(null);
       await fetchCategories();
+      setSnackbar({
+        open: true,
+        message: 'Xóa danh mục thu/chi thành công!',
+        severity: 'success',
+      });
+    } catch (e) {
+      console.error('Error deleting category:', e);
+      setSnackbar({
+        open: true,
+        message: 'Có lỗi xảy ra khi xóa danh mục.',
+        severity: 'error',
+      });
     } finally {
       setDeleteCategoryLoading(false);
     }
@@ -250,6 +284,13 @@ const Categories: React.FC = () => {
         confirmText="Xóa"
         confirmColor="error"
         loading={deleteCategoryLoading}
+      />
+
+      <NotificationSnackbar
+        open={snackbar.open}
+        message={snackbar.message}
+        severity={snackbar.severity}
+        onClose={() => setSnackbar(prev => ({ ...prev, open: false }))}
       />
     </>
   );

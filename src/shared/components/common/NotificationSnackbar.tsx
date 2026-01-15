@@ -67,6 +67,17 @@ const NotificationSnackbar: React.FC<NotificationSnackbarProps> = ({
       autoHideDuration={autoHideDuration}
       onClose={onClose}
       anchorOrigin={anchorOrigin}
+      sx={{
+        zIndex: 9999, // Hiển thị trên tất cả các dialog và nội dung khác
+        position: 'fixed',
+        top: anchorOrigin.vertical === 'top' ? '24px' : undefined,
+        bottom: anchorOrigin.vertical === 'bottom' ? '24px' : undefined,
+        left: anchorOrigin.horizontal === 'left' ? '24px' : undefined,
+        right: anchorOrigin.horizontal === 'right' ? '24px' : undefined,
+        '& .MuiSnackbar-root': {
+          zIndex: 9999,
+        },
+      }}
     >
       <Alert
         onClose={onClose}
@@ -79,6 +90,7 @@ const NotificationSnackbar: React.FC<NotificationSnackbarProps> = ({
           border: `1px solid ${colors.borderColor}`,
           borderRadius: '12px',
           boxShadow: '0 4px 12px rgba(0, 0, 0, 0.15)',
+          zIndex: 9999,
           '& .MuiAlert-icon': {
             color: colors.iconColor
           },

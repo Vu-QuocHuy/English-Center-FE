@@ -5,7 +5,6 @@ import {
   Paper,
   TextField,
   InputAdornment,
-  Alert,
   Button,
   CircularProgress,
 } from '@mui/material';
@@ -42,6 +41,12 @@ const ParentPaymentDialog: React.FC<ParentPaymentDialogProps> = ({
   onClose,
   onSubmit,
 }) => {
+  // Tính toán điều kiện disable nút
+  const amountNum = parseFloat(paymentAmount);
+  const isValidAmount = amountNum > 0 && !isNaN(amountNum);
+  const exceedsMax = selectedInvoice && isValidAmount && amountNum > (selectedInvoice.remainingAmount || 0);
+  const isButtonDisabled = qrCodeLoading || !paymentAmount || !isValidAmount || !!exceedsMax || !!paymentError;
+
   return (
     <BaseDialog
       open={open}
@@ -81,7 +86,7 @@ const ParentPaymentDialog: React.FC<ParentPaymentDialogProps> = ({
           <Button
             onClick={onSubmit}
             variant="contained"
-            disabled={qrCodeLoading || !paymentAmount || parseFloat(paymentAmount) <= 0}
+            disabled={isButtonDisabled}
             startIcon={
               qrCodeLoading ? (
                 <CircularProgress size={20} color="inherit" />
@@ -227,12 +232,15 @@ const ParentPaymentDialog: React.FC<ParentPaymentDialogProps> = ({
                   ),
                 }}
                 helperText={
-                  selectedInvoice
+                  paymentError
+                    ? paymentError
+                    : selectedInvoice
                     ? `Tối đa: ${formatCurrency(
                         selectedInvoice.remainingAmount || 0
                       )}`
                     : undefined
                 }
+                error={!!paymentError}
                 sx={{
                   '& .MuiOutlinedInput-root': {
                     borderRadius: 2,
@@ -243,14 +251,6 @@ const ParentPaymentDialog: React.FC<ParentPaymentDialogProps> = ({
                 }}
               />
             </Grid>
-
-            {paymentError && (
-              <Grid item xs={12}>
-                <Alert severity="error" sx={{ borderRadius: 2 }}>
-                  {paymentError}
-                </Alert>
-              </Grid>
-            )}
           </Grid>
         </Paper>
       </Box>

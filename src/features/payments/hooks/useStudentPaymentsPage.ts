@@ -209,7 +209,7 @@ export const useStudentPaymentsPage = () => {
       XLSX.writeFile(wb, `BaoCao_HocSinh_${now.getFullYear()}-${now.getMonth() + 1}-${now.getDate()}.xlsx`);
     } catch (error) {
       console.error('Lỗi khi xuất báo cáo:', error);
-      alert('Có lỗi xảy ra khi xuất báo cáo. Vui lòng thử lại.');
+      throw error;
     } finally {
       setExportLoading(false);
     }

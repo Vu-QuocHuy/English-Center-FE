@@ -1,7 +1,7 @@
 import React from 'react';
 import { Box, TextField, MenuItem, Button, CircularProgress, Grid, Paper, Divider, Typography, Card, CardContent, InputAdornment } from '@mui/material';
 import { Download as DownloadIcon, Payment as PaymentIcon, Cancel as CancelIcon, Save as SaveIcon, AttachMoney as AttachMoneyIcon, Paid as PaidIcon, AccountBalanceWallet as WalletIcon, Search as SearchIcon } from '@mui/icons-material';
-import { PaymentHistoryModal } from '@shared/components';
+import { PaymentHistoryModal, NotificationSnackbar } from '@shared/components';
 import {
   StudentPaymentsTable,
   useStudentPaymentsPage,
@@ -13,6 +13,16 @@ const StudentPayments: React.FC = () => {
   const years = Array.from({ length: 5 }, (_, i) => new Date().getFullYear() - i);
   const months = Array.from({ length: 12 }, (_, i) => i + 1);
   const quarters = [1, 2, 3, 4];
+
+  const [snackbar, setSnackbar] = React.useState<{
+    open: boolean;
+    message: string;
+    severity: 'success' | 'error' | 'warning' | 'info';
+  }>({
+    open: false,
+    message: '',
+    severity: 'success',
+  });
 
   const {
     // filters
@@ -64,6 +74,40 @@ const StudentPayments: React.FC = () => {
     onPageChange,
     exportToExcel,
   } = useStudentPaymentsPage();
+
+  const handleExport = async () => {
+    try {
+      await exportToExcel();
+      setSnackbar({
+        open: true,
+        message: 'Xuất báo cáo học sinh thành công!',
+        severity: 'success',
+      });
+    } catch (e) {
+      setSnackbar({
+        open: true,
+        message: 'Có lỗi xảy ra khi xuất báo cáo. Vui lòng thử lại.',
+        severity: 'error',
+      });
+    }
+  };
+
+  const handleConfirmPayment = async () => {
+    try {
+      await handleSubmitStudentPayment();
+      setSnackbar({
+        open: true,
+        message: 'Thanh toán học phí thành công!',
+        severity: 'success',
+      });
+    } catch (e) {
+      setSnackbar({
+        open: true,
+        message: 'Có lỗi xảy ra khi thanh toán học phí.',
+        severity: 'error',
+      });
+    }
+  };
 
   return (
     <DashboardLayout role="admin">
@@ -156,7 +200,7 @@ const StudentPayments: React.FC = () => {
               <Button
                 variant="outlined"
                 startIcon={exportLoading ? <CircularProgress size={16} /> : <DownloadIcon />}
-                onClick={exportToExcel}
+                onClick={handleExport}
                 disabled={exportLoading}
               >
                 {exportLoading ? 'Đang xuất...' : 'Xuất Excel'}
@@ -235,7 +279,7 @@ const StudentPayments: React.FC = () => {
                   Hủy
                 </Button>
                 <Button
-                  onClick={handleSubmitStudentPayment}
+                  onClick={handleConfirmPayment}
                   variant="contained"
                   startIcon={studentPaymentLoading ? <CircularProgress size={20} color="inherit" /> : <SaveIcon />}
                   disabled={studentPaymentLoading || !studentPaymentForm.amount}
@@ -391,6 +435,12 @@ const StudentPayments: React.FC = () => {
               </Paper>
             </Box>
           </BaseDialog>
+          <NotificationSnackbar
+            open={snackbar.open}
+            message={snackbar.message}
+            severity={snackbar.severity}
+            onClose={() => setSnackbar(prev => ({ ...prev, open: false }))}
+          />
         </Box>
       </Box>
     </DashboardLayout>

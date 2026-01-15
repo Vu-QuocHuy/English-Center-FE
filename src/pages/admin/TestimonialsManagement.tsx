@@ -366,8 +366,9 @@ const TestimonialsManagement: React.FC = () => {
                 <Box
                   sx={{
                     border: '2px dashed #667eea',
-                    borderRadius: 2,
-                    minHeight: 400,
+                    borderRadius: 0,
+                    minHeight: 300,
+                    minWidth: '100%',
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',
@@ -393,12 +394,12 @@ const TestimonialsManagement: React.FC = () => {
                       src={URL.createObjectURL(formData.image)}
                       alt="preview"
                       style={{
-                        maxWidth: '100%',
-                        maxHeight: '360px',
+                        maxWidth: '736px',
+                        maxHeight: '552px',
                         width: 'auto',
                         height: 'auto',
                         objectFit: 'contain',
-                        borderRadius: 8
+                        borderRadius: 0
                       }}
                     />
                   ) : editingFeedback && editingFeedback.imageUrl ? (
@@ -406,12 +407,12 @@ const TestimonialsManagement: React.FC = () => {
                       src={editingFeedback.imageUrl}
                       alt="current"
                       style={{
-                        maxWidth: '100%',
-                        maxHeight: '360px',
+                        maxWidth: '736px',
+                        maxHeight: '552px',
                         width: 'auto',
                         height: 'auto',
                         objectFit: 'contain',
-                        borderRadius: 8
+                        borderRadius: 0
                       }}
                     />
                   ) : (

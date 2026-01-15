@@ -10,7 +10,6 @@ import {
   FormControl,
   InputLabel,
   Select,
-  Alert,
   InputAdornment,
   Typography,
   Card,
@@ -18,7 +17,7 @@ import {
 } from '@mui/material';
 import { Payment as PaymentIcon, AttachMoney as AttachMoneyIcon, Paid as PaidIcon, AccountBalanceWallet as WalletIcon, Download as DownloadIcon, Search as SearchIcon } from '@mui/icons-material';
 import { TeacherPaymentsTable, useTeacherPaymentsPage } from '@features/payments';
-import { PaymentHistoryModal, BaseDialog } from '@shared/components';
+import { PaymentHistoryModal, BaseDialog, NotificationSnackbar } from '@shared/components';
 import DashboardLayout from '@shared/components/layouts/DashboardLayout';
 import { commonStyles } from '@shared/utils';
 
@@ -26,6 +25,16 @@ const TeacherPayments: React.FC = () => {
   const years = Array.from({ length: 5 }, (_, i) => new Date().getFullYear() - i);
   const months = Array.from({ length: 12 }, (_, i) => i + 1);
   const quarters = [1, 2, 3, 4];
+
+  const [snackbar, setSnackbar] = React.useState<{
+    open: boolean;
+    message: string;
+    severity: 'success' | 'error' | 'warning' | 'info';
+  }>({
+    open: false,
+    message: '',
+    severity: 'success',
+  });
 
   const {
     // filters
@@ -75,6 +84,41 @@ const TeacherPayments: React.FC = () => {
     onPageChange,
     exportToExcel,
   } = useTeacherPaymentsPage();
+
+  const handleExport = async () => {
+    try {
+      await exportToExcel();
+      setSnackbar({
+        open: true,
+        message: 'Xuất báo cáo giáo viên thành công!',
+        severity: 'success',
+      });
+    } catch (e) {
+      setSnackbar({
+        open: true,
+        message: 'Có lỗi xảy ra khi xuất báo cáo. Vui lòng thử lại.',
+        severity: 'error',
+      });
+    }
+  };
+
+  const handleConfirmPayment = async () => {
+    const success = await handleSubmit();
+    if (success) {
+      setSnackbar({
+        open: true,
+        message: 'Thanh toán lương giáo viên thành công!',
+        severity: 'success',
+      });
+    } else {
+      // Nếu có lỗi server, hook đã set error; vẫn hiển thị snackbar chung
+      setSnackbar({
+        open: true,
+        message: 'Có lỗi xảy ra khi thanh toán lương giáo viên.',
+        severity: 'error',
+      });
+    }
+  };
 
   return (
     <DashboardLayout role="admin">
@@ -167,7 +211,7 @@ const TeacherPayments: React.FC = () => {
             )}
               </Box>
               <Box>
-                <Button variant="outlined" startIcon={<DownloadIcon />} onClick={exportToExcel}>Xuất Excel</Button>
+                <Button variant="outlined" startIcon={<DownloadIcon />} onClick={handleExport}>Xuất Excel</Button>
               </Box>
             </Box>
             <Box sx={{ display: 'flex', justifyContent: 'flex-start' }}>
@@ -240,7 +284,7 @@ const TeacherPayments: React.FC = () => {
                   Hủy
                 </Button>
                 <Button
-                  onClick={handleSubmit}
+                  onClick={handleConfirmPayment}
                   variant="contained"
                   disabled={loading}
                   sx={{
@@ -300,9 +344,9 @@ const TeacherPayments: React.FC = () => {
                 </>
               )}
               {error && (
-                <Alert severity="error" sx={{ mb: 3 }}>
+                <Box sx={{ mb: 3, color: 'error.main', fontSize: 14 }}>
                   {error}
-                </Alert>
+                </Box>
               )}
 
               <Paper sx={{ p: 3, borderRadius: 2, bgcolor: 'white', boxShadow: '0 2px 8px rgba(0,0,0,0.05)' }}>
@@ -389,6 +433,12 @@ const TeacherPayments: React.FC = () => {
               </Paper>
             </Box>
           </BaseDialog>
+          <NotificationSnackbar
+            open={snackbar.open}
+            message={snackbar.message}
+            severity={snackbar.severity}
+            onClose={() => setSnackbar(prev => ({ ...prev, open: false }))}
+          />
         </Box>
       </Box>
     </DashboardLayout>
