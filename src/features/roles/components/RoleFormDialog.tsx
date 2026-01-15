@@ -288,28 +288,11 @@ const RoleFormDialog: React.FC<RoleFormDialogProps> = memo(({
                                                                 />
                                                             }
                                                             label={
-                                                                <Box>
-                                                                    <Typography variant="body2">
-                                                                        <Chip
-                                                                            label={permission.method}
-                                                                            size="small"
-                                                                            sx={{
-                                                                                mr: 1,
-                                                                                minWidth: 60,
-                                                                                bgcolor: permission.method === 'GET' ? 'info.light' :
-                                                                                    permission.method === 'POST' ? 'success.light' :
-                                                                                        permission.method === 'PATCH' ? 'warning.light' : 'error.light',
-                                                                                color: 'white',
-                                                                            }}
-                                                                        />
-                                                                        {permission.path}
-                                                                    </Typography>
-                                                                    <Typography variant="caption" color="text.secondary">
-                                                                        {permission.description}
-                                                                    </Typography>
-                                                                </Box>
+                                                                <Typography variant="body2">
+                                                                    {permission.description || 'Không có mô tả'}
+                                                                </Typography>
                                                             }
-                                                            sx={{ alignItems: 'flex-start', mb: 1 }}
+                                                            sx={{ alignItems: 'center', mb: 1 }}
                                                         />
                                                     ))}
                                                 </FormGroup>

@@ -14,6 +14,7 @@ import Login from './pages/auth/Login';
 import StaffLogin from './pages/auth/StaffLogin';
 import ForgotPassword from './pages/auth/ForgotPassword';
 import UnauthorizedAccess from './pages/auth/UnauthorizedAccess';
+import ForbiddenAccess from './pages/auth/ForbiddenAccess';
 
 // Admin Pages
 import AdminDashboard from './pages/admin/Dashboard';
@@ -81,6 +82,7 @@ const AppContent: React.FC = () => {
           <Route path="/staff/login" element={<StaffLogin />} />
           <Route path="/forgot-password" element={<ForgotPassword />} />
           <Route path="/unauthorized" element={<UnauthorizedAccess />} />
+          <Route path="/forbidden" element={<ForbiddenAccess />} />
 
           {/* All Teachers Page - Must be before dynamic routes */}
           <Route path="/giao-vien" element={<AllTeachersPage />} />

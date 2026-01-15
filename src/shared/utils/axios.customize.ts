@@ -216,6 +216,31 @@ instance.interceptors.response.use(
                     isRefreshing = false;
                 }
             }
+            
+            if (error.response.status === 403) {
+                const requestMethod = originalRequest?.method?.toUpperCase();
+                const requestUrl = originalRequest?.url || '';
+                
+                // Only redirect for GET requests that are list requests (initial page load)
+                // Detail requests (with ID in URL) should show notification instead
+                if (requestMethod === 'GET' && typeof window !== 'undefined') {
+                    // Check if this is a detail request (contains ID pattern in URL)
+                    // Detail requests typically have pattern like /:id or /:id/...
+                    // List requests typically have query params like ?page=1&limit=10 or no ID in path
+                    const isDetailRequest = /\/[a-f0-9-]{36,}\/?$/.test(requestUrl) || // UUID pattern
+                                          /\/\d+\/?$/.test(requestUrl) || // Numeric ID at end
+                                          /\/[^\/]+\/[a-f0-9-]{36,}/.test(requestUrl) || // UUID in middle
+                                          /\/[^\/]+\/\d+/.test(requestUrl); // Numeric ID in middle
+                    
+                    // Only redirect if it's NOT a detail request (i.e., it's a list request)
+                    if (!isDetailRequest) {
+                        window.location.href = '/forbidden';
+                    }
+                }
+                // For POST/PATCH/DELETE or detail GET requests, reject normally so components can show notifications
+                return Promise.reject(error);
+            }
+            
             // Trả về error object với response data để dễ xử lý
         return Promise.reject({
           response: {
@@ -224,15 +249,10 @@ instance.interceptors.response.use(
           }
         });
         } else {
-            // Network errors (socket hang up, timeout, etc.)
-            // Network error
-
             // Retry logic for network errors
             if (!originalRequest._networkRetry &&
                 (error.code === 'ECONNRESET' || error.code === 'ENOTFOUND' || error.message.includes('timeout'))) {
                 originalRequest._networkRetry = true;
-                // ✅ Retrying network request
-
                 // Wait a bit before retry
                 await new Promise(resolve => setTimeout(resolve, 1000));
                 return instance(originalRequest);
