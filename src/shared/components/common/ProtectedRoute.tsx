@@ -36,11 +36,7 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
     return <Navigate to={redirectTo} state={{ from: location }} replace />;
   }
 
-  // Nếu có user nhưng không authenticated (token có thể hết hạn),
-  // để component render và để interceptor xử lý refresh
   if (!isAuthenticated) {
-    // Không redirect ngay, để component render và interceptor xử lý
-    // Nếu API call bị 401, interceptor sẽ gọi refresh
     console.log('User exists but not authenticated, allowing render for interceptor to handle');
     // Không return Navigate, để component render
   }

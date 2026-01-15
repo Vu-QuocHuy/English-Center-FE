@@ -28,8 +28,6 @@ import {
   Pending as PendingIcon
 } from '@mui/icons-material';
 
-
-
 interface PaymentTransaction {
   id?: string;
   date: string;
@@ -121,7 +119,6 @@ interface PaymentData {
     name: string;
     email: string;
   };
-  // New API structure for teacher
   teacher?: {
     id: string;
     name: string;
@@ -222,12 +219,9 @@ const getPaymentMethodLabel = (method?: string): string => {
     case 'cash':
       return 'Tiền mặt';
     case 'bank_transfer':
-    case 'banking': // Backward compatibility
       return 'Chuyển khoản';
     case 'card':
       return 'Thẻ';
-    case 'check': // Backward compatibility
-      return 'Séc';
     default:
       return method || 'Không xác định';
   }

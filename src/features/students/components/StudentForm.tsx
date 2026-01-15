@@ -236,34 +236,26 @@ const StudentForm: React.FC<StudentFormProps> = ({
       let payload: any;
       
       if (student?.id) {
-        // Update: only send changed fields
+        // Update: only send changed fields directly (no userData wrapper)
         const changedFields = getChangedFields(formData, originalData);
         
-        // Convert date format for API
+        // Convert date format for API (backend expects MM/DD/YYYY)
         const dayOfBirth = changedFields.dateOfBirth 
           ? (changedFields.dateOfBirth.includes('-') 
               ? changedFields.dateOfBirth.split('-').reverse().join('/') 
               : changedFields.dateOfBirth)
           : undefined;
 
-        const userData: any = {};
-        if (changedFields.name !== undefined) userData.name = changedFields.name;
-        if (changedFields.email !== undefined) userData.email = changedFields.email;
-        if (changedFields.phone !== undefined) userData.phone = changedFields.phone;
-        if (changedFields.address !== undefined) userData.address = changedFields.address;
-        if (dayOfBirth !== undefined) userData.dayOfBirth = dayOfBirth;
-        if (changedFields.gender !== undefined) userData.gender = changedFields.gender;
-
-        payload = {
-          ...(Object.keys(userData).length > 0 ? { userData } : {}),
-          studentData: classEdits.map(edit => ({
-            classId: edit.classId,
-            status: edit.status,
-            discountPercent: edit.discountPercent || 0
-          }))
-        };
-        
-        await updateStudentAPI(student.id, payload);
+        // Backend expects fields directly, not wrapped in userData
+        const updatePayload: any = {};
+        if (changedFields.name !== undefined) updatePayload.name = changedFields.name;
+        if (changedFields.email !== undefined) updatePayload.email = changedFields.email;
+        if (changedFields.phone !== undefined) updatePayload.phone = changedFields.phone;
+        if (changedFields.address !== undefined) updatePayload.address = changedFields.address;
+        if (dayOfBirth !== undefined) updatePayload.dayOfBirth = dayOfBirth;
+        if (changedFields.gender !== undefined) updatePayload.gender = changedFields.gender;
+    
+        await updateStudentAPI(student.id, updatePayload);
       } else {
         // Create: send all fields
         payload = {

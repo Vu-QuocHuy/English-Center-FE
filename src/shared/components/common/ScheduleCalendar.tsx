@@ -329,7 +329,6 @@ const ServerDay: React.FC<ServerDayProps> = ({ day, lessons, userType, selected,
 };
 
 const ScheduleCalendar: React.FC<ScheduleCalendarProps> = ({ lessons, title, userType }) => {
-  console.log('📅 ScheduleCalendar received:', { lessons, userType, lessonsCount: lessons.length });
 
   const [selectedDate, setSelectedDate] = useState<Dayjs>(dayjs());
   const [lessonsOfDay, setLessonsOfDay] = useState<Lesson[]>([]);

@@ -295,7 +295,7 @@ const ClassForm: React.FC<ClassFormProps> = ({
       await onSubmit(submitData);
       onClose();
     } catch (error) {
-      console.error('Error submitting class form:', error);
+      // Error handled by parent component
     } finally {
       setIsSubmitting(false);
     }
@@ -324,18 +324,13 @@ const ClassForm: React.FC<ClassFormProps> = ({
             setStudentsInfo(data.students || []);
           }
         } catch (e) {
-          console.error('Error refreshing class details:', e);
-
           // Retry logic - thử lại tối đa 3 lần với delay 1s
           if (retryCount < 3) {
-            console.log(`Retrying... Attempt ${retryCount + 1}/3`);
             setTimeout(() => {
               fetchDetails(retryCount + 1);
             }, 1000);
-          } else {
-            console.error('Failed to refresh class details after 3 attempts');
-            // Có thể hiển thị thông báo lỗi cho user
           }
+          // Error handled silently after retries
         }
       };
       fetchDetails();

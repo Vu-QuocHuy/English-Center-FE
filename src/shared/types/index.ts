@@ -126,7 +126,6 @@ export interface Parent extends BaseEntity {
 
   // Legacy fields for backward compatibility
   userId?: User;
-  canSeeTeacherInfo?: boolean;
   children?: Student[]; // Keep for backward compatibility
   relationship?: string;
   occupation?: string;
@@ -295,7 +294,6 @@ export interface ParentFormData {
   phone: string;
   address: string;
   gender: 'male' | 'female';
-  canSeeTeacherInfo: boolean;
 }
 
 export interface ParentValidationErrors {
@@ -306,7 +304,6 @@ export interface ParentValidationErrors {
   phone?: string;
   address?: string;
   gender?: string;
-  canSeeTeacherInfo?: string;
 }
 
 export interface StudentFormData {
@@ -412,7 +409,6 @@ export interface ParentUpdateData {
   dayOfBirth: string;
   gender: 'male' | 'female';
   address: string;
-  canSeeTeacherInfo: boolean;
 }
 
 export interface StudentUpdateData {

@@ -110,22 +110,31 @@ export const useStudentForm = (): UseStudentFormReturn => {
     try {
       let body: any;
       if (selectedStudent) {
-        // Update: phải đúng format BE yêu cầu
-        body = {
-          userData: {
-            name: form.name,
-            email: form.email,
-            phone: form.phone,
-            dayOfBirth: form.dayOfBirth,
-            gender: form.gender,
-            address: form.address,
-          },
-          studentData: classEdits.map(edit => ({
-            classId: edit.classId,
-            status: edit.status,
-            discountPercent: edit.discountPercent || 0
-          }))
-        };
+        // Update: Backend expects fields directly, not wrapped in userData
+        // Only send changed fields (compare with original data if available)
+        const updatePayload: any = {};
+        
+        // Add fields that have changed (for now, send all non-empty fields)
+        // In a real scenario, you'd compare with original data
+        if (form.name) updatePayload.name = form.name;
+        if (form.email) updatePayload.email = form.email;
+        if (form.phone) updatePayload.phone = form.phone;
+        if (form.dayOfBirth) {
+          // Convert YYYY-MM-DD to MM/DD/YYYY for backend
+          const dateParts = form.dayOfBirth.split('-');
+          if (dateParts.length === 3) {
+            updatePayload.dayOfBirth = `${dateParts[1]}/${dateParts[2]}/${dateParts[0]}`;
+          } else {
+            updatePayload.dayOfBirth = form.dayOfBirth;
+          }
+        }
+        if (form.gender) updatePayload.gender = form.gender;
+        if (form.address) updatePayload.address = form.address;
+
+        // Note: Backend doesn't support updating classes via student update endpoint
+        // Classes should be managed via class management endpoints
+        
+        body = updatePayload;
       } else {
         // Create: đúng format API specification
         body = {

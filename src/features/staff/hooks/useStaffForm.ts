@@ -187,7 +187,6 @@ export const useStaffForm = (): UseStaffFormReturn => {
       if (onSuccess) onSuccess();
       return { success: true, message: form.id ? 'Cập nhật nhân viên thành công!' : 'Tạo nhân viên thành công!' };
     } catch (error: any) {
-      console.error('Error submitting staff form:', error);
       const errorMessage = error?.response?.data?.message || 'Có lỗi xảy ra khi lưu thông tin nhân viên';
       setError(errorMessage);
       return { success: false, message: errorMessage };

@@ -7,7 +7,6 @@ export interface ParentData {
   dayOfBirth?: string;
   address?: string;
   gender?: 'male' | 'female';
-  canSeeTeacherInfo?: boolean;
 }
 
 export interface ApiParams {

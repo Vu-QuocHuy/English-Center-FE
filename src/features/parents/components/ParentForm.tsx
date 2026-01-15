@@ -11,7 +11,6 @@ import {
   Typography,
   CircularProgress,
   Grid,
-  Checkbox,
   Tabs,
   Tab,
   Paper,
@@ -111,8 +110,7 @@ const ParentForm: React.FC<ParentFormProps> = ({ open, onClose, onSubmit, parent
         phone: parent.phone || (parent as any)?.userId?.phone || '',
         dayOfBirth: parent.dayOfBirth || (parent as any)?.userId?.dayOfBirth || '',
         address: parent.address || (parent as any)?.userId?.address || '',
-        gender: parent.gender || (parent as any)?.userId?.gender || 'male',
-        canSeeTeacherInfo: (parent as any)?.canSeeTeacherInfo ?? true
+        gender: parent.gender || (parent as any)?.userId?.gender || 'male'
       });
       // Không reset tab khi đã mở dialog
     } else if (!open) {
@@ -249,7 +247,7 @@ const ParentForm: React.FC<ParentFormProps> = ({ open, onClose, onSubmit, parent
 
       let body: any;
       if (parent) {
-        // Update existing parent - only send changed fields
+        // Update existing parent - only send changed fields directly (no userData wrapper)
         const changedFields: any = {};
         
         if (originalData) {
@@ -261,15 +259,8 @@ const ParentForm: React.FC<ParentFormProps> = ({ open, onClose, onSubmit, parent
           if (form.address !== originalData.address) changedFields.address = form.address;
         }
 
-        const parentDataChanged: any = {};
-        if (originalData && form.canSeeTeacherInfo !== originalData.canSeeTeacherInfo) {
-          parentDataChanged.canSeeTeacherInfo = form.canSeeTeacherInfo;
-        }
-
-        body = {
-          ...(Object.keys(changedFields).length > 0 ? { userData: changedFields } : {}),
-          ...(Object.keys(parentDataChanged).length > 0 ? { parentData: parentDataChanged } : {})
-        };
+        // Backend expects fields directly, not wrapped in userData
+        body = changedFields;
 
         await updateParentAPI(parent.id, body);
       } else {
@@ -281,8 +272,7 @@ const ParentForm: React.FC<ParentFormProps> = ({ open, onClose, onSubmit, parent
           dayOfBirth: toAPIDateFormat(form.dayOfBirth),
           phone: form.phone,
           address: form.address,
-          gender: form.gender,
-          canSeeTeacherInfo: form.canSeeTeacherInfo,
+          gender: form.gender
         };
 
         await createParentAPI(body);
@@ -544,12 +534,6 @@ const ParentForm: React.FC<ParentFormProps> = ({ open, onClose, onSubmit, parent
                       helperText={errors.address}
                       required
                     />
-            </Grid>
-            <Grid item xs={12}>
-              <Box display="flex" alignItems="center" gap={1}>
-                      <Checkbox checked={!!form.canSeeTeacherInfo} onChange={(e) => handleChange({ target: { name: 'canSeeTeacherInfo', value: e.target.checked, type: 'checkbox', checked: e.target.checked } } as any)} />
-                      <Typography>Quyền xem thông tin giáo viên</Typography>
-              </Box>
             </Grid>
           </Grid>
         </Box>

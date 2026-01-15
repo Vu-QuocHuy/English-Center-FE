@@ -26,15 +26,6 @@ export const getGenderLabel = (gender: 'male' | 'female' | string): string => {
   return gender === 'male' ? 'Nam' : 'Nữ';
 };
 
-// Helper function to format teacher info permission
-export const getTeacherInfoLabel = (canSeeTeacherInfo: boolean): string => {
-  return canSeeTeacherInfo ? 'Có thể xem' : 'Không thể xem';
-};
-
-// Helper function to get teacher info color
-export const getTeacherInfoColor = (canSeeTeacherInfo: boolean): 'success' | 'error' => {
-  return canSeeTeacherInfo ? 'success' : 'error';
-};
 
 // Helper function to get student names
 export const getStudentNames = (studentIds: Student[]): string => {

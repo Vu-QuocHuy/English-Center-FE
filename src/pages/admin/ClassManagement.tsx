@@ -18,6 +18,7 @@ interface SnackbarState {
 const ClassManagement: React.FC = () => {
   const [openDialog, setOpenDialog] = useState<boolean>(false);
   const [selectedClass, setSelectedClass] = useState<Class | null>(null);
+  const [originalClassData, setOriginalClassData] = useState<Class | null>(null);
   const [openDeleteDialog, setOpenDeleteDialog] = useState<boolean>(false);
   const [classToDelete, setClassToDelete] = useState<Class | null>(null);
   const [snackbar, setSnackbar] = useState<SnackbarState>({ open: false, message: '', severity: 'success' });
@@ -44,6 +45,12 @@ const ClassManagement: React.FC = () => {
   // Dialog handlers
   const handleOpenDialog = useCallback((classItem: Class | null = null): void => {
     setSelectedClass(classItem);
+    // Store original data for comparison when updating
+    if (classItem) {
+      setOriginalClassData({ ...classItem });
+    } else {
+      setOriginalClassData(null);
+    }
     setOpenDialog(true);
   }, []);
 
@@ -79,8 +86,75 @@ const ClassManagement: React.FC = () => {
 
   const handleSubmitClass = useCallback(async (classData: any): Promise<void> => {
     try {
-      if (selectedClass) {
-        await updateClassAPI(selectedClass.id, classData);
+      if (selectedClass && originalClassData) {
+        // Only send changed fields directly (no wrapper)
+        const changedFields: any = {};
+        
+        // Compare and add only changed fields
+        if (classData.name !== originalClassData.name) changedFields.name = classData.name;
+        if (classData.grade !== originalClassData.grade) changedFields.grade = parseInt(classData.grade.toString()) || 1;
+        if (classData.section !== originalClassData.section) changedFields.section = parseInt(classData.section.toString()) || 1;
+        if (classData.year !== originalClassData.year) changedFields.year = classData.year;
+        if (classData.description !== originalClassData.description) changedFields.description = classData.description;
+        if (classData.feePerLesson !== originalClassData.feePerLesson) changedFields.feePerLesson = parseInt(classData.feePerLesson.toString()) || 0;
+        if (classData.status !== originalClassData.status) changedFields.status = classData.status;
+        if (classData.max_student !== originalClassData.max_student && classData.max_student !== originalClassData.maxStudents) {
+          changedFields.max_student = parseInt(classData.max_student.toString()) || 30;
+        }
+        if (classData.room !== originalClassData.room) changedFields.room = classData.room;
+        
+        // Compare schedule (nested object)
+        const originalSchedule = originalClassData.schedule;
+        const newSchedule = classData.schedule;
+        if (originalSchedule && newSchedule) {
+          const scheduleChanged: any = {};
+          let hasScheduleChange = false;
+          
+          if (newSchedule.start_date && originalSchedule.start_date) {
+            const originalStart = new Date(originalSchedule.start_date).toISOString().split('T')[0];
+            if (newSchedule.start_date !== originalStart) {
+              scheduleChanged.start_date = newSchedule.start_date;
+              hasScheduleChange = true;
+            }
+          }
+          
+          if (newSchedule.end_date && originalSchedule.end_date) {
+            const originalEnd = new Date(originalSchedule.end_date).toISOString().split('T')[0];
+            if (newSchedule.end_date !== originalEnd) {
+              scheduleChanged.end_date = newSchedule.end_date;
+              hasScheduleChange = true;
+            }
+          }
+          
+          // Compare days_of_week arrays
+          const originalDays = (originalSchedule.days_of_week || []).map((d: string | number) => String(d)).sort();
+          const newDays = (newSchedule.days_of_week || []).map((d: string | number) => String(d)).sort();
+          if (JSON.stringify(originalDays) !== JSON.stringify(newDays)) {
+            scheduleChanged.days_of_week = newSchedule.days_of_week;
+            hasScheduleChange = true;
+          }
+          
+          // Compare time_slots
+          const originalTimeSlots = originalSchedule.time_slots;
+          const newTimeSlots = newSchedule.time_slots;
+          if (originalTimeSlots && newTimeSlots) {
+            if (originalTimeSlots.start_time !== newTimeSlots.start_time || 
+                originalTimeSlots.end_time !== newTimeSlots.end_time) {
+              scheduleChanged.time_slots = {
+                start_time: newTimeSlots.start_time,
+                end_time: newTimeSlots.end_time
+              };
+              hasScheduleChange = true;
+            }
+          }
+          
+          if (hasScheduleChange) {
+            changedFields.schedule = scheduleChanged;
+          }
+        }
+
+        // Backend expects fields directly, not wrapped
+        await updateClassAPI(selectedClass.id, changedFields);
         setSnackbar({ open: true, message: 'Cập nhật lớp học thành công!', severity: 'success' });
       } else {
         // Format data for API Create a class
@@ -117,7 +191,7 @@ const ClassManagement: React.FC = () => {
         severity: 'error'
       });
     }
-  }, [selectedClass, handleCloseDialog, fetchClasses]);
+  }, [selectedClass, originalClassData, handleCloseDialog, fetchClasses]);
 
   const handleCloseNotification = useCallback((): void => {
     setSnackbar(prev => ({ ...prev, open: false }));

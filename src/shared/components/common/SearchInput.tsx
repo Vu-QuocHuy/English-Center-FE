@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { TextField, InputAdornment } from '@mui/material';
 import { Search as SearchIcon } from '@mui/icons-material';
-import { useDebounceCommon as useDebounce } from '@shared/hooks';
+import { useDebounce } from '@shared/hooks';
 
 interface SearchInputProps {
   value: string;

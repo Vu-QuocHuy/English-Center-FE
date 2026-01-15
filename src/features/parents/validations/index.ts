@@ -16,11 +16,9 @@ export interface ParentFormData {
   dayOfBirth: string;
   address: string;
   gender: string;
-  canSeeTeacherInfo: boolean;
 }
 
 export interface ParentUpdateData {
-  canSeeTeacherInfo: boolean;
 }
 
 export interface ParentValidationErrors {
@@ -31,11 +29,9 @@ export interface ParentValidationErrors {
   dayOfBirth?: string;
   address?: string;
   gender?: string;
-  canSeeTeacherInfo?: string;
 }
 
 export interface ParentUpdateErrors {
-  canSeeTeacherInfo?: string;
 }
 
 // Validate toàn bộ form phụ huynh
@@ -76,13 +72,8 @@ export function validateParent(form: ParentFormData, isNewParent: boolean = fals
 }
 
 // Validate parent update
-export function validateParentUpdate(data: ParentUpdateData): ParentUpdateErrors {
+export function validateParentUpdate(_data: ParentUpdateData): ParentUpdateErrors {
   const errors: ParentUpdateErrors = {};
-
-  if (typeof data.canSeeTeacherInfo !== 'boolean') {
-    errors.canSeeTeacherInfo = 'Trạng thái xem thông tin giáo viên không hợp lệ';
-  }
-
   return errors;
 }
 

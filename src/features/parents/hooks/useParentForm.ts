@@ -33,7 +33,6 @@ export const useParentForm = (): UseParentFormReturn => {
     phone: '',
     address: '',
     gender: 'male',
-    canSeeTeacherInfo: true,
   });
   const [formErrors, setFormErrors] = useState<ParentValidationErrors>({});
   const [formLoading, setFormLoading] = useState<boolean>(false);
@@ -59,9 +58,7 @@ export const useParentForm = (): UseParentFormReturn => {
         dayOfBirth: (parent as any).userId?.dayOfBirth || (parent as any).dayOfBirth || '',
         phone: (parent as any).userId?.phone || (parent as any).phone || '',
         address: (parent as any).userId?.address || (parent as any).address || '',
-        gender: (parent as any).userId?.gender || (parent as any).gender || 'male',
-        canSeeTeacherInfo:
-          (parent as any).canSeeTeacherInfo !== undefined ? (parent as any).canSeeTeacherInfo : true,
+        gender: (parent as any).userId?.gender || (parent as any).gender || 'male'
       });
     } else {
       setForm({
@@ -71,8 +68,7 @@ export const useParentForm = (): UseParentFormReturn => {
         dayOfBirth: '',
         phone: '',
         address: '',
-        gender: 'male',
-        canSeeTeacherInfo: true,
+        gender: 'male'
       });
     }
   }, []);
@@ -85,8 +81,7 @@ export const useParentForm = (): UseParentFormReturn => {
       dayOfBirth: '',
       phone: '',
       address: '',
-      gender: 'male',
-      canSeeTeacherInfo: true,
+      gender: 'male'
     });
     setFormErrors({});
     setFormError('');
@@ -131,9 +126,6 @@ export const useParentForm = (): UseParentFormReturn => {
             dayOfBirth: toAPIDateFormat(form.dayOfBirth),
             gender: form.gender,
             address: form.address,
-          },
-          parentData: {
-            canSeeTeacherInfo: form.canSeeTeacherInfo,
           }
         };
       } else {
@@ -144,8 +136,7 @@ export const useParentForm = (): UseParentFormReturn => {
           dayOfBirth: toAPIDateFormat(form.dayOfBirth),
           phone: form.phone,
           address: form.address,
-          gender: form.gender,
-          canSeeTeacherInfo: form.canSeeTeacherInfo,
+          gender: form.gender
         };
       }
 

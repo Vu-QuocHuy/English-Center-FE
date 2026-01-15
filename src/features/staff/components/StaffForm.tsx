@@ -53,7 +53,7 @@ const StaffForm: React.FC<StaffFormProps> = ({
         const rolesData = response.data?.data?.result || response.data?.data || [];
         setRoles(rolesData);
       } catch (error) {
-        console.error('Error fetching roles:', error);
+        // Error handled silently
       } finally {
         setLoadingRoles(false);
       }
