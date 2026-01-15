@@ -103,6 +103,114 @@ const AdvertisementSlider: React.FC<AdvertisementSliderProps> = ({
     })
     .slice(0, 5);
 
+  // Nếu chỉ có 1 banner thì hiển thị dạng tĩnh, không dùng slider để tránh cảm giác bị lặp
+  if (sortedAds.length === 1) {
+    const ad = sortedAds[0];
+    return (
+      <Box
+        sx={{
+          position: 'relative',
+          width: '100%',
+          ...(height ? { height, minHeight: height } : { aspectRatio: '16/9' }),
+        }}
+      >
+        <Card
+          sx={{
+            height: '100%',
+            position: 'relative',
+            borderRadius: 0,
+            overflow: 'hidden',
+          }}
+        >
+          <CardMedia
+            component="img"
+            image={ad.imageUrl || ad.image}
+            alt={ad.title}
+            sx={{
+              position: 'absolute',
+              top: 0,
+              left: 0,
+              width: '100%',
+              height: '100%',
+              objectFit: 'cover',
+              objectPosition: 'center center',
+            }}
+          />
+          <Box
+            sx={{
+              position: 'absolute',
+              bottom: 0,
+              left: 0,
+              right: 0,
+              background: 'linear-gradient(transparent, rgba(0,0,0,0.85))',
+              color: 'white',
+              p: { xs: 2.5, md: 4 },
+              minHeight: { xs: '180px', md: '220px' },
+              display: 'flex',
+              flexDirection: 'column',
+              justifyContent: 'flex-end',
+            }}
+          >
+            <Typography
+              variant="h4"
+              fontWeight="bold"
+              gutterBottom
+              sx={{
+                fontSize: { xs: '1.5rem', md: '2rem' },
+                mb: 1.5,
+                lineHeight: 1.2,
+              }}
+            >
+              {ad.title}
+            </Typography>
+            <Typography
+              variant="body1"
+              sx={{
+                mb: 2,
+                opacity: 0.9,
+                fontSize: { xs: '0.9rem', md: '1rem' },
+                lineHeight: 1.5,
+                display: '-webkit-box',
+                WebkitLineClamp: 2,
+                WebkitBoxOrient: 'vertical',
+                overflow: 'hidden',
+              }}
+            >
+              {ad.content || ad.description}
+            </Typography>
+            {onRegisterClick && (
+              <Button
+                variant="contained"
+                size="large"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onRegisterClick((ad as any).class?.id || (ad as any).classId || null, ad.title);
+                }}
+                sx={{
+                  bgcolor: 'error.main',
+                  color: 'white',
+                  px: 4,
+                  py: 1.2,
+                  borderRadius: 999,
+                  alignSelf: 'flex-start',
+                  textTransform: 'none',
+                  fontWeight: 600,
+                  fontSize: { xs: '0.95rem', md: '1rem' },
+                  boxShadow: '0 4px 12px rgba(0,0,0,0.35)',
+                  '&:hover': {
+                    bgcolor: 'error.dark',
+                  },
+                }}
+              >
+                Đăng ký ngay
+              </Button>
+            )}
+          </Box>
+        </Card>
+      </Box>
+    );
+  }
+
   // 🔍 Debug: Kiểm tra từng banner
   console.log('🎨 [AdvertisementSlider] Total ads:', sortedAds.length);
   sortedAds.forEach((ad, idx) => {
