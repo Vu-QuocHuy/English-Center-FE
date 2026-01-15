@@ -9,12 +9,12 @@ import {
   Box,
   Typography,
   Chip,
-  Button,
   IconButton,
   Tooltip
 } from '@mui/material';
 import {
-  History as HistoryIcon
+  History as HistoryIcon,
+  Payment as PaymentIcon
 } from '@mui/icons-material';
 import { commonStyles } from '@shared/utils';
 
