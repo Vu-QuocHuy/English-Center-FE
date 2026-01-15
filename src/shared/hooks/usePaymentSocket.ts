@@ -39,6 +39,7 @@ export const usePaymentSocket = ({
 }: UsePaymentSocketOptions) => {
   const socketRef = useRef<Socket | null>(null);
   const callbacksRef = useRef({ onPaymentSuccess, onPaymentFailure });
+  const currentReferenceCodeRef = useRef<string | null>(null);
 
   // Update callbacks ref khi chúng thay đổi
   useEffect(() => {
@@ -48,9 +49,20 @@ export const usePaymentSocket = ({
   // Subscribe vào room khi có referenceCode
   const subscribe = useCallback((refCode: string) => {
     const socket = socketRef.current;
-    if (socket && socket.connected && refCode) {
-      socket.emit('subscribe', refCode);
-      console.log(`[PaymentSocket] Subscribed to room: ${refCode}`);
+    if (socket && refCode) {
+      if (socket.connected) {
+        socket.emit('subscribe', refCode);
+        console.log(`[PaymentSocket] Subscribed to room: ${refCode}`);
+      } else {
+        // Nếu chưa connected, đợi connect event
+        console.log(`[PaymentSocket] Socket not connected yet, waiting for connect event...`);
+        const handleConnect = () => {
+          socket.emit('subscribe', refCode);
+          console.log(`[PaymentSocket] Subscribed to room: ${refCode} after connect`);
+          socket.off('connect', handleConnect);
+        };
+        socket.on('connect', handleConnect);
+      }
     }
   }, []);
 
@@ -91,18 +103,40 @@ export const usePaymentSocket = ({
     socket.on('paymentSuccess', handlePaymentSuccess);
     socket.on('paymentFailure', handlePaymentFailure);
 
-    // Subscribe vào room nếu có referenceCode
-    if (referenceCode) {
+    // Hàm để subscribe khi socket connected
+    const handleConnect = () => {
+      console.log('[PaymentSocket] Socket connected, subscribing...');
+      const currentRefCode = currentReferenceCodeRef.current;
+      if (currentRefCode) {
+        subscribe(currentRefCode);
+      }
+    };
+
+    // Unsubscribe referenceCode cũ nếu có
+    const oldReferenceCode = currentReferenceCodeRef.current;
+    if (oldReferenceCode && oldReferenceCode !== referenceCode) {
+      unsubscribe(oldReferenceCode);
+    }
+
+    // Cập nhật referenceCode hiện tại
+    currentReferenceCodeRef.current = referenceCode || null;
+
+    // Subscribe ngay nếu đã connected, hoặc đợi connect event
+    if (socket.connected && referenceCode) {
       subscribe(referenceCode);
+    } else if (referenceCode) {
+      socket.on('connect', handleConnect);
     }
 
     // Cleanup
     return () => {
-      if (referenceCode) {
-        unsubscribe(referenceCode);
+      const refCodeToUnsubscribe = currentReferenceCodeRef.current;
+      if (refCodeToUnsubscribe) {
+        unsubscribe(refCodeToUnsubscribe);
       }
       socket.off('paymentSuccess', handlePaymentSuccess);
       socket.off('paymentFailure', handlePaymentFailure);
+      socket.off('connect', handleConnect);
     };
   }, [enabled, referenceCode, subscribe, unsubscribe]);
 
