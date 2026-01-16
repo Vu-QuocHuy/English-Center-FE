@@ -59,13 +59,14 @@ export const ForbiddenProvider: React.FC<{ children: ReactNode }> = ({ children 
     setIsForbidden(false);
     // Khi clear forbidden (route change), set checking = true để đợi API call đầu tiên
     setIsChecking(true);
-    // Auto clear checking sau 2 giây để tránh stuck ở checking state
+    // Auto clear checking sau 800ms để tránh stuck ở checking state
+    // Giảm từ 2s xuống 800ms để tối ưu trải nghiệm người dùng
     if (checkingTimeoutRef.current) {
       clearTimeout(checkingTimeoutRef.current);
     }
     checkingTimeoutRef.current = setTimeout(() => {
       setIsChecking(false);
-    }, 2000);
+    }, 800);
   }, []);
 
   const setChecking = useCallback((value: boolean) => {

@@ -58,8 +58,6 @@ const processQueue = (error: any, token: string | null = null): void => {
     failedQueue = [];
 };
 
-
-
 // Add a request interceptor
 instance.interceptors.request.use(
     (config: any) => {
@@ -70,8 +68,6 @@ instance.interceptors.request.use(
             config.headers.Authorization = `Bearer ${token}`;
         }
 
-        // Don't set Content-Type for FormData requests
-        // Let the browser set it automatically with boundary
         if (config.data instanceof FormData) {
             if (config.headers) {
                 delete config.headers['Content-Type'];
@@ -88,39 +84,13 @@ instance.interceptors.request.use(
 // Add a response interceptor
 instance.interceptors.response.use(
     (response: AxiosResponse) => {
-        // Khi API GET chính thành công, clear checking state để cho phép render content
+        // Khi API GET thành công, clear checking state để cho phép render content
+        // (backup, nếu chưa clear ở request interceptor)
         if (typeof window !== 'undefined') {
             const requestMethod = response.config?.method?.toUpperCase();
-            const requestUrl = response.config?.url || '';
             
-            // Helper function để xác định API có phải là secondary không (giống logic trong error handler)
-            const isSecondaryAPI = (url: string): boolean => {
-                const pathWithoutQuery = url.split('?')[0];
-                const secondaryPatterns = [
-                    /\/.*\/salary/,
-                    /\/.*\/history/,
-                    /\/.*\/export/,
-                    /\/.*\/download/,
-                    /\/.*\/detail/,
-                    /\/.*\/banners/,
-                    /\/.*\/popup/,
-                    /\/.*\/qrcode/,
-                    /\/.*\/report/,
-                    /\/.*\/total$/,
-                    /\/[a-f0-9-]{36,}$/,
-                    /\/\d+$/,
-                    /\/.*\/pay-student/,
-                    /\/.*\/pay-teacher/,
-                ];
-                return secondaryPatterns.some(pattern => pattern.test(pathWithoutQuery));
-            };
-            
-            // Chỉ clear checking khi API GET chính (không phải secondary) thành công
             if (requestMethod === 'GET') {
-                const isSecondary = isSecondaryAPI(requestUrl);
-                if (!isSecondary) {
-                    setGlobalChecking(false);
-                }
+                setGlobalChecking(false);
             }
         }
         return response;
