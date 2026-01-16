@@ -185,17 +185,23 @@ export const useStudentTuition = (user: any | null): UseStudentTuitionReturn => 
     const totalUnpaid = invoices.reduce((sum, inv) => sum + inv.remainingAmount, 0);
     const totalDiscount = invoices.reduce((sum, inv) => sum + inv.discountAmount, 0);
     const totalAmount = invoices.reduce((sum, inv) => sum + inv.finalAmount, 0);
-    const unpaidInvoices = invoices.filter(
-      (inv) => inv.status.toLowerCase() === 'pending' || inv.remainingAmount > 0
-    ).length;
-    const paidInvoices = invoices.filter(
-      (inv) => inv.status.toLowerCase() === 'paid' && inv.remainingAmount === 0
-    ).length;
-    const partialInvoices = invoices.filter(
-      (inv) =>
-        inv.status.toLowerCase() === 'partial' ||
-        (inv.paidAmount > 0 && inv.remainingAmount > 0)
-    ).length;
+    
+    // Đếm invoices theo status (giống logic trong filteredInvoices)
+    let unpaidInvoices = 0;
+    let paidInvoices = 0;
+    let partialInvoices = 0;
+    
+    invoices.forEach((inv) => {
+      const status = String(inv.status || '').toLowerCase();
+      if (status === 'paid') {
+        paidInvoices++;
+      } else if (status === 'partial') {
+        partialInvoices++;
+      } else {
+        // pending hoặc các status khác (chưa thanh toán)
+        unpaidInvoices++;
+      }
+    });
 
     return {
       totalPaid,
@@ -210,36 +216,36 @@ export const useStudentTuition = (user: any | null): UseStudentTuitionReturn => 
   }, [tuitionData.invoices]);
 
   const filteredInvoices = useMemo(() => {
-    let filtered = tuitionData.invoices;
-
-    // Filter by tab
-    if (selectedTab === 1) {
-      filtered = filtered.filter(
-        (inv) => inv.status.toLowerCase() === 'pending' || inv.remainingAmount > 0
-      );
-    } else if (selectedTab === 2) {
-      filtered = filtered.filter(
-        (inv) =>
-          inv.status.toLowerCase() === 'partial' ||
-          (inv.paidAmount > 0 && inv.remainingAmount > 0)
-      );
-    } else if (selectedTab === 3) {
-      filtered = filtered.filter(
-        (inv) => inv.status.toLowerCase() === 'paid' && inv.remainingAmount === 0
-      );
-    }
-
-    // Filter by search query
-    if (searchQuery.trim()) {
-      const query = searchQuery.toLowerCase();
-      filtered = filtered.filter(
-        (inv) =>
-          inv.className.toLowerCase().includes(query) ||
-          inv.month.toString().toLowerCase().includes(query)
-      );
-    }
-
-    return filtered;
+    return tuitionData.invoices.filter((invoice) => {
+      const matchesSearch =
+        searchQuery === '' ||
+        invoice.className.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        invoice.month.toString().toLowerCase().includes(searchQuery.toLowerCase());
+      
+      if (!matchesSearch) return false;
+      
+      // Filter by tab (giống logic trong useParentPayments)
+      if (selectedTab === 0) return true; // Tất cả
+      
+      const status = invoice.status.toLowerCase();
+      
+      if (selectedTab === 1) {
+        // Chưa thanh toán: không phải paid và không phải partial
+        return status !== 'paid' && status !== 'partial';
+      }
+      
+      if (selectedTab === 2) {
+        // Thanh toán một phần: chỉ lấy partial
+        return status === 'partial';
+      }
+      
+      if (selectedTab === 3) {
+        // Đã thanh toán: chỉ lấy paid
+        return status === 'paid';
+      }
+      
+      return true;
+    });
   }, [tuitionData.invoices, selectedTab, searchQuery]);
 
   const handleTabChange = (_e: any, newVal: number) => {
