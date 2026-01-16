@@ -15,7 +15,6 @@ import {
 import {
   Edit as EditIcon,
   Delete as DeleteIcon,
-  Visibility as VisibilityIcon,
 } from '@mui/icons-material';
 import { useTheme } from '@mui/material/styles';
 
@@ -46,7 +45,6 @@ interface ArticleTableProps {
   articles: Article[];
   onEdit: (article: Article) => void;
   onDelete: (articleId: string) => void;
-  onToggleActive: (article: Article) => void;
   menuItems: Array<{ id: string; title: string }>;
   loading?: boolean;
 }
@@ -55,7 +53,6 @@ const ArticleTable: React.FC<ArticleTableProps> = ({
   articles,
   onEdit,
   onDelete,
-  onToggleActive,
   menuItems,
   loading = false
 }) => {
@@ -168,14 +165,6 @@ const ArticleTable: React.FC<ArticleTableProps> = ({
               </TableCell>
               <TableCell>
                 <Box sx={{ display: 'flex', gap: 1 }}>
-                  <IconButton
-                    size="small"
-                    onClick={() => onToggleActive(article)}
-                    sx={{ color: article.isActive ? 'warning.main' : 'success.main' }}
-                    title={article.isActive ? 'Ẩn bài viết' : 'Hiện bài viết'}
-                  >
-                    <VisibilityIcon />
-                  </IconButton>
                   <IconButton
                     size="small"
                     onClick={() => onEdit(article)}

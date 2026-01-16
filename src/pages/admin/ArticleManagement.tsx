@@ -17,7 +17,7 @@ import { getAllMenusAPI } from '@features/menus';
 import { ConfirmDialog, NotificationSnackbar } from '@shared/components';
 import DashboardLayout from '@shared/components/layouts/DashboardLayout';
 import { commonStyles } from '@shared/utils';
-import { getAllArticlesAPI, updateArticleAPI, deleteArticleAPI, getArticleByIdAPI } from '@features/articles';
+import { getAllArticlesAPI, deleteArticleAPI, getArticleByIdAPI } from '@features/articles';
 import { MenuItem as MenuItemType } from '@shared/types';
 import { ArticleForm } from '@features/articles';
 import { ArticleTable } from '@features/articles';
@@ -140,24 +140,6 @@ const ArticleManagement: React.FC = () => {
     }
   };
 
-  // Handle toggle active status
-  const handleToggleActive = async (article: Article) => {
-    try {
-      await updateArticleAPI(article.id, { isActive: !article.isActive });
-      setNotification({
-        open: true,
-        message: 'Cập nhật trạng thái thành công!',
-        severity: 'success'
-      });
-      fetchArticles(selectedMenu);
-    } catch (error) {
-      setNotification({
-        open: true,
-        message: 'Lỗi khi cập nhật trạng thái',
-        severity: 'error'
-      });
-    }
-  };
 
   const handleNotificationClose = () => {
     setNotification(prev => ({ ...prev, open: false }));
@@ -264,7 +246,6 @@ const ArticleManagement: React.FC = () => {
                     }
                   }}
                   onDelete={handleDeleteClick}
-                  onToggleActive={handleToggleActive}
                   menuItems={menuItems}
                   loading={loading}
                 />

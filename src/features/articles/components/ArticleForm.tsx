@@ -10,7 +10,8 @@ import {
   MenuItem,
   CircularProgress,
   IconButton,
-  Paper
+  Paper,
+  Grid
 } from '@mui/material';
 import { Editor } from '@tinymce/tinymce-react';
 import { createArticleAPI, updateArticleAPI, type ArticleData } from '@features/articles';
@@ -47,6 +48,7 @@ const ArticleForm: React.FC<ArticleFormProps> = ({
 }) => {
   const [title, setTitle] = useState('');
   const [content, setContent] = useState('');
+  const [initialContent, setInitialContent] = useState(''); // Content chỉ set khi dialog mở, không thay đổi khi user gõ
   const [menuId, setMenuId] = useState(defaultMenuId || '');
   const [order, setOrder] = useState(1);
   const [isActive, setIsActive] = useState(true);
@@ -62,9 +64,11 @@ const ArticleForm: React.FC<ArticleFormProps> = ({
   useEffect(() => {
     if (open) {
       if (article) {
-        setTitle(article.title);
-        setContent(article.content);
-        setMenuId(article.menuId);
+        setTitle(article.title || '');
+        const articleContent = article.content || '';
+        setContent(articleContent);
+        // Set initialContent ngay lập tức để editor có thể sử dụng
+        setInitialContent(articleContent);
         setOrder(article.order || 1);
         setIsActive(article.isActive ?? true);
         setUploadedImageUrl(article.file);
@@ -73,7 +77,7 @@ const ArticleForm: React.FC<ArticleFormProps> = ({
       } else {
         setTitle('');
         setContent('');
-        setMenuId(defaultMenuId || '');
+        setInitialContent('');
         setOrder(1);
         setIsActive(true);
         setUploadedImageUrl(undefined);
@@ -81,25 +85,27 @@ const ArticleForm: React.FC<ArticleFormProps> = ({
         setThumbnailFile(null);
       }
       setError(null);
+    } else {
+      // Reset khi dialog đóng
+      setInitialContent('');
     }
-  }, [article, open, defaultMenuId]);
+  }, [article, open]);
 
-  // Update editor content when content state changes and editor is ready
+  // Set menuId riêng để đảm bảo menuItems đã được load
   useEffect(() => {
-    if (open && editorRef.current) {
-      // Small delay to ensure editor is fully initialized
-      const timer = setTimeout(() => {
-        if (editorRef.current && content !== undefined) {
-          const currentContent = editorRef.current.getContent();
-          // Only update if content is different to avoid unnecessary updates
-          if (currentContent !== content) {
-            editorRef.current.setContent(content || '');
-          }
-        }
-      }, 200);
-      return () => clearTimeout(timer);
+    if (open && menuItems.length > 0) {
+      if (article) {
+        // Đảm bảo menuId được set đúng, kiểm tra xem có tồn tại trong menuItems không
+        const validMenuId = article.menuId && menuItems.some(m => m.id === article.menuId) 
+          ? article.menuId 
+          : (defaultMenuId || '');
+        setMenuId(validMenuId);
+      } else {
+        setMenuId(defaultMenuId || '');
+      }
     }
-  }, [content, open, article?.id]);
+  }, [open, article, menuItems, defaultMenuId]);
+
 
   const handleSubmit = async () => {
     if (!title.trim()) {
@@ -213,7 +219,7 @@ const ArticleForm: React.FC<ArticleFormProps> = ({
       onClose={onClose}
       title={article ? 'Chỉnh sửa Bài viết' : 'Tạo Bài viết Mới'}
       icon={article ? <EditIcon sx={{ fontSize: 28, color: 'white' }} /> : <AddIcon sx={{ fontSize: 28, color: 'white' }} />}
-      maxWidth="md"
+      maxWidth="lg"
       error={error}
       contentPadding={0}
       hideDefaultAction={true}
@@ -243,222 +249,237 @@ const ArticleForm: React.FC<ArticleFormProps> = ({
       }
     >
         <Box sx={{ p: 4 }}>
-          <TextField
-            fullWidth
-            label="Tiêu đề"
-            value={title}
-            onChange={(e) => setTitle(e.target.value)}
-            margin="normal"
-            required
-          />
+          <Grid container spacing={3}>
+            {/* Cột trái: Tiêu đề, Menu, Thứ tự, Trạng thái, Ảnh */}
+            <Grid item xs={12} md={5}>
+              <TextField
+                fullWidth
+                label="Tiêu đề"
+                value={title}
+                onChange={(e) => setTitle(e.target.value)}
+                margin="normal"
+                required
+              />
 
-          <FormControl fullWidth margin="normal" required>
-            <InputLabel>Menu</InputLabel>
-            <Select
-              value={menuId}
-              onChange={(e) => setMenuId(e.target.value)}
-              label="Menu"
-            >
-              {renderMenuOptions(menuItems)}
-            </Select>
-          </FormControl>
+              <FormControl fullWidth margin="normal" required>
+                <InputLabel>Menu</InputLabel>
+                <Select
+                  value={menuId || ''}
+                  onChange={(e) => setMenuId(e.target.value)}
+                  label="Menu"
+                  displayEmpty
+                >
+                  {renderMenuOptions(menuItems)}
+                </Select>
+              </FormControl>
 
-          <Box sx={{ display: 'flex', gap: 2, mt: 2 }}>
-            <TextField
-              type="number"
-              label="Thứ tự"
-              value={order}
-              onChange={(e) => setOrder(parseInt(e.target.value) || 1)}
-              margin="normal"
-              sx={{ width: 120 }}
-            />
-            <FormControl margin="normal" sx={{ minWidth: 150 }}>
-              <InputLabel>Trạng thái</InputLabel>
-              <Select
-                value={isActive ? 'active' : 'inactive'}
-                onChange={(e) => setIsActive(e.target.value === 'active')}
-                label="Trạng thái"
-              >
-                <MenuItem value="active">Hoạt động</MenuItem>
-                <MenuItem value="inactive">Không hoạt động</MenuItem>
-              </Select>
-            </FormControl>
-          </Box>
-
-          {/* Thumbnail Image Upload */}
-          <Box sx={{ mt: 3 }}>
-            <Typography variant="subtitle2" gutterBottom>
-              Ảnh thumbnail:
-            </Typography>
-            <Paper
-              variant="outlined"
-              sx={{
-                p: 2,
-                border: '2px dashed',
-                borderColor: 'grey.300',
-                borderRadius: 2,
-                textAlign: 'center',
-                position: 'relative',
-                minHeight: 200,
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                bgcolor: 'grey.50',
-                '&:hover': {
-                  borderColor: 'primary.main',
-                  bgcolor: 'grey.100'
-                }
-              }}
-            >
-              {imageUploading ? (
-                <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 1 }}>
-                  <CircularProgress size={40} />
-                  <Typography variant="body2" color="text.secondary">
-                    Đang tải ảnh...
-                  </Typography>
-                </Box>
-              ) : thumbnailFile ? (
-                <Box sx={{ position: 'relative', width: '100%' }}>
-                  <img
-                    src={URL.createObjectURL(thumbnailFile)}
-                    alt="Thumbnail preview"
-                    style={{
-                      maxWidth: '100%',
-                      maxHeight: 300,
-                      width: 'auto',
-                      height: 'auto',
-                      objectFit: 'contain',
-                      borderRadius: 8
-                    }}
-                  />
-                  <IconButton
-                    onClick={handleRemoveThumbnail}
-                    sx={{
-                      position: 'absolute',
-                      top: 8,
-                      right: 8,
-                      bgcolor: 'error.main',
-                      color: 'white',
-                      '&:hover': { bgcolor: 'error.dark' }
-                    }}
-                    size="small"
+              <Box sx={{ display: 'flex', gap: 2, mt: 2 }}>
+                <TextField
+                  type="number"
+                  label="Thứ tự"
+                  value={order}
+                  onChange={(e) => setOrder(parseInt(e.target.value) || 1)}
+                  margin="normal"
+                  sx={{ flex: 1 }}
+                />
+                <FormControl margin="normal" sx={{ flex: 1, minWidth: 150 }}>
+                  <InputLabel>Trạng thái</InputLabel>
+                  <Select
+                    value={isActive ? 'active' : 'inactive'}
+                    onChange={(e) => setIsActive(e.target.value === 'active')}
+                    label="Trạng thái"
                   >
-                    <DeleteIcon />
-                  </IconButton>
-                </Box>
-              ) : uploadedImageUrl ? (
-                <Box sx={{ position: 'relative', width: '100%' }}>
-                  <img
-                    src={uploadedImageUrl}
-                    alt="Current thumbnail"
-                    style={{
-                      maxWidth: '100%',
-                      maxHeight: 300,
-                      width: 'auto',
-                      height: 'auto',
-                      objectFit: 'contain',
-                      borderRadius: 8
-                    }}
-                  />
-                  <IconButton
-                    onClick={handleRemoveThumbnail}
-                    sx={{
-                      position: 'absolute',
-                      top: 8,
-                      right: 8,
-                      bgcolor: 'error.main',
-                      color: 'white',
-                      '&:hover': { bgcolor: 'error.dark' }
-                    }}
-                    size="small"
-                  >
-                    <DeleteIcon />
-                  </IconButton>
-                </Box>
-              ) : (
-                <Box>
-                  <input
-                    accept="image/*"
-                    style={{ display: 'none' }}
-                    id="thumbnail-upload"
-                    type="file"
-                    onChange={handleThumbnailChange}
-                  />
-                  <label htmlFor="thumbnail-upload">
-                    <Button
-                      component="span"
-                      variant="outlined"
-                      startIcon={<CloudUploadIcon />}
-                      sx={{
-                        textTransform: 'none',
-                        px: 3,
-                        py: 1.5
-                      }}
-                    >
-                      Tải ảnh thumbnail
-                    </Button>
-                  </label>
-                  <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mt: 1 }}>
-                    (PNG, JPG, JPEG, WEBP - Tối đa 5MB)
-                  </Typography>
-                </Box>
-              )}
-            </Paper>
-          </Box>
-
-          <Box sx={{ mt: 2 }}>
-            <Typography variant="subtitle2" gutterBottom>
-              Nội dung:
-            </Typography>
-            <Editor
-              key={article?.id || 'new-article'}
-              apiKey="8l0z9c03701lequ0h2u5v0r9f1wk26as4fo9j08toanfzga7"
-              initialValue={content || ''}
-              onInit={(_evt: any, editor: any) => {
-                editorRef.current = editor;
-                // Set content when editor initializes
-                if (content) {
-                  editor.setContent(content);
-                }
-              }}
-              init={{
-                height: 400,
-                menubar: true,
-                plugins: [
-                  'advlist', 'autolink', 'lists', 'link', 'image', 'charmap', 'preview',
-                  'anchor', 'searchreplace', 'visualblocks', 'code', 'fullscreen',
-                  'insertdatetime', 'media', 'table', 'code', 'help', 'wordcount'
-                ],
-                toolbar: 'undo redo | blocks | bold italic forecolor | alignleft aligncenter alignright alignjustify | bullist numlist outdent indent | link image | code | removeformat | help',
-                skin: 'oxide',
-                content_css: 'default',
-                promotion: false,
-                referrer_policy: 'no-referrer',
-                images_upload_handler: async (blobInfo: any) => {
-                  try {
-                    const file = new File([blobInfo.blob()], blobInfo.filename(), {
-                      type: blobInfo.blob().type
-                    });
-                    const url = await handleImageUpload(file);
-                    return url;
-                  } catch (error) {
-                    console.error('Error uploading image:', error);
-                    throw new Error('Không thể tải ảnh lên');
-                  }
-                }
-              }}
-              value={content}
-              onEditorChange={setContent}
-            />
-            {uploading && (
-              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mt: 1 }}>
-                <CircularProgress size={16} />
-                <Typography variant="caption" color="text.secondary">
-                  Đang tải ảnh...
-                </Typography>
+                    <MenuItem value="active">Hoạt động</MenuItem>
+                    <MenuItem value="inactive">Không hoạt động</MenuItem>
+                  </Select>
+                </FormControl>
               </Box>
-            )}
-          </Box>
+
+              {/* Thumbnail Image Upload */}
+              <Box sx={{ mt: 3 }}>
+                <Typography variant="subtitle2" gutterBottom>
+                  Ảnh thumbnail:
+                </Typography>
+                <Paper
+                  variant="outlined"
+                  sx={{
+                    p: 2,
+                    border: '2px dashed',
+                    borderColor: 'grey.300',
+                    borderRadius: 2,
+                    textAlign: 'center',
+                    position: 'relative',
+                    minHeight: 200,
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    bgcolor: 'grey.50',
+                    '&:hover': {
+                      borderColor: 'primary.main',
+                      bgcolor: 'grey.100'
+                    }
+                  }}
+                >
+                  {imageUploading ? (
+                    <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 1 }}>
+                      <CircularProgress size={40} />
+                      <Typography variant="body2" color="text.secondary">
+                        Đang tải ảnh...
+                      </Typography>
+                    </Box>
+                  ) : thumbnailFile ? (
+                    <Box sx={{ position: 'relative', width: '100%' }}>
+                      <img
+                        src={URL.createObjectURL(thumbnailFile)}
+                        alt="Thumbnail preview"
+                        style={{
+                          maxWidth: '100%',
+                          maxHeight: 300,
+                          width: 'auto',
+                          height: 'auto',
+                          objectFit: 'contain',
+                          borderRadius: 8
+                        }}
+                      />
+                      <IconButton
+                        onClick={handleRemoveThumbnail}
+                        sx={{
+                          position: 'absolute',
+                          top: 8,
+                          right: 8,
+                          bgcolor: 'error.main',
+                          color: 'white',
+                          '&:hover': { bgcolor: 'error.dark' }
+                        }}
+                        size="small"
+                      >
+                        <DeleteIcon />
+                      </IconButton>
+                    </Box>
+                  ) : uploadedImageUrl ? (
+                    <Box sx={{ position: 'relative', width: '100%' }}>
+                      <img
+                        src={uploadedImageUrl}
+                        alt="Current thumbnail"
+                        style={{
+                          maxWidth: '100%',
+                          maxHeight: 300,
+                          width: 'auto',
+                          height: 'auto',
+                          objectFit: 'contain',
+                          borderRadius: 8
+                        }}
+                      />
+                      <IconButton
+                        onClick={handleRemoveThumbnail}
+                        sx={{
+                          position: 'absolute',
+                          top: 8,
+                          right: 8,
+                          bgcolor: 'error.main',
+                          color: 'white',
+                          '&:hover': { bgcolor: 'error.dark' }
+                        }}
+                        size="small"
+                      >
+                        <DeleteIcon />
+                      </IconButton>
+                    </Box>
+                  ) : (
+                    <Box>
+                      <input
+                        accept="image/*"
+                        style={{ display: 'none' }}
+                        id="thumbnail-upload"
+                        type="file"
+                        onChange={handleThumbnailChange}
+                      />
+                      <label htmlFor="thumbnail-upload">
+                        <Button
+                          component="span"
+                          variant="outlined"
+                          startIcon={<CloudUploadIcon />}
+                          sx={{
+                            textTransform: 'none',
+                            px: 3,
+                            py: 1.5
+                          }}
+                        >
+                          Tải ảnh thumbnail
+                        </Button>
+                      </label>
+                      <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mt: 1 }}>
+                        (PNG, JPG, JPEG, WEBP - Tối đa 5MB)
+                      </Typography>
+                    </Box>
+                  )}
+                </Paper>
+              </Box>
+            </Grid>
+
+            {/* Cột phải: Nội dung */}
+            <Grid item xs={12} md={7}>
+              <Box>
+                <Typography variant="subtitle2" gutterBottom>
+                  Nội dung:
+                </Typography>
+                <Editor
+                  key={`editor-${article?.id || 'new'}-${open}-${initialContent ? 'has-content' : 'empty'}`}
+                  apiKey="8l0z9c03701lequ0h2u5v0r9f1wk26as4fo9j08toanfzga7"
+                  initialValue={initialContent || ''}
+                  onInit={(_evt: any, editor: any) => {
+                    editorRef.current = editor;
+                    // Đảm bảo content được set ngay cả khi initialValue không hoạt động
+                    if (initialContent) {
+                      setTimeout(() => {
+                        if (editor && editor.getContent() !== initialContent) {
+                          editor.setContent(initialContent);
+                        }
+                      }, 50);
+                    }
+                  }}
+                  init={{
+                    height: 600,
+                    menubar: true,
+                    plugins: [
+                      'advlist', 'autolink', 'lists', 'link', 'image', 'charmap', 'preview',
+                      'anchor', 'searchreplace', 'visualblocks', 'code', 'fullscreen',
+                      'insertdatetime', 'media', 'table', 'code', 'help', 'wordcount'
+                    ],
+                    toolbar: 'undo redo | blocks | bold italic forecolor | alignleft aligncenter alignright alignjustify | bullist numlist outdent indent | link image | code | removeformat | help',
+                    skin: 'oxide',
+                    content_css: 'default',
+                    promotion: false,
+                    referrer_policy: 'no-referrer',
+                    images_upload_handler: async (blobInfo: any) => {
+                      try {
+                        const file = new File([blobInfo.blob()], blobInfo.filename(), {
+                          type: blobInfo.blob().type
+                        });
+                        const url = await handleImageUpload(file);
+                        return url;
+                      } catch (error) {
+                        console.error('Error uploading image:', error);
+                        throw new Error('Không thể tải ảnh lên');
+                      }
+                    }
+                  }}
+                  onEditorChange={(newContent: string) => {
+                    // Chỉ update state, không trigger re-render editor
+                    setContent(newContent);
+                  }}
+                />
+                {uploading && (
+                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mt: 1 }}>
+                    <CircularProgress size={16} />
+                    <Typography variant="caption" color="text.secondary">
+                      Đang tải ảnh...
+                    </Typography>
+                  </Box>
+                )}
+              </Box>
+            </Grid>
+          </Grid>
         </Box>
     </BaseDialog>
   );
