@@ -51,6 +51,7 @@ import Salary from './pages/teacher/Salary';
 import StudentDashboard from './pages/student/Dashboard';
 import StudentMyClasses from './pages/student/MyClasses';
 import StudentSchedule from './pages/student/Schedule';
+import StudentTuition from './pages/student/Tuition';
 import StudentProfile from './pages/profile/StudentProfile';
 
 // Parent Pages
@@ -200,6 +201,7 @@ const AppContent: React.FC = () => {
                     <Route path="dashboard" element={<StudentDashboard />} />
                     <Route path="classes" element={<StudentMyClasses />} />
                     <Route path="schedule" element={<StudentSchedule />} />
+                    <Route path="tuition" element={<StudentTuition />} />
                     <Route path="profile" element={<StudentProfile />} />
                     <Route path="*" element={<Navigate to="/student/dashboard" replace />} />
                     </Routes>

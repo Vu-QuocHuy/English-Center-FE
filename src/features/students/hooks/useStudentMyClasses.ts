@@ -15,6 +15,7 @@ interface DashboardData {
   totalClasses: number;
   activeClasses: number;
   completedClasses: number;
+  upcomingClasses: number;
   attendance: DashboardAttendance;
 }
 
@@ -47,6 +48,7 @@ export const useStudentMyClasses = (user: any | null): UseStudentMyClassesReturn
     totalClasses: 0,
     activeClasses: 0,
     completedClasses: 0,
+    upcomingClasses: 0,
     attendance: {
       totalSessions: 0,
       presentSessions: 0,
@@ -82,6 +84,7 @@ export const useStudentMyClasses = (user: any | null): UseStudentMyClassesReturn
             totalClasses: dashData.totalClasses || 0,
             activeClasses: dashData.activeClasses || 0,
             completedClasses: dashData.completedClasses || 0,
+            upcomingClasses: dashData.upcomingClasses || 0,
             attendance: dashData.attendance || {
               totalSessions: 0,
               presentSessions: 0,

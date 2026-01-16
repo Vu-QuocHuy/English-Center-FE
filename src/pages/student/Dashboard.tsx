@@ -17,10 +17,8 @@ import {
 import {
   Class as ClassIcon,
   TrendingUp as TrendingUpIcon,
-  Schedule as ScheduleIcon,
-  AccessTime as TimeIcon,
   School as SchoolIcon,
-  Person as PersonIcon,
+  Event as EventIcon,
 } from '@mui/icons-material';
 import { useAuth } from '../../contexts/AuthContext';
 import DashboardLayout from '@shared/components/layouts/DashboardLayout';
@@ -36,6 +34,7 @@ const Dashboard = () => {
     totalClasses: 0,
     activeClasses: 0,
     completedClasses: 0,
+    upcomingClasses: 0,
     attendance: {
       totalSessions: 0,
       presentSessions: 0,
@@ -71,6 +70,7 @@ const Dashboard = () => {
         totalClasses: data.totalClasses || 0,
         activeClasses: data.activeClasses || 0,
         completedClasses: data.completedClasses || 0,
+        upcomingClasses: data.upcomingClasses || 0,
         attendance: data.attendance || {
           totalSessions: 0,
           presentSessions: 0,
@@ -176,63 +176,27 @@ const Dashboard = () => {
             <StatCard
               title="Lớp đang học"
               value={dashboardData.activeClasses}
-                icon={<SchoolIcon sx={{ fontSize: 40 }} />}
+              icon={<SchoolIcon sx={{ fontSize: 40 }} />}
               color="success"
             />
           </Grid>
           <Grid item xs={12} sm={6} md={3}>
             <StatCard
-                title="Lớp hoàn thành"
-              value={dashboardData.completedClasses}
-                icon={<TrendingUpIcon sx={{ fontSize: 40 }} />}
-              color="info"
-            />
-          </Grid>
-          <Grid item xs={12} sm={6} md={3}>
-            <StatCard
-                title="Tỷ lệ tham gia"
-                value={`${dashboardData.attendance.attendanceRate || 0}%`}
-                icon={<ScheduleIcon sx={{ fontSize: 40 }} />}
+              title="Lớp sắp mở"
+              value={dashboardData.upcomingClasses}
+              icon={<EventIcon sx={{ fontSize: 40 }} />}
               color="warning"
             />
           </Grid>
+          <Grid item xs={12} sm={6} md={3}>
+            <StatCard
+              title="Lớp hoàn thành"
+              value={dashboardData.completedClasses}
+              icon={<TrendingUpIcon sx={{ fontSize: 40 }} />}
+              color="info"
+            />
+          </Grid>
         </Grid>
-
-          {/* Attendance Stats */}
-          <Grid container spacing={3} sx={{ mb: 4 }}>
-            <Grid item xs={12} sm={6} md={3}>
-            <StatCard
-                title="Tổng số buổi"
-                value={dashboardData.attendance.totalSessions}
-              icon={<TimeIcon sx={{ fontSize: 40 }} />}
-                color="secondary"
-              />
-            </Grid>
-            <Grid item xs={12} sm={6} md={3}>
-              <StatCard
-                title="Buổi có mặt"
-                value={dashboardData.attendance.presentSessions}
-                icon={<PersonIcon sx={{ fontSize: 40 }} />}
-              color="success"
-            />
-          </Grid>
-            <Grid item xs={12} sm={6} md={3}>
-              <StatCard
-                title="Buổi vắng"
-                value={dashboardData.attendance.absentSessions}
-                icon={<PersonIcon sx={{ fontSize: 40 }} />}
-                color="error"
-              />
-            </Grid>
-            <Grid item xs={12} sm={6} md={3}>
-            <StatCard
-                title="Buổi muộn"
-                value={dashboardData.attendance.lateSessions}
-                icon={<TimeIcon sx={{ fontSize: 40 }} />}
-                color="warning"
-            />
-          </Grid>
-          </Grid>
 
           {/* Class List */}
           <Grid container spacing={3}>

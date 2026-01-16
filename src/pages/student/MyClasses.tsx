@@ -14,7 +14,7 @@ import {
   School as SchoolIcon,
   CheckCircle as CheckCircleIcon,
   Cancel as CancelIcon,
-  Schedule as ScheduleIcon,
+  Event as EventIcon,
 } from '@mui/icons-material';
 import { COLORS } from "@shared/utils";
 import DashboardLayout from '@shared/components/layouts/DashboardLayout';
@@ -91,50 +91,18 @@ const MyClasses = () => {
                 </Grid>
                 <Grid item xs={12} sm={6} md={3}>
                   <StatCard
+                    title="Lớp sắp mở"
+                    value={dashboardData.upcomingClasses || classes.filter((c) => c.status === 'upcoming').length}
+                    icon={<EventIcon sx={{ fontSize: 40 }} />}
+                    color="warning"
+                  />
+                </Grid>
+                <Grid item xs={12} sm={6} md={3}>
+                  <StatCard
                     title="Đã kết thúc"
                     value={dashboardData.completedClasses || classes.filter((c) => c.status === 'closed' || c.status === 'completed').length}
                     icon={<CancelIcon sx={{ fontSize: 40 }} />}
                     color="info"
-                  />
-                </Grid>
-                <Grid item xs={12} sm={6} md={3}>
-                  <StatCard
-                    title="Tỷ lệ tham gia"
-                    value={typeof dashboardData.attendance.attendanceRate === 'number' ? `${dashboardData.attendance.attendanceRate}%` : ''}
-                    icon={<ScheduleIcon sx={{ fontSize: 40 }} />}
-                    color="warning"
-                  />
-                </Grid>
-                <Grid item xs={12} sm={6} md={3}>
-                  <StatCard
-                    title="Tổng số buổi"
-                    value={dashboardData.attendance.totalSessions}
-                    icon={<ScheduleIcon sx={{ fontSize: 40 }} />}
-                    color="secondary"
-                  />
-                </Grid>
-                <Grid item xs={12} sm={6} md={3}>
-                  <StatCard
-                    title="Buổi có mặt"
-                    value={dashboardData.attendance.presentSessions}
-                    icon={<CheckCircleIcon sx={{ fontSize: 40 }} />}
-                    color="success"
-                  />
-                </Grid>
-                <Grid item xs={12} sm={6} md={3}>
-                  <StatCard
-                    title="Buổi vắng"
-                    value={dashboardData.attendance.absentSessions}
-                    icon={<CancelIcon sx={{ fontSize: 40 }} />}
-                    color="error"
-                  />
-                </Grid>
-                <Grid item xs={12} sm={6} md={3}>
-                  <StatCard
-                    title="Buổi muộn"
-                    value={dashboardData.attendance.lateSessions}
-                    icon={<ScheduleIcon sx={{ fontSize: 40 }} />}
-                    color="warning"
                   />
                 </Grid>
               </Grid>

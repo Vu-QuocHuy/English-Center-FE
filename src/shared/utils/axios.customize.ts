@@ -1,13 +1,7 @@
 import axios, { AxiosInstance, AxiosResponse, AxiosError } from 'axios';
 import { API_CONFIG } from '@config/api';
+import { setGlobalForbidden, setGlobalChecking } from '@contexts/ForbiddenContext';
 
-// Tạo custom event để thông báo logout
-// const createLogoutEvent = (): void => {
-//   const event = new CustomEvent('auth:logout', {
-//     detail: { reason: 'token_expired' }
-//   });
-//   window.dispatchEvent(event);
-// };
 
 interface RefreshTokenResponse {
   statusCode: number;
@@ -94,6 +88,41 @@ instance.interceptors.request.use(
 // Add a response interceptor
 instance.interceptors.response.use(
     (response: AxiosResponse) => {
+        // Khi API GET chính thành công, clear checking state để cho phép render content
+        if (typeof window !== 'undefined') {
+            const requestMethod = response.config?.method?.toUpperCase();
+            const requestUrl = response.config?.url || '';
+            
+            // Helper function để xác định API có phải là secondary không (giống logic trong error handler)
+            const isSecondaryAPI = (url: string): boolean => {
+                const pathWithoutQuery = url.split('?')[0];
+                const secondaryPatterns = [
+                    /\/.*\/salary/,
+                    /\/.*\/history/,
+                    /\/.*\/export/,
+                    /\/.*\/download/,
+                    /\/.*\/detail/,
+                    /\/.*\/banners/,
+                    /\/.*\/popup/,
+                    /\/.*\/qrcode/,
+                    /\/.*\/report/,
+                    /\/.*\/total$/,
+                    /\/[a-f0-9-]{36,}$/,
+                    /\/\d+$/,
+                    /\/.*\/pay-student/,
+                    /\/.*\/pay-teacher/,
+                ];
+                return secondaryPatterns.some(pattern => pattern.test(pathWithoutQuery));
+            };
+            
+            // Chỉ clear checking khi API GET chính (không phải secondary) thành công
+            if (requestMethod === 'GET') {
+                const isSecondary = isSecondaryAPI(requestUrl);
+                if (!isSecondary) {
+                    setGlobalChecking(false);
+                }
+            }
+        }
         return response;
     },
     async (error: AxiosError) => {
@@ -102,8 +131,6 @@ instance.interceptors.response.use(
         if (error.response) {
             // Xử lý lỗi từ server
             if (error.response.status === 401 && !originalRequest._retry) {
-                // ✅ Chỉ log khi cần debug
-                // 401 Unauthorized - attempting refresh token
 
                 if (isRefreshing) {
                     // Nếu đang refresh, thêm request vào queue
@@ -120,11 +147,6 @@ instance.interceptors.response.use(
 
                 originalRequest._retry = true;
                 isRefreshing = true;
-
-                // ✅ Backend sử dụng httpOnly cookies, không cần kiểm tra localStorage
-
-                // ✅ Không cần kiểm tra refresh token trong localStorage
-                // Backend sẽ xử lý cookie tự động
 
                 try {
                     // ✅ Sử dụng instance thay vì axios để đảm bảo baseURL và withCredentials được cấu hình đúng
@@ -221,27 +243,47 @@ instance.interceptors.response.use(
                 const requestMethod = originalRequest?.method?.toUpperCase();
                 const requestUrl = originalRequest?.url || '';
                 
-                // Only redirect for GET requests that are list requests (initial page load)
-                // Detail requests (with ID in URL) should show notification instead
-                if (requestMethod === 'GET' && typeof window !== 'undefined') {
-                    // Check if this is a detail request (contains ID pattern in URL)
-                    // Detail requests typically have pattern like /:id or /:id/...
-                    // List requests typically have query params like ?page=1&limit=10 or no ID in path
-                    const isDetailRequest = /\/[a-f0-9-]{36,}\/?$/.test(requestUrl) || // UUID pattern
-                                          /\/\d+\/?$/.test(requestUrl) || // Numeric ID at end
-                                          /\/[^\/]+\/[a-f0-9-]{36,}/.test(requestUrl) || // UUID in middle
-                                          /\/[^\/]+\/\d+/.test(requestUrl); // Numeric ID in middle
+                // Helper function để xác định API có phải là secondary (không quan trọng) không
+                const isSecondaryAPI = (url: string): boolean => {
+                    // Loại bỏ query string để kiểm tra path
+                    const pathWithoutQuery = url.split('?')[0];
                     
-                    // Only redirect if it's NOT a detail request (i.e., it's a list request)
-                    // Redirect immediately when any list GET request gets 403, don't wait for other APIs
-                    if (!isDetailRequest) {
-                        // Use replace to prevent back button issues and redirect immediately
-                        window.location.replace('/forbidden');
-                        // Return a rejected promise to stop further processing
-                        return Promise.reject(error);
+                    // Các API phụ (secondary) - không set forbidden state, để component tự xử lý
+                    const secondaryPatterns = [
+                        /\/.*\/salary/,                    // API lương
+                        /\/.*\/history/,                   // API lịch sử
+                        /\/.*\/export/,                    // API export
+                        /\/.*\/download/,                  // API download
+                        /\/.*\/detail/,                    // API chi tiết
+                        /\/.*\/banners/,                   // API banners (secondary)
+                        /\/.*\/popup/,                     // API popup (secondary)
+                        /\/.*\/qrcode/,                    // API QR code
+                        /\/.*\/report/,                    // API report
+                        /\/.*\/total$/,                    // API tổng (statistics)
+                        /\/[a-f0-9-]{36,}$/,              // Detail API với UUID ở cuối
+                        /\/\d+$/,                          // Detail API với số ở cuối
+                        /\/.*\/pay-student/,              // API thanh toán học sinh (action)
+                        /\/.*\/pay-teacher/,              // API thanh toán giáo viên (action)
+                    ];
+                    
+                    // Nếu match với pattern phụ → là secondary
+                    return secondaryPatterns.some(pattern => pattern.test(pathWithoutQuery));
+                };
+                
+                // Với GET request: nếu không phải secondary API → set forbidden state
+                // Với POST/PATCH/DELETE: reject để component xử lý bằng snackbar
+                if (requestMethod === 'GET' && typeof window !== 'undefined') {
+                    const isSecondary = isSecondaryAPI(requestUrl);
+                    
+                    if (!isSecondary) {
+                        // Tất cả các API GET chính (không phải secondary) đều set forbidden state
+                        // Điều này đảm bảo tất cả các trang đều hiển thị forbidden khi API chính bị 403
+                        setGlobalForbidden(true);
                     }
+                    // Các API secondary sẽ được reject và component tự xử lý
                 }
-                // For POST/PATCH/DELETE or detail GET requests, reject normally so components can show notifications
+                
+                // Reject để components có thể xử lý (hiển thị snackbar cho các hành động)
                 return Promise.reject(error);
             }
             

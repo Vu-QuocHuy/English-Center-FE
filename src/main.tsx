@@ -4,6 +4,7 @@ import './index.css'
 import App from './App.tsx'
 import { AuthProvider } from './contexts/AuthContext.tsx'
 import { SidebarProvider } from './contexts/SidebarContext'
+import { ForbiddenProvider } from './contexts/ForbiddenContext'
 import { validateConfig } from './config/environment'
 import { validateEnvironment } from '@shared/types/env.d'
 
@@ -36,7 +37,9 @@ createRoot(rootElement).render(
   <StrictMode>
     <AuthProvider>
       <SidebarProvider>
-        <App />
+        <ForbiddenProvider>
+          <App />
+        </ForbiddenProvider>
       </SidebarProvider>
     </AuthProvider>
   </StrictMode>,
