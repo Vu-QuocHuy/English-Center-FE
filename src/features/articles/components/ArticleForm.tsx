@@ -412,7 +412,7 @@ const ArticleForm: React.FC<ArticleFormProps> = ({
             </Typography>
             <Editor
               key={article?.id || 'new-article'}
-              apiKey="z7rs4ijsr5qcpob6tbzosk50cpg1otyearqb6i08r0c4s7og"
+              apiKey="8l0z9c03701lequ0h2u5v0r9f1wk26as4fo9j08toanfzga7"
               initialValue={content || ''}
               onInit={(_evt: any, editor: any) => {
                 editorRef.current = editor;
