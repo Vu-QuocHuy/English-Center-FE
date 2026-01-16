@@ -131,7 +131,7 @@ const BaseDialog: React.FC<BaseDialogProps> = ({
             </Alert>
           </Box>
         ) : (
-          <Box sx={{ p: contentPadding }}>{children}</Box>
+          <Box sx={{ p: contentPadding, ...(contentPadding === 0 ? { height: '100%', display: 'flex', flexDirection: 'column', minHeight: 0 } : {}) }}>{children}</Box>
         )}
       </DialogContent>
 

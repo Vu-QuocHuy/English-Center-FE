@@ -65,6 +65,7 @@ interface UseParentPaymentsReturn {
   setPaymentAmount: (value: string) => void;
   paymentError: string;
   qrCodeUrl: string;
+  qrCodeData: any;
   qrCodeLoading: boolean;
   qrDialogOpen: boolean;
   handlePayment: (invoice: PaymentTransaction) => void;
@@ -97,6 +98,7 @@ export const useParentPayments = (user: any | null): UseParentPaymentsReturn => 
 
   // QR Code states
   const [qrCodeUrl, setQrCodeUrl] = useState<string>('');
+  const [qrCodeData, setQrCodeData] = useState<any>(null);
   const [qrCodeLoading, setQrCodeLoading] = useState<boolean>(false);
   const [qrDialogOpen, setQrDialogOpen] = useState<boolean>(false);
   const [currentReferenceCode, setCurrentReferenceCode] = useState<string | null>(null);
@@ -363,6 +365,7 @@ export const useParentPayments = (user: any | null): UseParentPaymentsReturn => 
 
       if (qrUrl) {
         setQrCodeUrl(qrUrl);
+        setQrCodeData(qrData); // Lưu toàn bộ QR data
         if (referenceCode) {
           setCurrentReferenceCode(referenceCode);
         }
@@ -393,6 +396,7 @@ export const useParentPayments = (user: any | null): UseParentPaymentsReturn => 
     setPaymentAmount('');
     setPaymentError('');
     setQrCodeUrl('');
+    setQrCodeData(null);
     setCurrentReferenceCode(null); // Clear referenceCode khi đóng dialog
     void fetchPaymentData();
   };
@@ -510,6 +514,7 @@ export const useParentPayments = (user: any | null): UseParentPaymentsReturn => 
     setPaymentAmount: handleChangePaymentAmount,
     paymentError,
     qrCodeUrl,
+    qrCodeData,
     qrCodeLoading,
     qrDialogOpen,
     handlePayment,

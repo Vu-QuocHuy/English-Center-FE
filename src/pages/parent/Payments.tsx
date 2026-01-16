@@ -50,6 +50,7 @@ const Payments: React.FC = () => {
     setPaymentAmount,
     paymentError,
     qrCodeUrl,
+    qrCodeData,
     qrCodeLoading,
     qrDialogOpen,
     handlePayment,
@@ -259,35 +260,126 @@ const Payments: React.FC = () => {
               sx={{
                 display: 'flex',
                 flexDirection: 'column',
-                alignItems: 'center',
                 gap: 3
               }}
             >
+              {/* Thông tin thanh toán */}
+              {qrCodeData && (
+                <Paper
+                  elevation={0}
+                  sx={{
+                    p: 2.5,
+                    borderRadius: 2,
+                    bgcolor: 'grey.50',
+                    border: '1px solid',
+                    borderColor: 'divider'
+                  }}
+                >
+                  <Grid container spacing={2}>
+                    <Grid item xs={12} sm={6}>
+                      <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mb: 0.5 }}>
+                        Học sinh
+                      </Typography>
+                      <Typography variant="body1" sx={{ fontWeight: 600 }}>
+                        {qrCodeData.studentName || 'N/A'}
+                      </Typography>
+                    </Grid>
+                    <Grid item xs={12} sm={6}>
+                      <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mb: 0.5 }}>
+                        Lớp học
+                      </Typography>
+                      <Typography variant="body1" sx={{ fontWeight: 600 }}>
+                        {qrCodeData.class?.name || `${qrCodeData.class?.grade || ''}.${qrCodeData.class?.section || ''}` || 'N/A'}
+                        {qrCodeData.class?.year && ` - Năm học ${qrCodeData.class.year}`}
+                      </Typography>
+                    </Grid>
+                    {qrCodeData.bankInfor && (
+                      <>
+                        <Grid item xs={12} sm={6}>
+                          <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mb: 0.5 }}>
+                            Ngân hàng
+                          </Typography>
+                          <Typography variant="body1" sx={{ fontWeight: 600 }}>
+                            {qrCodeData.bankInfor.name || qrCodeData.bankInfor.shortName || 'N/A'}
+                          </Typography>
+                        </Grid>
+                        <Grid item xs={12} sm={6}>
+                          <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mb: 0.5 }}>
+                            Số tài khoản
+                          </Typography>
+                          <Typography variant="body1" sx={{ fontWeight: 600, fontFamily: 'monospace' }}>
+                            {qrCodeData.bankInfor.acc_number || 'N/A'}
+                          </Typography>
+                        </Grid>
+                        <Grid item xs={12} sm={6}>
+                          <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mb: 0.5 }}>
+                            Chủ tài khoản
+                          </Typography>
+                          <Typography variant="body1" sx={{ fontWeight: 600 }}>
+                            {qrCodeData.bankInfor.acc_name || 'N/A'}
+                          </Typography>
+                        </Grid>
+                        <Grid item xs={12} sm={6}>
+                          <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mb: 0.5 }}>
+                            Số tiền
+                          </Typography>
+                          <Typography variant="body1" sx={{ fontWeight: 600 }}>
+                            {formatCurrency(Number(qrCodeData.bankInfor.amount || paymentAmount || 0))}
+                          </Typography>
+                        </Grid>
+                      </>
+                    )}
+                    {/* {qrCodeData.referenceCode && (
+                      <Grid item xs={12}>
+                        <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mb: 0.5 }}>
+                          Mã tham chiếu
+                        </Typography>
+                        <Typography variant="body2" sx={{ fontFamily: 'monospace', color: 'text.secondary' }}>
+                          {qrCodeData.referenceCode}
+                        </Typography>
+                      </Grid>
+                    )} */}
+                  </Grid>
+                </Paper>
+              )}
+
               {/* QR Code với animation */}
               <Box
                 sx={{
-                  p: 3,
-                  bgcolor: 'white',
-                  borderRadius: 2,
-                  boxShadow: '0 8px 32px rgba(0,0,0,0.1)',
-                  animation: 'fadeIn 0.5s ease-in',
-                  '@keyframes fadeIn': {
-                    from: { opacity: 0, transform: 'scale(0.9)' },
-                    to: { opacity: 1, transform: 'scale(1)' }
-                  }
+                  display: 'flex',
+                  flexDirection: 'column',
+                  alignItems: 'center',
+                  gap: 2
                 }}
               >
                 <Box
-                  component="img"
-                  src={qrCodeUrl}
-                  alt="QR Code Payment"
                   sx={{
-                    width: '100%',
-                    maxWidth: 300,
-                    height: 'auto',
-                    display: 'block'
+                    p: 3,
+                    bgcolor: 'white',
+                    borderRadius: 2,
+                    boxShadow: '0 8px 32px rgba(0,0,0,0.1)',
+                    animation: 'fadeIn 0.5s ease-in',
+                    '@keyframes fadeIn': {
+                      from: { opacity: 0, transform: 'scale(0.9)' },
+                      to: { opacity: 1, transform: 'scale(1)' }
+                    }
                   }}
-                />
+                >
+                  <Box
+                    component="img"
+                    src={qrCodeUrl}
+                    alt="QR Code Payment"
+                    sx={{
+                      width: '100%',
+                      maxWidth: 300,
+                      height: 'auto',
+                      display: 'block'
+                    }}
+                  />
+                </Box>
+                <Typography variant="body2" color="text.secondary" sx={{ textAlign: 'center', maxWidth: 300 }}>
+                  Mở app ngân hàng và quét mã QR để thanh toán
+                </Typography>
               </Box>
             </Box>
           ) : (
