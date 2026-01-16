@@ -1,12 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import {
-  Box, Typography, Skeleton
+  Box, Typography, Skeleton, CircularProgress
 } from '@mui/material';
 import { getHomeBannersAPI } from '@features/advertisements';
 import { Advertisement } from '@shared/types';
 import { useBannerConfig } from '@features/advertisements';
 import { AdvertisementSlider } from '@features/advertisements';
 import { ClassRegistrationModal } from '@features/home';
+import { getClassBannerInfoAPI } from '@features/classes';
 
 const BannerCarousel: React.FC = () => {
   const { bannerConfig } = useBannerConfig();
@@ -17,6 +18,7 @@ const BannerCarousel: React.FC = () => {
   const [modalOpen, setModalOpen] = useState(false);
   const [selectedClassId, setSelectedClassId] = useState<string | null>(null);
   const [selectedClassName, setSelectedClassName] = useState<string>('');
+  const [loadingBannerInfo, setLoadingBannerInfo] = useState(false);
 
   // Fetch advertisements data
   useEffect(() => {
@@ -99,14 +101,64 @@ const BannerCarousel: React.FC = () => {
     );
   }
 
-  const handleRegisterClick = (classId: string | null, className: string) => {
-    setSelectedClassId(classId);
-    setSelectedClassName(className);
-    setModalOpen(true);
+  const handleRegisterClick = async (classId: string | null, className: string) => {
+    if (!classId) {
+      // Nếu không có classId, mở modal đăng ký tư vấn chung
+      setSelectedClassId(null);
+      setSelectedClassName(className);
+      setModalOpen(true);
+      return;
+    }
+
+    // Nếu có classId, gọi API banner-info trước
+    try {
+      setLoadingBannerInfo(true);
+      const response = await getClassBannerInfoAPI(classId);
+      const bannerInfo = response?.data?.data || response?.data;
+      
+      if (bannerInfo?.id) {
+        // Lấy classId từ response (data.id)
+        setSelectedClassId(bannerInfo.id);
+        setSelectedClassName(bannerInfo.name || className);
+        setModalOpen(true);
+      } else {
+        // Fallback: dùng classId ban đầu nếu không có id trong response
+        setSelectedClassId(classId);
+        setSelectedClassName(className);
+        setModalOpen(true);
+      }
+    } catch (error) {
+      console.error('Error fetching banner info:', error);
+      // Fallback: vẫn mở modal với classId ban đầu nếu API lỗi
+      setSelectedClassId(classId);
+      setSelectedClassName(className);
+      setModalOpen(true);
+    } finally {
+      setLoadingBannerInfo(false);
+    }
   };
 
   return (
     <>
+      {loadingBannerInfo && (
+        <Box sx={{ 
+          position: 'fixed', 
+          top: 0, 
+          left: 0, 
+          right: 0, 
+          bottom: 0, 
+          bgcolor: 'rgba(0,0,0,0.5)', 
+          display: 'flex', 
+          alignItems: 'center', 
+          justifyContent: 'center',
+          zIndex: 9999
+        }}>
+          <Box sx={{ bgcolor: 'white', p: 4, borderRadius: 2, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 2 }}>
+            <CircularProgress />
+            <Typography>Đang tải thông tin lớp học...</Typography>
+          </Box>
+        </Box>
+      )}
       <Box sx={{ position: 'relative', mb: 4, pt: 0 }}>
         <AdvertisementSlider
           ads={advertisements}
@@ -121,7 +173,11 @@ const BannerCarousel: React.FC = () => {
 
       <ClassRegistrationModal
         open={modalOpen}
-        onClose={() => setModalOpen(false)}
+        onClose={() => {
+          setModalOpen(false);
+          setSelectedClassId(null);
+          setSelectedClassName('');
+        }}
         classId={selectedClassId}
         className={selectedClassName}
       />

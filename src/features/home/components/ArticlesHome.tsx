@@ -95,7 +95,7 @@ const ArticlesHome: React.FC = () => {
           color: '#000'
         }}
       >
-        Bài viết mới nhất
+        Tin tức mới nhất
       </Typography>
       <Grid container spacing={3}>
         {articles.map((article) => (

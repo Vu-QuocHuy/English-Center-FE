@@ -81,6 +81,7 @@ interface UseParentPaymentsReturn {
   snackbar: SnackbarState;
   handleCloseSnackbar: () => void;
   paymentSuccess: boolean;
+  handleClosePaymentSuccess: () => void;
 }
 
 export const useParentPayments = (user: any | null): UseParentPaymentsReturn => {
@@ -415,6 +416,22 @@ export const useParentPayments = (user: any | null): UseParentPaymentsReturn => 
     setSnackbar((prev) => ({ ...prev, open: false }));
   };
 
+  const handleClosePaymentSuccess = () => {
+    // Đóng dialog thành công
+    setPaymentSuccess(false);
+    // Đóng cả dialog thanh toán và QR
+    setQrDialogOpen(false);
+    setPaymentDialogOpen(false);
+    setSelectedInvoice(null);
+    setPaymentAmount('');
+    setPaymentError('');
+    setQrCodeUrl('');
+    setQrCodeData(null);
+    setCurrentReferenceCode(null);
+    // Refresh dữ liệu thanh toán
+    void fetchPaymentData();
+  };
+
   usePaymentSocket({
     referenceCode: currentReferenceCode,
     enabled: !!currentReferenceCode && qrDialogOpen,
@@ -424,10 +441,6 @@ export const useParentPayments = (user: any | null): UseParentPaymentsReturn => 
       setPaymentSuccess(true);
       // Refresh dữ liệu thanh toán
       void fetchPaymentData();
-      // Đóng dialog thành công sau 3 giây
-      setTimeout(() => {
-        setPaymentSuccess(false);
-      }, 3000);
     },
     onPaymentFailure: (data) => {
       console.log('Payment failure received:', data);
@@ -528,5 +541,6 @@ export const useParentPayments = (user: any | null): UseParentPaymentsReturn => 
     snackbar,
     handleCloseSnackbar,
     paymentSuccess,
+    handleClosePaymentSuccess,
   };
 };

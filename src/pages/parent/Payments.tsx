@@ -64,6 +64,7 @@ const Payments: React.FC = () => {
     snackbar,
     handleCloseSnackbar,
     paymentSuccess,
+    handleClosePaymentSuccess,
   } = useParentPayments(user);
 
   if (loading) {
@@ -352,30 +353,30 @@ const Payments: React.FC = () => {
                   gap: 2
                 }}
               >
+              <Box
+                sx={{
+                  p: 3,
+                  bgcolor: 'white',
+                  borderRadius: 2,
+                  boxShadow: '0 8px 32px rgba(0,0,0,0.1)',
+                  animation: 'fadeIn 0.5s ease-in',
+                  '@keyframes fadeIn': {
+                    from: { opacity: 0, transform: 'scale(0.9)' },
+                    to: { opacity: 1, transform: 'scale(1)' }
+                  }
+                }}
+              >
                 <Box
+                  component="img"
+                  src={qrCodeUrl}
+                  alt="QR Code Payment"
                   sx={{
-                    p: 3,
-                    bgcolor: 'white',
-                    borderRadius: 2,
-                    boxShadow: '0 8px 32px rgba(0,0,0,0.1)',
-                    animation: 'fadeIn 0.5s ease-in',
-                    '@keyframes fadeIn': {
-                      from: { opacity: 0, transform: 'scale(0.9)' },
-                      to: { opacity: 1, transform: 'scale(1)' }
-                    }
+                    width: '100%',
+                    maxWidth: 300,
+                    height: 'auto',
+                    display: 'block'
                   }}
-                >
-                  <Box
-                    component="img"
-                    src={qrCodeUrl}
-                    alt="QR Code Payment"
-                    sx={{
-                      width: '100%',
-                      maxWidth: 300,
-                      height: 'auto',
-                      display: 'block'
-                    }}
-                  />
+                />
                 </Box>
                 <Typography variant="body2" color="text.secondary" sx={{ textAlign: 'center', maxWidth: 300 }}>
                   Mở app ngân hàng và quét mã QR để thanh toán
@@ -393,7 +394,7 @@ const Payments: React.FC = () => {
       {/* Payment Success Dialog */}
       <BaseDialog
         open={paymentSuccess}
-        onClose={handleCloseQRDialog}
+        onClose={handleClosePaymentSuccess}
         title="Thanh toán thành công"
         subtitle="Giao dịch của bạn đã được xử lý thành công"
         icon={<CheckCircleIcon sx={{ fontSize: 48, color: 'white' }} />}
