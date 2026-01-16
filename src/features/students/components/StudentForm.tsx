@@ -240,11 +240,20 @@ const StudentForm: React.FC<StudentFormProps> = ({
         const changedFields = getChangedFields(formData, originalData);
         
         // Convert date format for API (backend expects MM/DD/YYYY)
-        const dayOfBirth = changedFields.dateOfBirth 
-          ? (changedFields.dateOfBirth.includes('-') 
-              ? changedFields.dateOfBirth.split('-').reverse().join('/') 
-              : changedFields.dateOfBirth)
-          : undefined;
+        let dayOfBirth: string | undefined = undefined;
+        if (changedFields.dateOfBirth) {
+          if (changedFields.dateOfBirth.includes('-')) {
+            const dateParts = changedFields.dateOfBirth.split('-');
+            if (dateParts.length === 3) {
+              // Convert YYYY-MM-DD to MM/DD/YYYY
+              dayOfBirth = `${dateParts[1]}/${dateParts[2]}/${dateParts[0]}`;
+            } else {
+              dayOfBirth = changedFields.dateOfBirth;
+            }
+          } else {
+            dayOfBirth = changedFields.dateOfBirth;
+          }
+        }
 
         // Backend expects fields directly, not wrapped in userData
         const updatePayload: any = {};
@@ -257,14 +266,20 @@ const StudentForm: React.FC<StudentFormProps> = ({
     
         await updateStudentAPI(student.id, updatePayload);
       } else {
-        // Create: send all fields
+        // Create: convert YYYY-MM-DD to MM/DD/YYYY for backend
+        let dayOfBirthFormatted = formData.dateOfBirth;
+        if (formData.dateOfBirth && formData.dateOfBirth.includes('-')) {
+          const dateParts = formData.dateOfBirth.split('-');
+          if (dateParts.length === 3) {
+            // Convert YYYY-MM-DD to MM/DD/YYYY
+            dayOfBirthFormatted = `${dateParts[1]}/${dateParts[2]}/${dateParts[0]}`;
+          }
+        }
         payload = {
           email: formData.email,
           password: formData.password,
           name: formData.name,
-          dayOfBirth: formData.dateOfBirth.includes('-') 
-            ? formData.dateOfBirth.split('-').reverse().join('/') 
-            : formData.dateOfBirth,
+          dayOfBirth: dayOfBirthFormatted,
           phone: formData.phone,
           address: formData.address,
           gender: formData.gender

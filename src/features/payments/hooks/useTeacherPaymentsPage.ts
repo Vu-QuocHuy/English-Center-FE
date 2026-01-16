@@ -134,8 +134,18 @@ export const useTeacherPaymentsPage = () => {
       }
 
       const res = await exportTeacherPaymentsReportAPI(filters);
-      const payload = (res as any)?.data?.data || (res as any)?.data || {};
-      const list = Array.isArray(payload.result) ? (payload.result as TeacherPayment[]) : payments;
+      const responseData = (res as any)?.data;
+      // Xử lý nhiều format response: data là mảng trực tiếp hoặc có result bên trong
+      let list: TeacherPayment[] = [];
+      if (Array.isArray(responseData)) {
+        list = responseData as TeacherPayment[];
+      } else if (responseData?.data && Array.isArray(responseData.data)) {
+        list = responseData.data as TeacherPayment[];
+      } else if (responseData?.result && Array.isArray(responseData.result)) {
+        list = responseData.result as TeacherPayment[];
+      } else if (responseData?.data?.result && Array.isArray(responseData.data.result)) {
+        list = responseData.data.result as TeacherPayment[];
+      }
 
       const rows = list.map((p) => ({
         'Giáo viên': p.teacher?.name || p.teacherId?.userId?.name || p.teacherId?.name || '',

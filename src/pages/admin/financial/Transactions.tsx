@@ -197,8 +197,18 @@ const Transactions: React.FC = () => {
     if (typeFilter !== 'all') params.type = typeFilter;
 
     const res = await exportTransactionsReportAPI(params);
-    const payload = (res as any)?.data?.data || (res as any)?.data || {};
-    const list = Array.isArray(payload.result) ? payload.result as Transaction[] : transactions;
+    const responseData = (res as any)?.data;
+    // Xử lý nhiều format response: data là mảng trực tiếp hoặc có result bên trong
+    let list: Transaction[] = [];
+    if (Array.isArray(responseData)) {
+      list = responseData as Transaction[];
+    } else if (responseData?.data && Array.isArray(responseData.data)) {
+      list = responseData.data as Transaction[];
+    } else if (responseData?.result && Array.isArray(responseData.result)) {
+      list = responseData.result as Transaction[];
+    } else if (responseData?.data?.result && Array.isArray(responseData.data.result)) {
+      list = responseData.data.result as Transaction[];
+    }
 
     const rows = list.map((t) => ({
       'Mô tả': t.description || '-',

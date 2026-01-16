@@ -148,7 +148,7 @@ const StudentPayments: React.FC = () => {
 
           <Box sx={{ mb: 5 }}>
             <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
-              <Box sx={{ display: 'flex', gap: 2, flexWrap: 'wrap', alignItems: 'center' }}>
+            <Box sx={{ display: 'flex', gap: 2, flexWrap: 'wrap', alignItems: 'center' }}>
             <TextField select label="Trạng thái" value={paymentStatus} onChange={(e) => setPaymentStatus(e.target.value)} sx={{ minWidth: 150 }}>
               <MenuItem value="all">Tất cả</MenuItem>
               <MenuItem value="paid">Đã thanh toán</MenuItem>
@@ -195,8 +195,8 @@ const StudentPayments: React.FC = () => {
                 <TextField label="Đến ngày" type="date" value={customEnd} onChange={(e) => setCustomEnd(e.target.value)} sx={{ minWidth: 150 }} InputLabelProps={{ shrink: true }} />
               </>
             )}
-              </Box>
-              <Box>
+            </Box>
+            <Box>
               <Button
                 variant="outlined"
                 startIcon={exportLoading ? <CircularProgress size={16} /> : <DownloadIcon />}

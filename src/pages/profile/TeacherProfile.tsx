@@ -95,7 +95,7 @@ const TeacherProfile: React.FC = () => {
             <Grid item xs={12} md={4}>
               <TeacherProfileSummary
                 avatar={user.avatar}
-                userName={user.name}
+                      userName={user.name}
               />
             </Grid>
 

@@ -136,12 +136,20 @@ export const useStudentForm = (): UseStudentFormReturn => {
         
         body = updatePayload;
       } else {
-        // Create: đúng format API specification
+        // Create: convert YYYY-MM-DD to MM/DD/YYYY for backend
+        let dayOfBirthFormatted = form.dayOfBirth;
+        if (form.dayOfBirth) {
+          const dateParts = form.dayOfBirth.split('-');
+          if (dateParts.length === 3) {
+            // Convert YYYY-MM-DD to MM/DD/YYYY
+            dayOfBirthFormatted = `${dateParts[1]}/${dateParts[2]}/${dateParts[0]}`;
+          }
+        }
         body = {
           email: form.email,
           password: form.password,
           name: form.name,
-          dayOfBirth: form.dayOfBirth,
+          dayOfBirth: dayOfBirthFormatted,
           phone: form.phone,
           address: form.address,
           gender: form.gender

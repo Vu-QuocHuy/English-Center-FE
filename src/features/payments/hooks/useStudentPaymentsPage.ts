@@ -162,8 +162,18 @@ export const useStudentPaymentsPage = () => {
       }
 
       const res = await exportPaymentsReportAPI(filters);
-      const data = (res as any)?.data?.data || (res as any)?.data || {};
-      const list = Array.isArray(data.result) ? (data.result as StudentPaymentWithHistory[]) : [];
+      const responseData = (res as any)?.data;
+      // Xử lý nhiều format response: data là mảng trực tiếp hoặc có result bên trong
+      let list: StudentPaymentWithHistory[] = [];
+      if (Array.isArray(responseData)) {
+        list = responseData as StudentPaymentWithHistory[];
+      } else if (responseData?.data && Array.isArray(responseData.data)) {
+        list = responseData.data as StudentPaymentWithHistory[];
+      } else if (responseData?.result && Array.isArray(responseData.result)) {
+        list = responseData.result as StudentPaymentWithHistory[];
+      } else if (responseData?.data?.result && Array.isArray(responseData.data.result)) {
+        list = responseData.data.result as StudentPaymentWithHistory[];
+      }
 
       const rows = list.map((p) => ({
         'Học sinh': p.student?.name || '',
