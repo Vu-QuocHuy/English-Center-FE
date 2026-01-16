@@ -654,7 +654,7 @@ export interface UseFormReturn<T> {
   handleChange: (event: React.ChangeEvent<HTMLInputElement>) => void;
   setFormData: (data?: T) => void;
   resetForm: () => void;
-  handleSubmit: (data?: T, onSuccess?: () => void) => Promise<{ success: boolean; message?: string }>;
+  handleSubmit: (data?: T, onSuccess?: () => void, originalData?: T) => Promise<{ success: boolean; message?: string }>;
 }
 
 // API Service Types

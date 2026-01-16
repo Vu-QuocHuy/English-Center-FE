@@ -119,7 +119,15 @@ const ChangePasswordDialog: React.FC<ChangePasswordDialogProps> = ({
         handleClose();
       }, 100);
     } catch (err: any) {
-      setError(err.response?.data?.message || 'Có lỗi xảy ra khi đổi mật khẩu. Vui lòng thử lại.');
+      const errorMessage = err.response?.data?.message || 'Có lỗi xảy ra khi đổi mật khẩu. Vui lòng thử lại.';
+      setError(errorMessage);
+      
+      // Show error snackbar
+      setSnackbar({
+        open: true,
+        message: errorMessage,
+        severity: 'error',
+      });
     } finally {
       setLoading(false);
     }

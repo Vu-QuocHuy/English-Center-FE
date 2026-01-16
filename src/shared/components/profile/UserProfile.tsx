@@ -7,12 +7,12 @@ import {
   Button,
   TextField,
   Grid,
-  Alert,
   CircularProgress,
   FormControl,
   Select,
   MenuItem,
   Chip,
+  Paper,
 } from '@mui/material';
 import {
   Edit as EditIcon,
@@ -22,7 +22,7 @@ import {
 } from '@mui/icons-material';
 import { commonStyles } from '@shared/utils';
 import DashboardLayout from '@shared/components/layouts/DashboardLayout';
-import { AvatarUpload, ChangePasswordDialog } from '@shared/components';
+import { AvatarUpload, ChangePasswordDialog, NotificationSnackbar } from '@shared/components';
 import { useUserProfile } from '@shared/hooks/useUserProfile';
 
 interface UserProfileProps {
@@ -31,6 +31,16 @@ interface UserProfileProps {
 }
 
 const UserProfile: React.FC<UserProfileProps> = ({ role, roleLabel }) => {
+  const [snackbar, setSnackbar] = React.useState<{
+    open: boolean;
+    message: string;
+    severity: 'success' | 'error' | 'warning' | 'info';
+  }>({
+    open: false,
+    message: '',
+    severity: 'success',
+  });
+
   const {
     user,
     isEditing,
@@ -45,18 +55,29 @@ const UserProfile: React.FC<UserProfileProps> = ({ role, roleLabel }) => {
     handleInputChange,
     handleSave,
     handleCancel,
-  } = useUserProfile();
+  } = useUserProfile({ role });
 
-  const formatDate = (dateString: string) => {
-    if (!dateString) return 'Chưa cập nhật';
-    const date = new Date(dateString);
-    return date.toLocaleDateString('vi-VN');
-  };
+  // Show snackbar when error or success changes
+  React.useEffect(() => {
+    if (error) {
+      setSnackbar({
+        open: true,
+        message: error,
+        severity: 'error',
+      });
+    }
+  }, [error]);
 
-  // Get dayOfBirth from user or nested objects
-  const getDayOfBirth = () => {
-    return user?.dayOfBirth || (user as any)?.student?.dayOfBirth || (user as any)?.parent?.dayOfBirth || '';
-  };
+  React.useEffect(() => {
+    if (success) {
+      setSnackbar({
+        open: true,
+        message: success,
+        severity: 'success',
+      });
+    }
+  }, [success]);
+
 
   if (!user) {
     return (
@@ -78,19 +99,7 @@ const UserProfile: React.FC<UserProfileProps> = ({ role, roleLabel }) => {
             </Typography>
           </Box>
 
-          {error && (
-            <Alert severity="error" sx={{ mb: 2 }}>
-              {error}
-            </Alert>
-          )}
-
-          {success && (
-            <Alert severity="success" sx={{ mb: 2 }}>
-              {success}
-            </Alert>
-          )}
-
-          <Grid container spacing={3}>
+          <Grid container spacing={1.5}>
             {/* Left Panel - Profile Summary */}
             <Grid item xs={12} md={4}>
               <Card sx={{
@@ -105,7 +114,8 @@ const UserProfile: React.FC<UserProfileProps> = ({ role, roleLabel }) => {
                     <AvatarUpload
                       currentAvatar={user.avatar}
                       userName={user.name}
-                      size={200}
+                      width={280}
+                      height={380}
                       onAvatarUpdate={(newAvatarUrl) => {
                         // Avatar will be updated through the context
                         console.log('Avatar updated:', newAvatarUrl);
@@ -114,7 +124,7 @@ const UserProfile: React.FC<UserProfileProps> = ({ role, roleLabel }) => {
                   </Box>
 
                   {/* User Name */}
-                  <Typography variant="h5" sx={{ fontWeight: 600, mb: 3, color: '#1e293b' }}>
+                  <Typography variant="h5" sx={{ fontWeight: 600, color: '#1e293b' }}>
                     {user.name}
                   </Typography>
                 </CardContent>
@@ -128,199 +138,256 @@ const UserProfile: React.FC<UserProfileProps> = ({ role, roleLabel }) => {
                 boxShadow: '0 4px 20px rgba(0,0,0,0.1)'
               }}>
                 <CardContent sx={{ p: 4 }}>
-                  <Grid container spacing={3}>
+                  <Grid container spacing={1.5}>
                     {/* Left Column */}
                     <Grid item xs={12} sm={6}>
-                      <Box sx={{ mb: 3 }}>
-                        <Typography variant="body2" color="text.secondary" sx={{ mb: 1, fontWeight: 500 }}>
+                      <Paper 
+                        elevation={0}
+                        sx={{ 
+                          mb: 0.75,
+                          p: 0.75,
+                          border: 'none',
+                          borderRadius: 2,
+                          bgcolor: 'transparent',
+                          transition: 'all 0.2s ease'
+                        }}
+                      >
+                        <Typography variant="body2" color="text.secondary" sx={{ mb: 0.5, fontWeight: 600, fontSize: '0.75rem' }}>
                           Email
                         </Typography>
-                        {isEditing ? (
-                          <TextField
-                            fullWidth
-                            value={formData.email}
-                            onChange={(e) => handleInputChange('email', e.target.value)}
-                            error={!!errors.email}
-                            helperText={errors.email}
-                            size="small"
-                            type="email"
-                          />
-                        ) : (
-                          <Typography 
-                            variant="body1" 
-                            sx={{ 
-                              fontWeight: 500,
-                              minHeight: '40px',
-                              display: 'flex',
-                              alignItems: 'center'
-                            }}
-                          >
-                            {user.email}
-                          </Typography>
-                        )}
-                      </Box>
+                        <TextField
+                          fullWidth
+                          value={formData.email}
+                          onChange={(e) => handleInputChange('email', e.target.value)}
+                          error={!!errors.email}
+                          helperText={errors.email}
+                          size="small"
+                          type="email"
+                          InputProps={{
+                            readOnly: !isEditing
+                          }}
+                          sx={{
+                            '& .MuiOutlinedInput-root': {
+                              bgcolor: isEditing ? 'white' : '#f5f5f5',
+                              height: '40px',
+                              '&.Mui-readOnly': {
+                                cursor: 'default'
+                              }
+                            }
+                          }}
+                        />
+                      </Paper>
 
-                      <Box sx={{ mb: 3 }}>
-                        <Typography variant="body2" color="text.secondary" sx={{ mb: 1, fontWeight: 500 }}>
+                      <Paper 
+                        elevation={0}
+                        sx={{ 
+                          mb: 0.75,
+                          p: 0.75,
+                          border: 'none',
+                          borderRadius: 2,
+                          bgcolor: 'transparent',
+                          transition: 'all 0.2s ease'
+                        }}
+                      >
+                        <Typography variant="body2" color="text.secondary" sx={{ mb: 0.5, fontWeight: 600, fontSize: '0.75rem' }}>
                           Ngày sinh
                         </Typography>
-                        {isEditing ? (
-                          <TextField
-                            fullWidth
-                            type="date"
-                            value={formData.dayOfBirth}
-                            onChange={(e) => handleInputChange('dayOfBirth', e.target.value)}
-                            error={!!errors.dayOfBirth}
-                            helperText={errors.dayOfBirth}
-                            size="small"
-                            InputLabelProps={{ shrink: true }}
-                          />
-                        ) : (
-                          <Typography 
-                            variant="body1" 
-                            sx={{ 
-                              fontWeight: 500,
-                              minHeight: '40px',
-                              display: 'flex',
-                              alignItems: 'center'
-                            }}
-                          >
-                            {formatDate(getDayOfBirth())}
-                          </Typography>
-                        )}
-                      </Box>
+                        <TextField
+                          fullWidth
+                          type="date"
+                          value={formData.dayOfBirth}
+                          onChange={(e) => handleInputChange('dayOfBirth', e.target.value)}
+                          error={!!errors.dayOfBirth}
+                          helperText={errors.dayOfBirth}
+                          size="small"
+                          InputLabelProps={{ shrink: true }}
+                          InputProps={{
+                            readOnly: !isEditing
+                          }}
+                          sx={{
+                            '& .MuiOutlinedInput-root': {
+                              bgcolor: isEditing ? 'white' : '#f5f5f5',
+                              height: '40px',
+                              '&.Mui-readOnly': {
+                                cursor: 'default'
+                              }
+                            }
+                          }}
+                        />
+                      </Paper>
 
-                      <Box sx={{ mb: 3 }}>
-                        <Typography variant="body2" color="text.secondary" sx={{ mb: 1, fontWeight: 500 }}>
+                      <Paper 
+                        elevation={0}
+                        sx={{ 
+                          mb: 0.75,
+                          p: 0.75,
+                          border: 'none',
+                          borderRadius: 2,
+                          bgcolor: 'transparent',
+                          transition: 'all 0.2s ease'
+                        }}
+                      >
+                        <Typography variant="body2" color="text.secondary" sx={{ mb: 0.5, fontWeight: 600, fontSize: '0.75rem' }}>
                           Địa chỉ
                         </Typography>
-                        {isEditing ? (
-                          <TextField
-                            fullWidth
-                            value={formData.address}
-                            onChange={(e) => handleInputChange('address', e.target.value)}
-                            error={!!errors.address}
-                            helperText={errors.address}
-                            size="small"
-                          />
-                        ) : (
-                          <Typography 
-                            variant="body1" 
-                            sx={{ 
-                              fontWeight: 500,
-                              minHeight: '40px',
-                              display: 'flex',
-                              alignItems: 'center'
-                            }}
-                          >
-                            {user.address || 'Chưa cập nhật'}
-                          </Typography>
-                        )}
-                      </Box>
+                        <TextField
+                          fullWidth
+                          value={formData.address || 'Chưa cập nhật'}
+                          onChange={(e) => handleInputChange('address', e.target.value)}
+                          error={!!errors.address}
+                          helperText={errors.address}
+                          size="small"
+                          InputProps={{
+                            readOnly: !isEditing
+                          }}
+                          sx={{
+                            '& .MuiOutlinedInput-root': {
+                              bgcolor: isEditing ? 'white' : '#f5f5f5',
+                              height: '40px',
+                              '&.Mui-readOnly': {
+                                cursor: 'default'
+                              }
+                            }
+                          }}
+                        />
+                      </Paper>
 
                       {roleLabel && (
-                        <Box sx={{ mb: 3 }}>
-                          <Typography variant="body2" color="text.secondary" sx={{ mb: 1, fontWeight: 500 }}>
+                        <Paper 
+                          elevation={0}
+                          sx={{ 
+                            mb: 0.75,
+                            p: 0.75,
+                            border: 'none',
+                            borderRadius: 2,
+                            bgcolor: 'transparent',
+                            transition: 'all 0.2s ease'
+                          }}
+                        >
+                          <Typography variant="body2" color="text.secondary" sx={{ mb: 0.5, fontWeight: 600, fontSize: '0.75rem' }}>
                             Vai trò
                           </Typography>
-                          <Chip
-                            label={roleLabel}
-                            color="primary"
-                            size="small"
-                          />
-                        </Box>
+                          <Box sx={{ 
+                            display: 'flex', 
+                            alignItems: 'center',
+                            minHeight: '40px'
+                          }}>
+                            <Chip
+                              label={roleLabel}
+                              color="primary"
+                              size="small"
+                            />
+                          </Box>
+                        </Paper>
                       )}
 
                     </Grid>
 
                     {/* Right Column */}
                     <Grid item xs={12} sm={6}>
-                      <Box sx={{ mb: 3 }}>
-                        <Typography variant="body2" color="text.secondary" sx={{ mb: 1, fontWeight: 500 }}>
+                      <Paper 
+                        elevation={0}
+                        sx={{ 
+                          mb: 0.75,
+                          p: 0.75,
+                          border: 'none',
+                          borderRadius: 2,
+                          bgcolor: 'transparent',
+                          transition: 'all 0.2s ease'
+                        }}
+                      >
+                        <Typography variant="body2" color="text.secondary" sx={{ mb: 0.5, fontWeight: 600, fontSize: '0.75rem' }}>
                           Họ và tên
                         </Typography>
-                        {isEditing ? (
-                          <TextField
-                            fullWidth
-                            value={formData.name}
-                            onChange={(e) => handleInputChange('name', e.target.value)}
-                            error={!!errors.name}
-                            helperText={errors.name}
-                            size="small"
-                          />
-                        ) : (
-                          <Typography 
-                            variant="body1" 
-                            sx={{ 
-                              fontWeight: 500,
-                              minHeight: '40px',
-                              display: 'flex',
-                              alignItems: 'center'
-                            }}
-                          >
-                            {user.name}
-                          </Typography>
-                        )}
-                      </Box>
+                        <TextField
+                          fullWidth
+                          value={formData.name}
+                          onChange={(e) => handleInputChange('name', e.target.value)}
+                          error={!!errors.name}
+                          helperText={errors.name}
+                          size="small"
+                          InputProps={{
+                            readOnly: !isEditing
+                          }}
+                          sx={{
+                            '& .MuiOutlinedInput-root': {
+                              bgcolor: isEditing ? 'white' : '#f5f5f5',
+                              height: '40px',
+                              '&.Mui-readOnly': {
+                                cursor: 'default'
+                              }
+                            }
+                          }}
+                        />
+                      </Paper>
 
-                      <Box sx={{ mb: 3 }}>
-                        <Typography variant="body2" color="text.secondary" sx={{ mb: 1, fontWeight: 500 }}>
+                      <Paper 
+                        elevation={0}
+                        sx={{ 
+                          mb: 0.75,
+                          p: 0.75,
+                          border: 'none',
+                          borderRadius: 2,
+                          bgcolor: 'transparent',
+                          transition: 'all 0.2s ease'
+                        }}
+                      >
+                        <Typography variant="body2" color="text.secondary" sx={{ mb: 0.5, fontWeight: 600, fontSize: '0.75rem' }}>
                           Số điện thoại
                         </Typography>
-                        {isEditing ? (
-                          <TextField
-                            fullWidth
-                            value={formData.phone}
-                            onChange={(e) => handleInputChange('phone', e.target.value)}
-                            error={!!errors.phone}
-                            helperText={errors.phone}
-                            size="small"
-                          />
-                        ) : (
-                          <Typography 
-                            variant="body1" 
-                            sx={{ 
-                              fontWeight: 500,
-                              minHeight: '40px',
-                              display: 'flex',
-                              alignItems: 'center'
-                            }}
-                          >
-                            {user.phone || 'Chưa cập nhật'}
-                          </Typography>
-                        )}
-                      </Box>
+                        <TextField
+                          fullWidth
+                          value={formData.phone || 'Chưa cập nhật'}
+                          onChange={(e) => handleInputChange('phone', e.target.value)}
+                          error={!!errors.phone}
+                          helperText={errors.phone}
+                          size="small"
+                          InputProps={{
+                            readOnly: !isEditing
+                          }}
+                          sx={{
+                            '& .MuiOutlinedInput-root': {
+                              bgcolor: isEditing ? 'white' : '#f5f5f5',
+                              height: '40px',
+                              '&.Mui-readOnly': {
+                                cursor: 'default'
+                              }
+                            }
+                          }}
+                        />
+                      </Paper>
 
-                      <Box sx={{ mb: 3 }}>
-                        <Typography variant="body2" color="text.secondary" sx={{ mb: 1, fontWeight: 500 }}>
+                      <Paper 
+                        elevation={0}
+                        sx={{ 
+                          mb: 0.75,
+                          p: 0.75,
+                          border: 'none',
+                          borderRadius: 2,
+                          bgcolor: 'transparent',
+                          transition: 'all 0.2s ease'
+                        }}
+                      >
+                        <Typography variant="body2" color="text.secondary" sx={{ mb: 0.5, fontWeight: 600, fontSize: '0.75rem' }}>
                           Giới tính
                         </Typography>
-                        {isEditing ? (
-                          <FormControl fullWidth size="small">
-                            <Select
-                              value={formData.gender}
-                              onChange={(e) => handleInputChange('gender', e.target.value)}
-                              error={!!errors.gender}
-                            >
-                              <MenuItem value="male">Nam</MenuItem>
-                              <MenuItem value="female">Nữ</MenuItem>
-                              <MenuItem value="other">Khác</MenuItem>
-                            </Select>
-                          </FormControl>
-                        ) : (
-                          <Typography 
-                            variant="body1" 
-                            sx={{ 
-                              fontWeight: 500,
-                              minHeight: '40px',
-                              display: 'flex',
-                              alignItems: 'center'
+                        <FormControl fullWidth size="small" sx={{ height: '40px' }}>
+                          <Select
+                            value={formData.gender}
+                            onChange={(e) => handleInputChange('gender', e.target.value)}
+                            error={!!errors.gender}
+                            disabled={!isEditing}
+                            sx={{
+                              height: '40px',
+                              bgcolor: isEditing ? 'white' : '#f5f5f5'
                             }}
                           >
-                            {user.gender === 'male' ? 'Nam' : user.gender === 'female' ? 'Nữ' : 'Khác'}
-                          </Typography>
-                        )}
-                      </Box>
+                            <MenuItem value="male">Nam</MenuItem>
+                            <MenuItem value="female">Nữ</MenuItem>
+                            <MenuItem value="other">Khác</MenuItem>
+                          </Select>
+                        </FormControl>
+                      </Paper>
                     </Grid>
                   </Grid>
 
@@ -413,6 +480,13 @@ const UserProfile: React.FC<UserProfileProps> = ({ role, roleLabel }) => {
       <ChangePasswordDialog
         open={changePasswordOpen}
         onClose={() => setChangePasswordOpen(false)}
+      />
+
+      <NotificationSnackbar
+        open={snackbar.open}
+        message={snackbar.message}
+        severity={snackbar.severity}
+        onClose={() => setSnackbar(prev => ({ ...prev, open: false }))}
       />
     </DashboardLayout>
   );

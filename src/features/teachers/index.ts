@@ -4,6 +4,8 @@ export { default as TeacherTable } from './components/TeacherTable';
 export { default as TeacherFilters } from './components/TeacherFilters';
 export { default as TeacherViewDialog } from './components/TeacherViewDialog';
 export { default as TeacherSalaryTable } from './components/TeacherSalaryTable';
+export { default as TeacherProfileForm } from './components/TeacherProfileForm';
+export { default as TeacherProfileSummary } from './components/TeacherProfileSummary';
 
 // Teacher-specific modals
 export { default as ClassDetailModal } from './components/ClassDetailModal';
@@ -16,6 +18,7 @@ export * from './services/teachers.api';
 // Hooks
 export * from './hooks/useTeacherManagement';
 export * from './hooks/useTeacherForm';
+export * from './hooks/useTeacherProfile';
 
 // Utils
 export * from './utils/helpers';

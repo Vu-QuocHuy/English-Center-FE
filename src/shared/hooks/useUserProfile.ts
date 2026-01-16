@@ -1,6 +1,8 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from '../../contexts/AuthContext';
 import { updateUserAPI } from '@shared/services';
+import { updateStudentAPI } from '@features/students';
+import { updateParentAPI } from '@features/parents';
 import { validateUserUpdate } from '@shared/validations/common';
 
 export interface UserUpdateData {
@@ -37,6 +39,10 @@ export interface UseUserProfileReturn {
   handleCancel: () => void;
 }
 
+export interface UseUserProfileOptions {
+  role?: 'admin' | 'student' | 'parent' | 'staff';
+}
+
 // Convert date to YYYY-MM-DD format for date input
 const formatDateForInput = (dateString: string): string => {
   if (!dateString) return '';
@@ -58,8 +64,9 @@ const getDayOfBirth = (user: ReturnType<typeof useAuth>['user']): string => {
   return user.dayOfBirth || (user as any).student?.dayOfBirth || (user as any).parent?.dayOfBirth || '';
 };
 
-export const useUserProfile = (): UseUserProfileReturn => {
+export const useUserProfile = (options?: UseUserProfileOptions): UseUserProfileReturn => {
   const { user, updateUser } = useAuth();
+  const role = options?.role || (user?.role as 'admin' | 'student' | 'parent' | 'staff' | undefined);
 
   const [isEditing, setIsEditing] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -122,9 +129,59 @@ export const useUserProfile = (): UseUserProfileReturn => {
         return;
       }
 
-      const response = await updateUserAPI(user.id, formData);
+      let response: any;
 
-      if (response.data) {
+      // Use specific API based on role
+      if (role === 'student') {
+        // Get student ID from user object
+        const studentId = (user as any).student?.id || user.id;
+        
+        // Convert date format: YYYY-MM-DD to MM/DD/YYYY for student API
+        const dayOfBirth = formData.dayOfBirth
+          ? (formData.dayOfBirth.includes('-')
+              ? formData.dayOfBirth.split('-').reverse().join('/')
+              : formData.dayOfBirth)
+          : undefined;
+
+        const updatePayload: any = {};
+        if (formData.name) updatePayload.name = formData.name;
+        if (formData.email) updatePayload.email = formData.email;
+        if (formData.phone) updatePayload.phone = formData.phone;
+        if (formData.address) updatePayload.address = formData.address;
+        if (dayOfBirth) updatePayload.dayOfBirth = dayOfBirth;
+        if (formData.gender) updatePayload.gender = formData.gender;
+
+        response = await updateStudentAPI(studentId, updatePayload);
+      } else if (role === 'parent') {
+        // Get parent ID from user object
+        const parentId = (user as any).parent?.id || user.id;
+        
+        // Convert date format: YYYY-MM-DD to YYYY-MM-DD (keep same format for parent API)
+        const toAPIDateFormat = (dob: string): string => {
+          if (!dob) return '';
+          if (dob.includes('-')) {
+            const [year, month, day] = dob.split('-');
+            return `${year}-${month.padStart(2, '0')}-${day.padStart(2, '0')}`;
+          }
+          const [day, month, year] = dob.split('/');
+          return `${year}-${month.padStart(2, '0')}-${day.padStart(2, '0')}`;
+        };
+
+        const updatePayload: any = {};
+        if (formData.name) updatePayload.name = formData.name;
+        if (formData.email) updatePayload.email = formData.email;
+        if (formData.phone) updatePayload.phone = formData.phone;
+        if (formData.address) updatePayload.address = formData.address;
+        if (formData.dayOfBirth) updatePayload.dayOfBirth = toAPIDateFormat(formData.dayOfBirth);
+        if (formData.gender) updatePayload.gender = formData.gender;
+
+        response = await updateParentAPI(parentId, updatePayload);
+      } else {
+        // For admin/staff, use updateUserAPI
+        response = await updateUserAPI(user.id, formData);
+      }
+
+      if (response?.data || response) {
         updateUser({
           ...user,
           ...formData,

@@ -1,12 +1,7 @@
 import React, { useState, useRef } from 'react';
 import {
   Box,
-  Avatar,
   IconButton,
-  Dialog,
-  DialogTitle,
-  DialogContent,
-  DialogActions,
   Button,
   Typography,
   Alert,
@@ -16,17 +11,20 @@ import {
 } from '@mui/material';
 import {
   CameraAlt as CameraIcon,
-  Close as CloseIcon,
   CloudUpload as CloudUploadIcon,
+  Image as ImageIcon,
 } from '@mui/icons-material';
 import { uploadAvatarAPI } from '@shared/services';
 import { uploadFileAPI, deleteFileAPI } from '@shared/services';
 import { useAuth } from '@contexts/AuthContext';
+import { BaseDialog, NotificationSnackbar } from '@shared/components';
 
 interface AvatarUploadProps {
   currentAvatar?: string;
   userName: string;
   size?: number;
+  width?: number;
+  height?: number;
   onAvatarUpdate?: (newAvatarUrl: string) => void;
 }
 
@@ -34,8 +32,14 @@ const AvatarUpload: React.FC<AvatarUploadProps> = ({
   currentAvatar,
   userName,
   size = 120,
+  width,
+  height,
   onAvatarUpdate,
 }) => {
+  // Use width/height if provided, otherwise use size for both (square)
+  const avatarWidth = width ?? size;
+  const avatarHeight = height ?? size;
+  const fontSize = Math.min(avatarWidth, avatarHeight) * 0.4;
   const { updateUser, user } = useAuth();
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
@@ -45,6 +49,11 @@ const AvatarUpload: React.FC<AvatarUploadProps> = ({
   const [uploadedImageUrl, setUploadedImageUrl] = useState<string>('');
   const [uploadedPublicId, setUploadedPublicId] = useState<string>('');
   const [error, setError] = useState<string>('');
+  const [snackbar, setSnackbar] = useState({
+    open: false,
+    message: '',
+    severity: 'success' as 'success' | 'error' | 'warning' | 'info',
+  });
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const getInitials = (name: string) => {
@@ -230,22 +239,46 @@ const AvatarUpload: React.FC<AvatarUploadProps> = ({
   return (
     <>
       <Box sx={{ position: 'relative', display: 'inline-block' }}>
-        <Avatar
+        <Box
           sx={{
-            width: size,
-            height: size,
+            width: avatarWidth,
+            height: avatarHeight,
+            borderRadius: 2,
             bgcolor: 'primary.main',
-            fontSize: `${size * 0.4}px`,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
             border: '4px solid white',
             boxShadow: '0 4px 20px rgba(0,0,0,0.15)',
             cursor: 'pointer',
+            overflow: 'hidden',
+            position: 'relative',
           }}
-          src={currentAvatar}
-          alt={userName}
           onClick={handleAvatarClick}
         >
-          {getInitials(userName)}
-        </Avatar>
+          {currentAvatar ? (
+            <Box
+              component="img"
+              src={currentAvatar}
+              alt={userName}
+              sx={{
+                width: '100%',
+                height: '100%',
+                objectFit: 'cover',
+              }}
+            />
+          ) : (
+            <Typography
+              sx={{
+                color: 'white',
+                fontSize: `${fontSize}px`,
+                fontWeight: 600,
+              }}
+            >
+              {getInitials(userName)}
+            </Typography>
+          )}
+        </Box>
         <IconButton
           sx={{
             position: 'absolute',
@@ -278,122 +311,97 @@ const AvatarUpload: React.FC<AvatarUploadProps> = ({
         style={{ display: 'none' }}
       />
 
-      <Dialog
+      <BaseDialog
         open={isDialogOpen}
         onClose={handleClose}
+        title="Cập nhật ảnh đại diện"
+        subtitle="Chọn ảnh đại diện mới cho tài khoản của bạn"
+        icon={<ImageIcon sx={{ fontSize: 28, color: 'white' }} />}
         maxWidth="sm"
-        fullWidth
-        PaperProps={{
-          sx: {
-            borderRadius: 3,
-            overflow: 'hidden',
-            boxShadow: '0 10px 30px rgba(0,0,0,0.15)'
-          }
-        }}
-      >
-        <DialogTitle sx={{ p: 0 }}>
-          <Box
-            sx={{
-              px: 3,
-              py: 2,
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'space-between',
-              background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-              color: '#fff'
-            }}
-          >
-            <Typography variant="h6" sx={{ fontWeight: 700 }}>
-              Cập nhật ảnh đại diện
-            </Typography>
-            <IconButton onClick={handleClose} sx={{ color: '#fff' }}>
-              <CloseIcon />
-            </IconButton>
-          </Box>
-        </DialogTitle>
-
-        <DialogContent sx={{ p: 3, pt: 3 }}>
-          {error && (
-            <Alert severity="error" sx={{ mb: 2 }}>
-              {error}
-            </Alert>
-          )}
-
-          <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 2 }}>
-            {previewUrl ? (
-              <Card sx={{ width: '100%', maxWidth: 420, borderRadius: 3, border: '1px solid #e5e7eb' }}>
-                <CardContent sx={{ textAlign: 'center' }}>
-                  <Typography variant="subtitle2" gutterBottom sx={{ color: 'text.secondary' }}>
-                    Xem trước ảnh đại diện
-                  </Typography>
-                  <Avatar
-                    src={previewUrl}
-                    sx={{
-                      width: 180,
-                      height: 180,
-                      mx: 'auto',
-                      mb: 2,
-                      boxShadow: '0 6px 18px rgba(0,0,0,0.12)'
-                    }}
-                  >
-                    {getInitials(userName)}
-                  </Avatar>
-                  <Button
-                    variant="outlined"
-                    onClick={handleFileInputClick}
-                    startIcon={<CloudUploadIcon />}
-                    sx={{ borderRadius: 2 }}
-                  >
-                    Chọn ảnh khác
-                  </Button>
-                </CardContent>
-              </Card>
-            ) : (
-              <Card sx={{ width: '100%', maxWidth: 420, borderRadius: 3, border: '1px dashed #cbd5e1', background: '#f8fafc' }}>
-                <CardContent sx={{ textAlign: 'center' }}>
-                  <CloudUploadIcon sx={{ fontSize: 52, color: 'text.secondary', mb: 1 }} />
-                  <Typography variant="h6" gutterBottom sx={{ fontWeight: 600 }}>
-                    Chọn ảnh đại diện
-                  </Typography>
-                  <Typography variant="body2" color="text.secondary" gutterBottom>
-                    Hỗ trợ: JPG, PNG, GIF — Tối đa 5MB
-                  </Typography>
-                  <Button
-                    variant="contained"
-                    onClick={handleFileInputClick}
-                    startIcon={<CloudUploadIcon />}
-                    sx={{ mt: 2, borderRadius: 2 }}
-                  >
-                    Chọn ảnh
-                  </Button>
-                </CardContent>
-              </Card>
-            )}
-          </Box>
-
-          {/* file input moved outside dialog */}
-        </DialogContent>
-
-        <DialogActions sx={{ p: 3, pt: 0, justifyContent: 'space-between' }}>
-          <Typography variant="body2" color="text.secondary" sx={{ pl: 1 }}>
-            Mẹo: Dùng ảnh vuông (1:1) để hiển thị đẹp nhất.
-          </Typography>
-          <Box>
-            <Button onClick={handleClose} disabled={uploading} sx={{ mr: 1.5 }}>
+        contentPadding={3}
+        hideDefaultAction={true}
+        actions={
+          <>
+            <Button onClick={handleClose} disabled={uploading} variant="outlined" sx={{ mr: 1.5 }}>
               Hủy
             </Button>
             <Button
               onClick={handleUpload}
               variant="contained"
               disabled={!selectedFile || uploading}
-              startIcon={uploading ? <CircularProgress size={16} /> : null}
-              sx={{ borderRadius: 2 }}
+              startIcon={uploading ? <CircularProgress size={16} color="inherit" /> : null}
             >
               {uploading ? 'Đang tải lên...' : 'Cập nhật'}
             </Button>
-          </Box>
-        </DialogActions>
-      </Dialog>
+          </>
+        }
+      >
+        {error && (
+          <Alert severity="error" sx={{ mb: 2 }}>
+            {error}
+          </Alert>
+        )}
+
+        <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 2 }}>
+          {previewUrl ? (
+            <Card sx={{ width: '100%', maxWidth: 420, borderRadius: 2, border: '1px solid #e5e7eb' }}>
+              <CardContent sx={{ textAlign: 'center' }}>
+                <Box
+                  component="img"
+                  src={previewUrl}
+                  alt="Preview"
+                  sx={{
+                    width: '100%',
+                    maxWidth: 300,
+                    height: 'auto',
+                    maxHeight: 400,
+                    borderRadius: 2,
+                    mx: 'auto',
+                    mb: 2,
+                    boxShadow: '0 6px 18px rgba(0,0,0,0.12)',
+                    objectFit: 'cover',
+                  }}
+                />
+                <Button
+                  variant="outlined"
+                  onClick={handleFileInputClick}
+                  startIcon={<CloudUploadIcon />}
+                  sx={{ borderRadius: 2 }}
+                >
+                  Chọn ảnh khác
+                </Button>
+              </CardContent>
+            </Card>
+          ) : (
+            <Card sx={{ width: '100%', maxWidth: 420, borderRadius: 2, border: '1px dashed #cbd5e1', background: '#f8fafc' }}>
+              <CardContent sx={{ textAlign: 'center', py: 4 }}>
+                <CloudUploadIcon sx={{ fontSize: 52, color: 'text.secondary', mb: 1 }} />
+                <Typography variant="h6" gutterBottom sx={{ fontWeight: 600 }}>
+                  Chọn ảnh đại diện
+                </Typography>
+                <Typography variant="body2" color="text.secondary" gutterBottom>
+                  Hỗ trợ: JPG, PNG, GIF — Tối đa 5MB
+                </Typography>
+                <Button
+                  variant="contained"
+                  onClick={handleFileInputClick}
+                  startIcon={<CloudUploadIcon />}
+                  sx={{ mt: 2, borderRadius: 2 }}
+                >
+                  Chọn ảnh
+                </Button>
+              </CardContent>
+            </Card>
+          )}
+        </Box>
+        </BaseDialog>
+
+      <NotificationSnackbar
+        open={snackbar.open}
+        onClose={() => setSnackbar(prev => ({ ...prev, open: false }))}
+        message={snackbar.message}
+        severity={snackbar.severity}
+      />
     </>
   );
 };
