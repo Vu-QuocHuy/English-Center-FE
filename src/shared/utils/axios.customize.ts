@@ -233,8 +233,12 @@ instance.interceptors.response.use(
                                           /\/[^\/]+\/\d+/.test(requestUrl); // Numeric ID in middle
                     
                     // Only redirect if it's NOT a detail request (i.e., it's a list request)
+                    // Redirect immediately when any list GET request gets 403, don't wait for other APIs
                     if (!isDetailRequest) {
-                        window.location.href = '/forbidden';
+                        // Use replace to prevent back button issues and redirect immediately
+                        window.location.replace('/forbidden');
+                        // Return a rejected promise to stop further processing
+                        return Promise.reject(error);
                     }
                 }
                 // For POST/PATCH/DELETE or detail GET requests, reject normally so components can show notifications

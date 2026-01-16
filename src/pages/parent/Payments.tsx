@@ -239,7 +239,7 @@ const Payments: React.FC = () => {
 
       {/* QR Code Dialog */}
       <BaseDialog
-        open={qrDialogOpen}
+        open={qrDialogOpen && !paymentSuccess}
         onClose={handleCloseQRDialog}
         title="Quét mã QR để thanh toán"
         subtitle="Mở app ngân hàng và quét mã dưới đây"
@@ -254,39 +254,7 @@ const Payments: React.FC = () => {
         }}
       >
         <Box sx={{ p: 4 }}>
-          {paymentSuccess ? (
-            <Box
-              sx={{
-                display: 'flex',
-                flexDirection: 'column',
-                alignItems: 'center',
-                justifyContent: 'center',
-                gap: 2,
-                minHeight: 320,
-                textAlign: 'center',
-              }}
-            >
-              {/* Success circle with checkmark */}
-              <Box
-                sx={{
-                  width: 120,
-                  height: 120,
-                  borderRadius: '50%',
-                  border: '4px solid',
-                  borderColor: 'success.main',
-                  bgcolor: 'transparent',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                }}
-              >
-                <CheckCircleIcon sx={{ fontSize: 72, color: 'success.main' }} />
-              </Box>
-              <Typography variant="h6" sx={{ mt: 2, fontWeight: 600 }}>
-                Thanh toán thành công
-              </Typography>
-            </Box>
-          ) : qrCodeUrl ? (
+          {qrCodeUrl ? (
             <Box
               sx={{
                 display: 'flex',
@@ -323,10 +291,69 @@ const Payments: React.FC = () => {
               </Box>
             </Box>
           ) : (
-            <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+            <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: 320 }}>
               <CircularProgress size={60} />
             </Box>
           )}
+        </Box>
+      </BaseDialog>
+
+      {/* Payment Success Dialog */}
+      <BaseDialog
+        open={paymentSuccess}
+        onClose={handleCloseQRDialog}
+        title="Thanh toán thành công"
+        subtitle="Giao dịch của bạn đã được xử lý thành công"
+        icon={<CheckCircleIcon sx={{ fontSize: 48, color: 'white' }} />}
+        maxWidth="sm"
+        contentPadding={0}
+        PaperProps={{
+          sx: {
+            borderRadius: 2,
+            boxShadow: '0 20px 60px rgba(0,0,0,0.3)',
+          }
+        }}
+      >
+        <Box sx={{ p: 4 }}>
+          <Box
+            sx={{
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
+              justifyContent: 'center',
+              gap: 3,
+              textAlign: 'center',
+            }}
+          >
+            {/* Success icon with animation */}
+            <Box
+              sx={{
+                width: 140,
+                height: 140,
+                borderRadius: '50%',
+                bgcolor: 'success.light',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                animation: 'scaleIn 0.5s ease-out',
+                '@keyframes scaleIn': {
+                  from: { opacity: 0, transform: 'scale(0)' },
+                  to: { opacity: 1, transform: 'scale(1)' }
+                }
+              }}
+            >
+              <CheckCircleIcon sx={{ fontSize: 90, color: 'success.main' }} />
+            </Box>
+            
+            <Box sx={{ mt: 1 }}>
+              <Typography variant="h5" sx={{ fontWeight: 600, color: 'success.main', mb: 1 }}>
+                Thanh toán thành công!
+              </Typography>
+              <Typography variant="body1" color="text.secondary">
+                Giao dịch của bạn đã được xử lý thành công. Vui lòng đợi trong giây lát để hệ thống cập nhật.
+              </Typography>
+            </Box>
+          </Box>
         </Box>
       </BaseDialog>
 

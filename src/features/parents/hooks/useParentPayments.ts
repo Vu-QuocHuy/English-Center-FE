@@ -414,14 +414,15 @@ export const useParentPayments = (user: any | null): UseParentPaymentsReturn => 
   usePaymentSocket({
     referenceCode: currentReferenceCode,
     enabled: !!currentReferenceCode && qrDialogOpen,
-    onPaymentSuccess: (data) => {
-      console.log('Payment success received:', data);
-      // Đánh dấu thành công để UI QR dialog hiển thị hiệu ứng
+    onPaymentSuccess: (_data) => {
+      // Đóng dialog QR code và mở dialog thành công
+      setQrDialogOpen(false);
       setPaymentSuccess(true);
-      // Đóng dialog sau 3 giây (refresh dữ liệu sẽ được gọi trong handleCloseQRDialog)
+      // Refresh dữ liệu thanh toán
+      void fetchPaymentData();
+      // Đóng dialog thành công sau 3 giây
       setTimeout(() => {
         setPaymentSuccess(false);
-        handleCloseQRDialog();
       }, 3000);
     },
     onPaymentFailure: (data) => {
