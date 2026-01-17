@@ -387,7 +387,7 @@ const SchedulePage: React.FC = () => {
                                 bgcolor: '#fafafa',
                                 borderRadius: 1,
                                 lineHeight: 1.6,
-                                fontStyle: 'italic',
+                                fontStyle: 'normal',
                               }}
                             >
                               {classItem.description}

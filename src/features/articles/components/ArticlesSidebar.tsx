@@ -76,8 +76,16 @@ const ArticlesSidebar: React.FC<ArticlesSidebarProps> = ({
     fetchArticles();
   }, [menuId, limit]);
 
-  const truncateContent = (html: string, maxLength: number = 100) => {
-    const text = html.replace(/<[^>]*>/g, '').trim();
+  // Decode HTML entities and strip tags for a clean preview
+  const decodeAndStrip = (html: string): string => {
+    if (!html) return '';
+    const parser = new DOMParser();
+    const decoded = parser.parseFromString(html, 'text/html').documentElement.textContent || '';
+    return decoded.replace(/<[^>]*>/g, '').trim();
+  };
+
+  const truncateContent = (html: string, maxLength: number = 150) => {
+    const text = decodeAndStrip(html);
     if (text.length <= maxLength) return text;
     return text.substring(0, maxLength) + '...';
   };
@@ -96,10 +104,14 @@ const ArticlesSidebar: React.FC<ArticlesSidebarProps> = ({
 
   return (
     <Box>
-      <Typography variant="h6" sx={{ mb: 2, fontWeight: 'bold' }}>
-        {title}
-      </Typography>
-      <Divider sx={{ mb: 2 }} />
+      {title && (
+        <>
+          <Typography variant="h6" sx={{ mb: 2, fontWeight: 'bold' }}>
+            {title}
+          </Typography>
+          <Divider sx={{ mb: 2 }} />
+        </>
+      )}
       {articles.map((article) => (
         <Card
           key={article.id}
@@ -141,7 +153,7 @@ const ArticlesSidebar: React.FC<ArticlesSidebarProps> = ({
                 sx={{
                   fontWeight: 'bold',
                   mb: 1,
-                  color: 'primary.main',
+                  color: '#000',
                   fontSize: { xs: '1rem', sm: '1.1rem' },
                   '&:hover': {
                     textDecoration: 'underline'

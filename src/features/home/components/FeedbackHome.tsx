@@ -381,7 +381,10 @@ const FeedbackHome = () => {
       <Box sx={{ display: 'flex', justifyContent: 'center', mt: 4 }}>
         <Button
           variant="outlined"
-          onClick={() => navigate('/cam-nhan-hoc-vien')}
+          onClick={() => {
+            window.scrollTo({ top: 0, behavior: 'auto' });
+            navigate('/rating');
+          }}
           sx={{
             px: 4,
             py: 1.5,

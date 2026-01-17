@@ -96,6 +96,8 @@ const AppContent: React.FC = () => {
 
           {/* Testimonials Page - Student feedback */}
           <Route path="/cam-nhan-hoc-vien" element={<TestimonialsPage />} />
+          <Route path="/rating" element={<TestimonialsPage />} />
+          <Route path="/danh-gia" element={<TestimonialsPage />} />
 
           {/* Article Detail Page - Must be before dynamic routes */}
           <Route path="/bai-viet/:id" element={<ArticleDetailPage />} />

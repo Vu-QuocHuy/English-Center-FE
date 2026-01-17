@@ -104,7 +104,7 @@ const ArticleListTemplate: React.FC<ArticleListTemplateProps> = ({ menuId, title
 
   return (
     <Container maxWidth="lg" sx={{ py: 4 }}>
-      <Grid container spacing={4}>
+      <Grid container spacing={4} alignItems="flex-start">
         {/* Main Content - Left Column (8 columns) */}
         <Grid item xs={12} md={8}>
           {title && (
@@ -193,49 +193,28 @@ const ArticleListTemplate: React.FC<ArticleListTemplateProps> = ({ menuId, title
 
         {/* Sidebar - Right Column (4 columns) */}
         <Grid item xs={12} md={4}>
-          <Box sx={{ position: 'sticky', top: 100 }}>
-            {/* TÀI LIỆU HỌC TẬP Section */}
-            <Box sx={{ mb: 4 }}>
+          <Box>
+            {/* BÀI VIẾT MỚI NHẤT Section */}
+            <Box sx={{ mt: { xs: 0, md: title ? 4 : 0 } }}>
               <Typography
                 variant="h6"
                 sx={{
                   fontWeight: 'bold',
                   mb: 2,
-                  color: 'primary.main',
+                  color: '#000',
                   textTransform: 'uppercase',
-                  fontSize: '1rem'
+                  fontSize: '1rem',
+                  lineHeight: 1.2
                 }}
               >
-                TÀI LIỆU HỌC TẬP
+                BÀI VIẾT MỚI NHẤT
               </Typography>
               <ArticlesSidebar
                 menuId={menuId}
                 limit={5}
                 title=""
-                showContent={false}
+                showContent={true}
               />
-            </Box>
-
-            {/* KẾT QUẢ HỌC VIÊN Section */}
-            <Box>
-              <Typography
-                variant="h6"
-                sx={{
-                  fontWeight: 'bold',
-                  mb: 2,
-                  color: 'primary.main',
-                  textTransform: 'uppercase',
-                  fontSize: '1rem'
-                }}
-              >
-                KẾT QUẢ HỌC VIÊN
-              </Typography>
-              {/* You can add student results component here later */}
-              <Box sx={{ textAlign: 'center', py: 4, color: 'text.secondary' }}>
-                <Typography variant="body2">
-                  Nội dung đang được cập nhật
-                </Typography>
-              </Box>
             </Box>
           </Box>
         </Grid>

@@ -113,79 +113,125 @@ const getSocialIcon = (url: string) => {
   );
 };
 
-const FeedbackCard = ({ feedback }: { feedback: Feedback }) => (
-  <Box sx={{ px: 2, pb: 2, display: "flex", flexDirection: "column", alignItems: "center", height: '100%' }}>
-    {/* Avatar nằm ngoài card, không che nội dung */}
-    <Box
-      sx={{
-        width: AVATAR_SIZE + AVATAR_BORDER * 2,
-        height: AVATAR_SIZE + AVATAR_BORDER * 2,
-        borderRadius: "50%",
-        bgcolor: "#fff",
-        boxShadow: 3,
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "center",
-        mb: `-${AVATAR_SIZE / 2 + AVATAR_MARGIN / 2}px`,
-        zIndex: 2,
-        position: "relative"
-      }}
-    >
-      <Avatar
-        src={feedback.imageUrl}
-        alt={feedback.name}
+const FeedbackCard = ({ feedback }: { feedback: Feedback }) => {
+  const [isExpanded, setIsExpanded] = React.useState(false);
+  
+  // Kiểm tra xem nội dung có dài quá không (ước tính khoảng 13 dòng)
+  const MAX_LINES = 13;
+  const description = feedback.description || '';
+  const shouldShowExpand = description.length > 500; // Ước tính độ dài tương đương 13 dòng
+  
+  return (
+    <Box sx={{ px: 2, pb: 2, display: "flex", flexDirection: "column", alignItems: "center", height: '100%' }}>
+      {/* Avatar nằm ngoài card, không che nội dung */}
+      <Box
         sx={{
-          width: AVATAR_SIZE,
-          height: AVATAR_SIZE,
-          border: `${AVATAR_BORDER}px solid #e53935`,
-          background: "#fff"
+          width: AVATAR_SIZE + AVATAR_BORDER * 2,
+          height: AVATAR_SIZE + AVATAR_BORDER * 2,
+          borderRadius: "50%",
+          bgcolor: "#fff",
+          boxShadow: 3,
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          mb: `-${AVATAR_SIZE / 2 + AVATAR_MARGIN / 2}px`,
+          zIndex: 2,
+          position: "relative"
         }}
       >
-        {feedback.name?.charAt(0)?.toUpperCase()}
-      </Avatar>
-    </Box>
-    <Card
-      sx={{
-        border: "2px solid #e53935",
-        borderRadius: 4,
-        minHeight: 340,
-        pt: `${AVATAR_SIZE / 2 + AVATAR_MARGIN}px`,
-        pb: 2,
-        px: 2,
-        boxShadow: "0 2px 8px rgba(229,57,53,0.08)",
-        overflow: "visible",
-        display: "flex",
-        flexDirection: "column",
-        alignItems: "center",
-        background: "#fff",
-        width: "100%",
-        position: "relative",
-        height: '100%'
-      }}
-    >
-      <CardContent sx={{ width: "100%", p: 0, display: 'flex', flexDirection: 'column', flexGrow: 1 }}>
-        <Typography variant="body1" sx={{ mb: 2, minHeight: 100, textAlign: "justify", fontSize: '1.1rem', lineHeight: 1.6, flexGrow: 1 }}>
-          {feedback.description}
-        </Typography>
-        <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between", mt: 'auto' }}>
-          <Typography variant="h6" sx={{ color: "#e53935", fontWeight: "bold" }}>
-            {feedback.name}
-          </Typography>
-          {feedback.socialUrl && (
-            <Button
-              href={feedback.socialUrl}
-              target="_blank"
-              sx={{ color: "#1976d2", textTransform: "none", fontWeight: 600, ml: 1 }}
+        <Avatar
+          src={feedback.imageUrl}
+          alt={feedback.name}
+          sx={{
+            width: AVATAR_SIZE,
+            height: AVATAR_SIZE,
+            border: `${AVATAR_BORDER}px solid #e53935`,
+            background: "#fff"
+          }}
+        >
+          {feedback.name?.charAt(0)?.toUpperCase()}
+        </Avatar>
+      </Box>
+      <Card
+        sx={{
+          border: "2px solid #e53935",
+          borderRadius: 4,
+          minHeight: 340,
+          pt: `${AVATAR_SIZE / 2 + AVATAR_MARGIN}px`,
+          pb: 2,
+          px: 2,
+          boxShadow: "0 2px 8px rgba(229,57,53,0.08)",
+          overflow: "visible",
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "center",
+          background: "#fff",
+          width: "100%",
+          position: "relative",
+          height: '100%'
+        }}
+      >
+        <CardContent sx={{ width: "100%", p: 0, display: 'flex', flexDirection: 'column', flexGrow: 1 }}>
+          <Box sx={{ flexGrow: 1, overflow: 'hidden', mb: 1 }}>
+            <Typography 
+              variant="body1" 
+              sx={{ 
+                textAlign: "justify", 
+                fontSize: '1.1rem', 
+                lineHeight: 1.6,
+                overflow: shouldShowExpand && !isExpanded ? 'hidden' : 'visible',
+                display: shouldShowExpand && !isExpanded ? '-webkit-box' : 'block',
+                WebkitLineClamp: shouldShowExpand && !isExpanded ? MAX_LINES : 'none',
+                WebkitBoxOrient: shouldShowExpand && !isExpanded ? 'vertical' : 'horizontal',
+                textOverflow: shouldShowExpand && !isExpanded ? 'ellipsis' : 'clip',
+                wordBreak: 'break-word'
+              }}
             >
-              Xem
-              {getSocialIcon(feedback.socialUrl)}
+              {feedback.description}
+            </Typography>
+          </Box>
+          
+          {shouldShowExpand && (
+            <Button
+              onClick={() => setIsExpanded(!isExpanded)}
+              sx={{
+                color: "#e53935",
+                textTransform: "none",
+                fontWeight: 600,
+                fontSize: '0.9rem',
+                p: 0,
+                minWidth: 'auto',
+                mb: 1,
+                '&:hover': {
+                  backgroundColor: 'transparent',
+                  textDecoration: 'underline'
+                }
+              }}
+            >
+              {isExpanded ? 'Thu gọn' : 'Xem thêm'}
             </Button>
           )}
-        </Box>
-      </CardContent>
-    </Card>
-  </Box>
-);
+          
+          <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between", mt: 'auto' }}>
+            <Typography variant="h6" sx={{ color: "#e53935", fontWeight: "bold" }}>
+              {feedback.name}
+            </Typography>
+            {feedback.socialUrl && (
+              <Button
+                href={feedback.socialUrl}
+                target="_blank"
+                sx={{ color: "#1976d2", textTransform: "none", fontWeight: 600, ml: 1 }}
+              >
+                Xem
+                {getSocialIcon(feedback.socialUrl)}
+              </Button>
+            )}
+          </Box>
+        </CardContent>
+      </Card>
+    </Box>
+  );
+};
 
 const TestimonialsPage: React.FC = () => {
   const location = useLocation();
@@ -213,6 +259,11 @@ const TestimonialsPage: React.FC = () => {
     }
     return null;
   };
+
+  // Scroll to top when component mounts
+  useEffect(() => {
+    window.scrollTo({ top: 0, behavior: 'auto' });
+  }, []);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -244,9 +295,9 @@ const TestimonialsPage: React.FC = () => {
           }
         }
 
-        // Fetch all feedbacks
+        // Fetch all feedbacks - sử dụng cùng API như trang chủ
         try {
-          const response = await getFeedbacksAPI({ page: 1, limit: 100 });
+          const response = await getFeedbacksAPI();
           if (response.data?.data?.result) {
             setFeedbacks(response.data.data.result);
           } else {
@@ -318,7 +369,7 @@ const TestimonialsPage: React.FC = () => {
             <>
               <Grid container spacing={3}>
                 {feedbacks.map((feedback) => (
-                  <Grid item xs={12} sm={6} md={4} key={feedback.id}>
+                  <Grid item xs={12} sm={6} md={4} lg={4} key={feedback.id}>
                     <FeedbackCard feedback={feedback} />
                   </Grid>
                 ))}
